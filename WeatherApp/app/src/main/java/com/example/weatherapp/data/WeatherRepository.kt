@@ -29,7 +29,7 @@ class WeatherRepository {
             }
 
             override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                callback(emptyList()) // Handle failure
+                callback(emptyList())
             }
         })
     }
