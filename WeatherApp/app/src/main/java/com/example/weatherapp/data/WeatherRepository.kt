@@ -1,15 +1,15 @@
 package com.example.weatherapp.data
 
-import retrofit2.Call
+import retrofit2.*
 
 class WeatherRepository {
     private val weatherApi = RetrofitClient.weatherApi
 
     fun fetchWeather(lonLat: String, callback: (List<WeatherData>) -> Unit) {
-        weatherApi.getForecast(lonLat).enqueue(object : retrofit2.Callback<WeatherResponse> {
+        weatherApi.getForecast(lonLat).enqueue(object : Callback<WeatherResponse> {
             override fun onResponse(
                 call: Call<WeatherResponse>,
-                response: retrofit2.Response<WeatherResponse>
+                response: Response<WeatherResponse>
             ) {
                 if (response.isSuccessful) {
                     val weatherData = response.body()

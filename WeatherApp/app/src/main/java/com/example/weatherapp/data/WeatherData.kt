@@ -6,4 +6,8 @@ class WeatherData (
     private val validTime: String,
     private val temperature: Float,
     private val symbol: Int
-)
+) {
+    fun getValue() : String {
+        return validTime
+    }
+}
