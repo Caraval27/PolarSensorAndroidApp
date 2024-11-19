@@ -10,11 +10,16 @@ class WeatherService {
     private var _weatherData: List<WeatherData> = listOf()
     val weatherData: List<WeatherData> = _weatherData
 
-    private fun fetchWeather(lonLat: String) {
-        weatherRepository.fetchWeather(lonLat) { processedData ->
+    fun fetchWeather(lonLat: String) : String { // ska vara privat sen
+        val ll = "lonLat=lon/14.333/lat/60.38"
+        weatherRepository.fetchWeather(ll) { processedData ->
             _weatherData = processedData }
+        return _weatherData.get(0).getValue() // ska bort sen bara för test
     }
 
+    fun getWeather() : Weather {
+        TODO()
+    }
 
-    // metod som fixar time och day
+// metod som fixar time och day - beräkningar
 }

@@ -35,6 +35,11 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3" // Ensure the version matches your Compose version
     }
 }
 
@@ -49,10 +54,36 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.runtime.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
+    // Jetpack Compose BOM (Bill of Materials) for consistent versions
+    //noinspection GradleDependency
+    implementation(libs.androidx.compose.bom)
+
+    // Core Compose libraries
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.material)
+    implementation(libs.androidx.ui.tooling.preview)
+
+    // Optional: LiveData integration
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Optional: Navigation with Compose
+    implementation(libs.androidx.navigation.compose)
+
+    // Optional: Material 3 Components
+    implementation(libs.androidx.material3)
+
+    // Debugging tools (remove in production builds)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Testing libraries
+    androidTestImplementation(libs.androidx.ui.test.junit4)
 }
