@@ -5,7 +5,7 @@ import retrofit2.*
 class WeatherRepository {
     private val weatherApi = RetrofitClient.weatherApi
 
-    fun fetchWeather(lonLat: String, callback: (WeatherData) -> Unit) {
+    fun fetchWeather(lonLat: String, callback: (WeatherData?) -> Unit) {
         weatherApi.getForecast(lonLat).enqueue(object : Callback<WeatherResponse> {
             override fun onResponse(
                 call: Call<WeatherResponse>,
@@ -29,14 +29,14 @@ class WeatherRepository {
                                 approvedTime = it.approvedTime,
                                 timeData = weatherTimeData
                             )
-                        } ?: WeatherData(null, null)
+                        }
 
                     callback(weatherData)
                 }
             }
 
             override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                callback(WeatherData(null, null))
+                callback(null)
             }
         })
     }
