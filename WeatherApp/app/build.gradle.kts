@@ -62,35 +62,25 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 
-    // Jetpack Compose BOM (Bill of Materials) for consistent versions
-    //noinspection GradleDependency
     implementation(libs.androidx.compose.bom)
 
-    // Core Compose libraries
     implementation(libs.androidx.ui)
     implementation(libs.androidx.material)
     implementation(libs.androidx.ui.tooling.preview)
 
-    // Optional: LiveData integration
     implementation(libs.androidx.lifecycle.runtime.compose)
 
-    // Optional: Navigation with Compose
     implementation(libs.androidx.navigation.compose)
 
-    // Optional: Material 3 Components
     implementation(libs.androidx.material3)
 
-    // Debugging tools (remove in production builds)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // Testing libraries
     androidTestImplementation(libs.androidx.ui.test.junit4)
 
-    implementation "androidx.room:room-runtime:2.5.1"
-    annotationProcessor "androidx.room:room-compiler:2.5.1"  // for Java users
-    kapt "androidx.room:room-compiler:2.5.1"  // for Kotlin users
-
-    // Optional: Room with Coroutines support
-    implementation "androidx.room:room-ktx:2.5.1"
+    implementation(libs.androidx.room.runtime)
+    annotationProcessor(libs.androidx.room.compiler)
+    //kapt("androidx.room:room-compiler:2.6.1")
+    implementation(libs.androidx.room.ktx)
 }

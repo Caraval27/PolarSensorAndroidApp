@@ -25,25 +25,24 @@ class Weather {
     private val weatherServerRepository = WeatherServerRepository()
     private val coordinatesRepository = CoordinatesRepository()
 
-    fun getWeather(location: Location) {
+    fun getWeather(location: Location) : Weather {
         // kolla ifall platsen är samma som tidiagre -->
         // var approved time för länge sen? --> ja: hämta ny data
         // om det är nyligen så kolla i databasen, o hämta därifrån
         _location = location
-        val coordinatesString = fetchCoordinates()
-        val weatherData = fetchWeather(coordinatesString)
-
+        //val coordinatesString = fetchCoordinates()
+        //val weatherData = fetchWeather(coordinatesString)
+        val weatherData = fetchWeather("lon/14.333/lat/60.38")
+        _approvedTime = weatherData?.approvedTime
+        return this
         updateWeather(weatherData)
         saveWeather()
-        TODO()
     }
 
     private fun fetchCoordinates() : String {
-        val locality = _location?.locality ?: ""
-        val displayName = _location?.locality + ", " + _location?.municipality + ", " + location?.county
         //val locality = "Sigfridstorp"
         var _coordinatesData: CoordinatesData? = null
-        coordinatesRepository.fetchCoordinates(locality, displayName) { coordinatesData ->
+        coordinatesRepository.fetchCoordinates(_location) { coordinatesData ->
             _coordinatesData = coordinatesData }
         if (_coordinatesData == null) {
             return ""
@@ -63,10 +62,12 @@ class Weather {
     private fun updateWeather(weatherData: WeatherData?) {
         // omvandla weatherdata till listorna med siffror i
         TODO()
+        return;
     }
 
     private fun saveWeather() {
         TODO()
+        return;
     }
 }
 

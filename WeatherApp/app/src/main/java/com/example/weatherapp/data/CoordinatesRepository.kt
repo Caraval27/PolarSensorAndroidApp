@@ -1,5 +1,6 @@
 package com.example.weatherapp.data
 
+import com.example.weatherapp.model.Location
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -7,15 +8,15 @@ import retrofit2.Response
 class CoordinatesRepository {
     private val coordinatesApi = RetrofitClient.coordinatesApi
 
-    fun fetchCoordinates(locality: String, displayName: String, callback: (CoordinatesData?) -> Unit) {
-        coordinatesApi.getLonLat(locality).enqueue(object : Callback<CoordinatesResponse> {
+    fun fetchCoordinates(location : Location?, callback: (CoordinatesData?) -> Unit) {
+        coordinatesApi.getLonLat(location?.locality).enqueue(object : Callback<CoordinatesResponse> {
             override fun onResponse(
                 call: Call<CoordinatesResponse>,
                 response: Response<CoordinatesResponse>
             ) {
                 if (response.isSuccessful) {
                     val fetchedData = response.body()
-                    val locationData = fetchedData?.locations?.find { it.display_name.contains(displayName, ignoreCase = true) }
+                    val locationData = fetchedData?.locations?.find { it.municipality == location.municipality && it.county == location.county}
                     val lon = locationData?.lon?.toDouble()
                     val lat = locationData?.lat?.toDouble()
                     val coordinatesData = CoordinatesData(
