@@ -86,4 +86,11 @@ dependencies {
 
     // Testing libraries
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    implementation "androidx.room:room-runtime:2.5.1"
+    annotationProcessor "androidx.room:room-compiler:2.5.1"  // for Java users
+    kapt "androidx.room:room-compiler:2.5.1"  // for Kotlin users
+
+    // Optional: Room with Coroutines support
+    implementation "androidx.room:room-ktx:2.5.1"
 }

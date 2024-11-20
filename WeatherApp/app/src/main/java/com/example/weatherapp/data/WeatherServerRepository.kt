@@ -2,7 +2,7 @@ package com.example.weatherapp.data
 
 import retrofit2.*
 
-class WeatherRepository {
+class WeatherServerRepository {
     private val weatherApi = RetrofitClient.weatherApi
 
     fun fetchWeather(lonLat: String, callback: (WeatherData?) -> Unit) {

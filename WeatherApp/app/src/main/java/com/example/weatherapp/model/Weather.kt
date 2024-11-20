@@ -3,11 +3,11 @@ package com.example.weatherapp.model
 import com.example.weatherapp.data.CoordinatesData
 import com.example.weatherapp.data.CoordinatesRepository
 import com.example.weatherapp.data.WeatherData
-import com.example.weatherapp.data.WeatherRepository
+import com.example.weatherapp.data.WeatherServerRepository
 
 class Weather {
-    private var _location: String? = null
-    val location: String?
+    private var _location: Location? = null
+    val location: Location?
         get() = _location
 
     private var _approvedTime: String? = null
@@ -22,14 +22,14 @@ class Weather {
     val weather24Hours: List<WeatherTime>
         get() = _weather24Hours
 
-    private val weatherRepository = WeatherRepository()
+    private val weatherServerRepository = WeatherServerRepository()
     private val coordinatesRepository = CoordinatesRepository()
 
-    fun getWeather(place: String) {
+    fun getWeather(location: Location) {
         // kolla ifall platsen är samma som tidiagre -->
         // var approved time för länge sen? --> ja: hämta ny data
         // om det är nyligen så kolla i databasen, o hämta därifrån
-        _location = place
+        _location = location
         val coordinatesString = fetchCoordinates()
         val weatherData = fetchWeather(coordinatesString)
 
@@ -39,14 +39,15 @@ class Weather {
     }
 
     private fun fetchCoordinates() : String {
-        val l = "Sigfridstorp"
+        val locality = _location?.locality ?: ""
+        val displayName = _location?.locality + ", " + _location?.municipality + ", " + location?.county
+        //val locality = "Sigfridstorp"
         var _coordinatesData: CoordinatesData? = null
-        coordinatesRepository.fetchCoordinates(l) { coordinatesData ->
+        coordinatesRepository.fetchCoordinates(locality, displayName) { coordinatesData ->
             _coordinatesData = coordinatesData }
         if (_coordinatesData == null) {
             return ""
-        }
-        else {
+        } else {
             return "lon/" + _coordinatesData!!.lon + "/lat/" + _coordinatesData!!.lat
         }
     }
@@ -54,7 +55,7 @@ class Weather {
     private fun fetchWeather(lonLat: String) : WeatherData? {
         val ll = "lon/14.333/lat/60.38" // temp
         var _weatherData: WeatherData? = null
-        weatherRepository.fetchWeather(ll) { weatherData ->
+        weatherServerRepository.fetchWeather(ll) { weatherData ->
             _weatherData = weatherData }
         return _weatherData
     }
@@ -68,3 +69,9 @@ class Weather {
         TODO()
     }
 }
+
+data class Location (
+    val locality: String = "Flemingsberg",
+    val county: String = "Stockholm",
+    val municipality: String = "Huddinge kommun"
+)

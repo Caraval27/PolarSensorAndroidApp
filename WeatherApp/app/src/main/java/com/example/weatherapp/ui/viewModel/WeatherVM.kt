@@ -1,6 +1,7 @@
 package com.example.weatherapp.ui.viewModel
 
 import androidx.lifecycle.ViewModel
+import com.example.weatherapp.model.Location
 import com.example.weatherapp.model.Weather
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,5 +31,5 @@ enum class ViewType {
 
 data class WeatherState (
     val viewType: ViewType = ViewType.Day,
-    val selectedLocation: String = "Flemingsberg"
+    val selectedLocation: Location = Location("Flemingsberg", "Stockholm", "Huddinge kommun")
 )
