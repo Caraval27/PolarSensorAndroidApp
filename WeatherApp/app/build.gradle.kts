@@ -1,7 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.compose.compiler)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -11,7 +12,7 @@ android {
     defaultConfig {
         applicationId = "com.example.weatherapp"
         minSdk = 29
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -55,6 +56,14 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+
+    implementation(libs.room.runtime)
+
+    ksp(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.room.ktx)
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
