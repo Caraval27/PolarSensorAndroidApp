@@ -1,14 +1,17 @@
 package com.example.weatherapp.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.Location
 import com.example.weatherapp.model.Weather
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class WeatherVM : ViewModel() {
-    private val _weather = MutableStateFlow(Weather())
+    private val _weather = MutableStateFlow(Weather(null, "", null, null))
     val weather: StateFlow<Weather>
         get() = _weather.asStateFlow()
 
@@ -16,13 +19,13 @@ class WeatherVM : ViewModel() {
     val weatherState: StateFlow<WeatherState>
         get() = _weatherState.asStateFlow()
 
-
     init {
-        _weather.value.getWeather(_weatherState.value.selectedLocation)
+        viewModelScope.launch {
+            _weather.value = _weather.value.getWeather(_weatherState.value.selectedLocation)
+            Log.d("WeatherVM", "Updated Weather: Approved Time = ${_weather.value.approvedTime}")
+        }
     }
-
 }
-
 
 enum class ViewType {
     Week,
