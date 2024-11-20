@@ -16,7 +16,7 @@ class CoordinatesRepository {
             ) {
                 if (response.isSuccessful) {
                     val fetchedData = response.body()
-                    val locationData = fetchedData?.locations?.find { it.municipality == location.municipality && it.county == location.county}
+                    val locationData = fetchedData?.locations?.find { it.municipality == location?.municipality && it.county == location.county}
                     val lon = locationData?.lon?.toDouble()
                     val lat = locationData?.lat?.toDouble()
                     val coordinatesData = CoordinatesData(
