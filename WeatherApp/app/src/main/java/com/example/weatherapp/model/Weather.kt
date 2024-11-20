@@ -27,6 +27,7 @@ class Weather {
         // kolla ifall platsen är samma som tidiagre -->
         // var approved time för länge sen? --> ja: hämta ny data
         // om det är nyligen så kolla i databasen, o hämta därifrån
+        // kolla även internetkoppling?
         _place = place
         val coordinatesString = fetchCoordinates()
         val weatherData = fetchWeather(coordinatesString)
