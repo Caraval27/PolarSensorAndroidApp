@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.view
 
+import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -11,8 +12,9 @@ fun WeatherScreen(
     weatherVM: WeatherVM,
 ) {
     val weather by weatherVM.weather.collectAsState()
+    Log.d("WeatherScreen", "Observed Approved Time: ${weather.approvedTime}")
 
     Text (
-        text = "Hej : ${weather.approvedTime}",
+        text = "Hej : ${weather.approvedTime ?: "No data available"}"
     )
 }

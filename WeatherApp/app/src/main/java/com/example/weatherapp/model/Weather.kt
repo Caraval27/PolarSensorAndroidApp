@@ -1,42 +1,57 @@
 package com.example.weatherapp.model
 
+import android.util.Log
 import com.example.weatherapp.data.CoordinatesData
 import com.example.weatherapp.data.CoordinatesRepository
 import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherServerRepository
 
-class Weather {
-    private var _location: Location? = null
+class Weather (
+    private val _location: Location?,
+    private val _approvedTime: String?,
+    private val _weather7Days: List<WeatherDay>?,
+    private val _weather24Hours: List<WeatherTime>?
+) {
     val location: Location?
         get() = _location
 
-    private var _approvedTime: String? = null
     val approvedTime: String?
         get() = _approvedTime
 
-    private var _weather7Days: List<WeatherDay> = emptyList()
-    val weather7Days: List<WeatherDay>
+    val weather7Days: List<WeatherDay>?
         get() = _weather7Days
 
-    private var _weather24Hours: List<WeatherTime> = emptyList()
-    val weather24Hours: List<WeatherTime>
+    val weather24Hours: List<WeatherTime>?
         get() = _weather24Hours
 
     private val weatherServerRepository = WeatherServerRepository()
     private val coordinatesRepository = CoordinatesRepository()
 
-    fun getWeather(location: Location) : Weather {
+    suspend fun getWeather(location: Location) : Weather {
         // kolla ifall platsen är samma som tidiagre -->
         // var approved time för länge sen? --> ja: hämta ny data
         // om det är nyligen så kolla i databasen, o hämta därifrån
-        _location = location
-        //val coordinatesString = fetchCoordinates()
+        // går ej längre då dem inte kan ges värden utan ett nytt object måste skapas: _location = location
+            // istället skickar vi in location direct
+        //val coordinatesString = fetchCoordinates(location)
         //val weatherData = fetchWeather(coordinatesString)
         val weatherData = fetchWeather("lon/14.333/lat/60.38")
-        _approvedTime = weatherData?.approvedTime
+        if (weatherData != null) {
+            Log.d("Weather", "Approved Time getWeather: $_approvedTime")
+            //updateWeather(weatherData)
+            val updatedWeather = Weather(
+                _location = location,
+                _approvedTime = weatherData.approvedTime,
+                _weather7Days = emptyList(),
+                _weather24Hours = emptyList()
+            )
+            //saveWeather()
+            return updatedWeather
+        } else {
+            Log.d("Weather", "Weather data is null in getWeather.")
+        }
+
         return this
-        updateWeather(weatherData)
-        saveWeather()
     }
 
     private fun fetchCoordinates() : String {
@@ -51,11 +66,14 @@ class Weather {
         }
     }
 
-    private fun fetchWeather(lonLat: String) : WeatherData? {
+    private suspend fun fetchWeather(lonLat: String) : WeatherData? {
         val ll = "lon/14.333/lat/60.38" // temp
-        var _weatherData: WeatherData? = null
-        weatherServerRepository.fetchWeather(ll) { weatherData ->
-            _weatherData = weatherData }
+        val _weatherData = weatherServerRepository.fetchWeather(ll)
+        if (_weatherData != null) {
+            Log.d("Weather", "Approved Time in fetchWeather: ${_weatherData.approvedTime}")
+        } else {
+            Log.d("Weather", "Failed to fetch weather data in fetchWeather.")
+        }
         return _weatherData
     }
 
