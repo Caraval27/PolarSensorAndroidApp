@@ -5,31 +5,38 @@ import retrofit2.*
 class WeatherRepository {
     private val weatherApi = RetrofitClient.weatherApi
 
-    fun fetchWeather(lonLat: String, callback: (List<WeatherData>) -> Unit) {
+    fun fetchWeather(lonLat: String, callback: (WeatherData) -> Unit) {
         weatherApi.getForecast(lonLat).enqueue(object : Callback<WeatherResponse> {
             override fun onResponse(
                 call: Call<WeatherResponse>,
                 response: Response<WeatherResponse>
             ) {
                 if (response.isSuccessful) {
-                    val weatherData = response.body()
-                    val processedData = weatherData?.timeSeries?.map { timeSeries ->
+                    val fetchedData = response.body()
+                    val weatherTimeData = fetchedData?.timeSeries?.map { timeSeries ->
                         val temperature = timeSeries.parameters.find { it.name == "t" }?.value?.get(0) ?: 0f
                         val symbol = timeSeries.parameters.find { it.name == "Wsymb2" }?.value?.get(0) ?: 0
 
-                        WeatherData (
+                        WeatherTimeData (
                             validTime = timeSeries.validTime,
                             temperature = temperature,
                             symbol = symbol.toInt()
                         )
                     } ?: emptyList()
 
-                    callback(processedData)
+                    val weatherData = fetchedData?.let {
+                            WeatherData (
+                                approvedTime = it.approvedTime,
+                                timeData = weatherTimeData
+                            )
+                        } ?: WeatherData(null, null)
+
+                    callback(weatherData)
                 }
             }
 
             override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                callback(emptyList())
+                callback(WeatherData(null, null))
             }
         })
     }

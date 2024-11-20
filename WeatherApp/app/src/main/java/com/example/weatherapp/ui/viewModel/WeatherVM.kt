@@ -1,26 +1,34 @@
 package com.example.weatherapp.ui.viewModel
 
 import androidx.lifecycle.ViewModel
-import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.model.Weather
-import com.example.weatherapp.model.WeatherService
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class WeatherVM : ViewModel() {
-    private val weatherService: WeatherService
-    private val weather: Weather
-    private val weatherData: WeatherData
+    private val _weather = MutableStateFlow(Weather())
+    val weather: StateFlow<Weather>
+        get() = _weather.asStateFlow()
+
+    private val _weatherState = MutableStateFlow(WeatherState())
+    val weatherState: StateFlow<WeatherState>
+        get() = _weatherState.asStateFlow()
+
 
     init {
-        weatherService = WeatherService()
-        weather = weatherService.getWeather()
-        weatherData = weatherService.fetchWeather("123");
+        _weather.value.getWeather(_weatherState.value.selectedPlace)
     }
 
-    fun weatherData() : WeatherData {
-        return weatherData
-    }
+}
+
+
+enum class ViewType {
+    Week,
+    Day
 }
 
 data class WeatherState (
-    val idk: Int = 1
+    val viewType: ViewType = ViewType.Day,
+    val selectedPlace: String = "Flemingsberg"
 )
