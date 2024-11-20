@@ -17,7 +17,7 @@ class WeatherVM : ViewModel() {
 
 
     init {
-        _weather.value.getWeather(_weatherState.value.selectedPlace)
+        _weather.value.getWeather(_weatherState.value.selectedLocation)
     }
 
 }
@@ -30,5 +30,5 @@ enum class ViewType {
 
 data class WeatherState (
     val viewType: ViewType = ViewType.Day,
-    val selectedPlace: String = "Flemingsberg"
+    val selectedLocation: String = "Flemingsberg"
 )

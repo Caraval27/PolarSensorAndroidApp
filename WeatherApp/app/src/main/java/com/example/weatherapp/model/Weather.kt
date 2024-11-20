@@ -1,12 +1,14 @@
 package com.example.weatherapp.model
 
+import com.example.weatherapp.data.CoordinatesData
+import com.example.weatherapp.data.CoordinatesRepository
 import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherRepository
 
 class Weather {
-    private var _place: String? = null
-    val place: String?
-        get() = _place
+    private var _location: String? = null
+    val location: String?
+        get() = _location
 
     private var _approvedTime: String? = null
     val approvedTime: String?
@@ -21,13 +23,13 @@ class Weather {
         get() = _weather24Hours
 
     private val weatherRepository = WeatherRepository()
-    //private val coordinatesRepository = CoordinatesRepository()
+    private val coordinatesRepository = CoordinatesRepository()
 
     fun getWeather(place: String) {
         // kolla ifall platsen är samma som tidiagre -->
         // var approved time för länge sen? --> ja: hämta ny data
         // om det är nyligen så kolla i databasen, o hämta därifrån
-        _place = place
+        _location = place
         val coordinatesString = fetchCoordinates()
         val weatherData = fetchWeather(coordinatesString)
 
@@ -37,12 +39,20 @@ class Weather {
     }
 
     private fun fetchCoordinates() : String {
-        //använd _place
-        TODO()
+        val l = "Sigfridstorp"
+        var _coordinatesData: CoordinatesData? = null
+        coordinatesRepository.fetchCoordinates(l) { coordinatesData ->
+            _coordinatesData = coordinatesData }
+        if (_coordinatesData == null) {
+            return ""
+        }
+        else {
+            return "lon/" + _coordinatesData!!.lon + "/lat/" + _coordinatesData!!.lat
+        }
     }
 
     private fun fetchWeather(lonLat: String) : WeatherData? {
-        val ll = "lonLat=lon/14.333/lat/60.38" // temp
+        val ll = "lon/14.333/lat/60.38" // temp
         var _weatherData: WeatherData? = null
         weatherRepository.fetchWeather(ll) { weatherData ->
             _weatherData = weatherData }
