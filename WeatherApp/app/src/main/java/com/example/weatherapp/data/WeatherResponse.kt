@@ -13,6 +13,6 @@ data class TimeSeries(
 
 data class Parameter(
     val name: String,
-    val value: List<Float>,
+    val values: List<Float>,
     val unit: String
 )

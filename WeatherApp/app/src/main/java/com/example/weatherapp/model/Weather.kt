@@ -2,17 +2,20 @@ package com.example.weatherapp.model
 
 import android.content.Context
 import android.util.Log
-import com.example.weatherapp.data.CoordinatesData
 import com.example.weatherapp.data.CoordinatesRepository
 import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherDbRepository
 import com.example.weatherapp.data.WeatherServerRepository
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 class Weather (
     private val _location: Location = Location("", "", ""),
     private val _approvedTime: String = "",
-    private val _weather7Days: List<WeatherDay> = emptyList(),
-    private val _weather24Hours: List<WeatherTime> = emptyList(),
+    private val _weather7Days: List<WeatherDay> = emptyList(), // summary of weather times for 7 days
+    private val _weather24Hours: List<WeatherTime> = emptyList(), // weather times today
     private val _applicationContext: Context
 ) {
     val location: Location
@@ -37,17 +40,16 @@ class Weather (
         // om det är nyligen så kolla i databasen, o hämta därifrån
         // går ej längre då dem inte kan ges värden utan ett nytt object måste skapas: _location = location
             // istället skickar vi in location direct
-        //val coordinatesString = fetchCoordinates(location)
-        //val weatherData = fetchWeather(coordinatesString)
-        val weatherData = fetchWeather("lon/14.333/lat/60.38")
+        val coordinatesString = fetchCoordinates(location)
+        Log.d("Coordinates", "Coordinate string getWeather: $coordinatesString")
+        val weatherData = fetchWeather(coordinatesString)
         if (weatherData != null) {
             Log.d("Weather", "Approved Time getWeather: $_approvedTime")
-            //updateWeather(weatherData)
             val updatedWeather = Weather(
                 _location = location,
                 _approvedTime = weatherData.approvedTime,
-                _weather7Days = emptyList(),
-                _weather24Hours = emptyList(),
+                _weather7Days = updateWeatherDay(weatherData),
+                _weather24Hours = updateWeatherTime(weatherData),
                 _applicationContext = _applicationContext
             )
             //saveWeather()
@@ -59,21 +61,17 @@ class Weather (
         return this
     }
 
-    private fun fetchCoordinates() : String {
-        //val locality = "Sigfridstorp"
-        var _coordinatesData: CoordinatesData? = null
-        coordinatesRepository.fetchCoordinates(_location) { coordinatesData ->
-            _coordinatesData = coordinatesData }
-        if (_coordinatesData == null) {
-            return ""
+    private suspend fun fetchCoordinates(location: Location) : String {
+        val _coordinatesData = coordinatesRepository.fetchCoordinates(location)
+        return if (_coordinatesData != null) {
+            "lon/" + _coordinatesData.lon + "/lat/" + _coordinatesData.lat
         } else {
-            return "lon/" + _coordinatesData!!.lon + "/lat/" + _coordinatesData!!.lat
+            ""
         }
     }
 
     private suspend fun fetchWeather(lonLat: String) : WeatherData? {
-        val ll = "lon/14.333/lat/60.38" // temp
-        val _weatherData = weatherServerRepository.fetchWeather(ll)
+        val _weatherData = weatherServerRepository.fetchWeather(lonLat)
         if (_weatherData != null) {
             Log.d("Weather", "Approved Time in fetchWeather: ${_weatherData.approvedTime}")
         } else {
@@ -82,10 +80,49 @@ class Weather (
         return _weatherData
     }
 
-    private fun updateWeather(weatherData: WeatherData?) {
-        // omvandla weatherdata till listorna med siffror i
-        TODO()
-        return;
+    // ej testad
+    private fun updateWeatherTime(weatherData: WeatherData?) : List<WeatherTime> {
+        if (weatherData?.timeData.isNullOrEmpty()) return emptyList()
+
+        val startDateTime = LocalDateTime.parse(weatherData?.timeData?.first()?.validTime, DateTimeFormatter.ISO_DATE_TIME)
+        val endDateTime = startDateTime.plusHours(24)
+
+        return weatherData?.timeData?.filter { weatherTimeData ->
+            val validDateTime = LocalDateTime.parse(weatherTimeData.validTime, DateTimeFormatter.ISO_DATE_TIME)
+            validDateTime.isAfter(startDateTime) && validDateTime.isBefore(endDateTime)
+        }?.map { weatherTimeData ->
+            WeatherTime(
+                time = LocalTime.parse(weatherTimeData.validTime.substring(11, 19)),
+                temperature = weatherTimeData.temperature.toInt(),
+                icon = weatherTimeData.symbol
+            )
+        } ?: emptyList()
+    }
+
+    // ej testad
+    private fun updateWeatherDay(weatherData: WeatherData?) : List<WeatherDay> {
+        if (weatherData?.timeData.isNullOrEmpty()) return emptyList()
+
+        val groupedByDate = weatherData?.timeData?.groupBy { timeData ->
+            LocalDate.parse(timeData.validTime.substring(0, 10))
+        }
+
+        return groupedByDate?.map { (date, weatherTimes) ->
+            val minTemperature = weatherTimes.minOfOrNull { it.temperature.toInt() } ?: 0
+            val maxTemperature = weatherTimes.maxOfOrNull { it.temperature.toInt() } ?: 0
+            val mostCommonIcon = weatherTimes.groupingBy { it.symbol }
+                .eachCount()
+                .maxByOrNull { it.value }?.key ?: 0
+
+            Log.d("Weather", "In update day: $date")
+
+            WeatherDay(
+                date = date,
+                minTemperature = minTemperature,
+                maxTemperature = maxTemperature,
+                mostCommonIcon = mostCommonIcon
+            )
+        } ?: emptyList()
     }
 
     private fun saveWeather() {

@@ -6,7 +6,7 @@ data class WeatherData (
 )
 
 data class WeatherTimeData (
-    private val validTime: String,
-    private val temperature: Float,
-    private val symbol: Int
+    val validTime: String,
+    val temperature: Float,
+    val symbol: Int
 )
