@@ -1,8 +1,8 @@
 package com.example.weatherapp.data
 
 data class WeatherData (
-    val approvedTime: String?,
-    val timeData: List<WeatherTimeData>?
+    val approvedTime: String,
+    val timeData: List<WeatherTimeData>
 )
 
 data class WeatherTimeData (
