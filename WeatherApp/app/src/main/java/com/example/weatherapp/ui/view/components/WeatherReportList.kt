@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -22,6 +21,7 @@ fun WeatherReportList(
     val weatherState by weatherVM.weatherState.collectAsState()
     val weather by weatherVM.weather.collectAsState()
     val weather24Hours = weather.weather24Hours
+    val weather7Days = weather.weather7Days
 
     Box(
         modifier = Modifier
@@ -35,16 +35,13 @@ fun WeatherReportList(
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            if (weatherState.viewType == ViewType.Day && !weather24Hours.isNullOrEmpty()) {
+            if (weatherState.viewType == ViewType.Day && weather24Hours.isNotEmpty()) {
                 items(weather24Hours) { weatherTime ->
                     WeatherReportTimeRow(weatherTime = weatherTime)
                 }
-            } else {
-                // rader för dagar temporärt annars vill den inte programmet köra
-                item {
-                    Text(
-                        text = "Dagar : ${weather.approvedTime ?: "No data available"}"
-                    )
+            } else if (weatherState.viewType == ViewType.Week && weather7Days.isNotEmpty()) {
+                items(weather7Days) { weatherDay ->
+                    WeatherReportDayRow(weatherDay = weatherDay)
                 }
             }
         }

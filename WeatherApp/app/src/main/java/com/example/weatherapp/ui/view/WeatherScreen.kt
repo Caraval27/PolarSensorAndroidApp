@@ -14,6 +14,7 @@ import com.example.weatherapp.ui.view.components.CurrentWeatherReport
 import com.example.weatherapp.ui.view.components.Search
 import com.example.weatherapp.ui.viewModel.WeatherVM
 import com.example.weatherapp.ui.view.components.WeatherReportList
+import com.example.weatherapp.ui.view.components.WeatherViewTypeSwitch
 
 @Composable
 fun WeatherScreen(
@@ -29,16 +30,22 @@ fun WeatherScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Search() // TODO
-        CurrentWeatherReport() // TODO
-        // test för day
-        if (weather.weather7Days.isNotEmpty()) {
-            val index = 0
-            Text(
-                text = "Max : ${weather.weather7Days.get(index).maxTemperature ?: "No data available"} " +
-                        "Min : ${weather.weather7Days.get(index).minTemperature ?: "No data available"} " +
-                        "Icon: ${weather.weather7Days.get(index).mostCommonIcon ?: "No data available"} "
+        if (weather.weather7Days.isNotEmpty()) { // temporärt måste hantera tom lista
+            CurrentWeatherReport() // TODO
 
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                WeatherViewTypeSwitch(
+                    currentViewType = weatherState.viewType,
+                    onViewTypeChange = { newViewType ->
+                        weatherVM.updateViewType(newViewType)
+                    }
+                )
+            }
+
             WeatherReportList(weatherVM = weatherVM)
         }
     }

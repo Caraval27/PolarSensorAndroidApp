@@ -30,6 +30,10 @@ class WeatherVM(
     val weatherState: StateFlow<WeatherState>
         get() = _weatherState.asStateFlow()
 
+    fun updateViewType(newViewType: ViewType) {
+        _weatherState.value = _weatherState.value.copy(viewType = newViewType)
+    }
+
     init {
         viewModelScope.launch {
             _weather.value = _weather.value.getWeather(_weatherState.value.selectedLocation)
