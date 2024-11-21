@@ -15,13 +15,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 class WeatherVM(
     application: Application
 ) : AndroidViewModel(application) {
     private val _weather = MutableStateFlow(Weather(Location("", "", ""),
-        "", emptyList(), emptyList(), application.applicationContext))
+        LocalDateTime.MIN, emptyList(), emptyList(), application.applicationContext))
     val weather: StateFlow<Weather>
         get() = _weather.asStateFlow()
 

@@ -8,6 +8,7 @@ import com.example.weatherapp.model.Weather
 import com.example.weatherapp.model.WeatherDay
 import com.example.weatherapp.model.WeatherTime
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
@@ -67,7 +68,7 @@ class WeatherDbRepository(
             locality = weather.location.locality,
             municipality = weather.location.municipality,
             county = weather.location.county,
-            approvedTime = weather.approvedTime
+            approvedTime = weather.approvedTime.format(DateTimeFormatter.ISO_DATE_TIME)
         )
         weatherEntity.weather7Days = toWeatherDayEntities(weather.weather7Days, weather.location)
         weatherEntity.weather24Hours = toWeatherTimeEntities(weather.weather24Hours, weather.location)
@@ -100,7 +101,7 @@ class WeatherDbRepository(
                 municipality = weatherEntity.municipality,
                 county = weatherEntity.county,
             ),
-            _approvedTime = weatherEntity.approvedTime,
+            _approvedTime = LocalDateTime.parse(weatherEntity.approvedTime, DateTimeFormatter.ISO_DATE_TIME),
             _weather7Days = weather7Days,
             _weather24Hours = weather24Hours,
             _applicationContext = applicationContext

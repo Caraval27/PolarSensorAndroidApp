@@ -15,7 +15,7 @@ import kotlin.math.roundToInt
 
 class Weather (
     private val _location: Location = Location("", "", ""),
-    private val _approvedTime: String = "",
+    private val _approvedTime: LocalDateTime = LocalDateTime.MIN,
     private val _weather7Days: List<WeatherDay> = emptyList(), // summary of weather times for 7 days
     private val _weather24Hours: List<WeatherTime> = emptyList(), // weather times today
     private val _applicationContext: Context
@@ -23,7 +23,7 @@ class Weather (
     val location: Location
         get() = _location
 
-    val approvedTime: String
+    val approvedTime: LocalDateTime
         get() = _approvedTime
 
     val weather7Days: List<WeatherDay>
@@ -39,11 +39,10 @@ class Weather (
     suspend fun getWeather(location: Location) : Weather {
         val storedWeather = weatherDbRepository.getWeather(location)
         if (storedWeather != null &&
-            Duration.between(LocalDateTime.parse(storedWeather._approvedTime,
-                    DateTimeFormatter.ISO_DATE_TIME ),
+            Duration.between(storedWeather._approvedTime,
                 LocalDateTime.now()).toHours() < 1) {
-            Log.d("Weather", Duration.between(LocalDateTime.parse(storedWeather._approvedTime,
-                    DateTimeFormatter.ISO_DATE_TIME ), LocalDateTime.now()).toHours().toString())//tänker att datuemet i weather redan ska vara i dateTime-format, så det måste formatteras varje gång man hämtar ny data
+            Log.d("Weather", Duration.between(storedWeather._approvedTime
+                , LocalDateTime.now()).toHours().toString())
             return storedWeather
         }
         // går ej längre då dem inte kan ges värden utan ett nytt object måste skapas: _location = location
@@ -54,7 +53,7 @@ class Weather (
         if (weatherData != null) {
             val updatedWeather = Weather(
                 _location = location,
-                _approvedTime = weatherData.approvedTime,
+                _approvedTime = LocalDateTime.parse(weatherData.approvedTime, DateTimeFormatter.ISO_DATE_TIME),
                 _weather7Days = updateWeatherDay(weatherData),
                 _weather24Hours = updateWeatherTime(weatherData),
                 _applicationContext = _applicationContext
