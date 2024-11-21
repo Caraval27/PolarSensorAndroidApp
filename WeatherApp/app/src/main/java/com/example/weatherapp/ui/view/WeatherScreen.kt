@@ -35,6 +35,14 @@ fun WeatherScreen(
         } else {
             Search() // TODO
             CurrentWeatherReport() // TODO
+            // test för day
+            val index = 0
+            Text (
+                text = "Max : ${weather.weather7Days?.get(index)?.maxTemperature ?: "No data available"} " +
+                        "Min : ${weather.weather7Days?.get(index)?.minTemperature ?: "No data available"} " +
+                        "Icon: ${weather.weather7Days?.get(index)?.mostCommonIcon ?: "No data available"} "
+
+            )
             WeatherReportList(weatherVM = weatherVM)
         }
     }
