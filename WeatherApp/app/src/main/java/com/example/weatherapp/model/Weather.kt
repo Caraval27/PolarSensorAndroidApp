@@ -46,6 +46,7 @@ class Weather (
                 _weather7Days = weather7Days, // updateWeatherDay can returnera en lista av hela veckan
                 _weather24Hours = updateWeatherTime(weatherData) // om det blir en lista skicka in första weatherData.get(0)
             )
+            Log.d("Weather", "Items in weather24Hours: ${_weather24Hours?.size}")
             //saveWeather()
             return updatedWeather
         } else {

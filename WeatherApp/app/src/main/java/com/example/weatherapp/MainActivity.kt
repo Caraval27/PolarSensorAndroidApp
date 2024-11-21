@@ -7,13 +7,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.ui.theme.WeatherAppTheme
@@ -30,19 +32,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WeatherAppTheme {
-                WeatherScreen(weatherVM = weatherVM)
-                // endast för loggning
-                val weather by weatherVM.weather.collectAsState()
-                Log.d("MainActivity", "Observed Weather: Approved Time = ${weather.approvedTime}")
-
-                /*
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface (
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(129, 169, 242)),
+                    color = Color.Transparent
+                ) {
+                    WeatherScreen(weatherVM = weatherVM)
                 }
-                 */
             }
         }
     }
