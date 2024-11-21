@@ -13,12 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.weatherapp.R
 import com.example.weatherapp.model.WeatherDay
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun WeatherReportDayRow(weatherDay: WeatherDay) {
+    val iconResource = weatherDay.mostCommonIcon.toWeatherIconRes()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -33,7 +34,7 @@ fun WeatherReportDayRow(weatherDay: WeatherDay) {
             modifier = Modifier.weight(0.8f)
         )
         Image(
-            painter = painterResource(id = R.drawable.sun), // weatherDay.mostCommonIcon
+            painter = painterResource(id = iconResource),
             contentDescription = "Weather Icon",
             modifier = Modifier
                 .size(40.dp)

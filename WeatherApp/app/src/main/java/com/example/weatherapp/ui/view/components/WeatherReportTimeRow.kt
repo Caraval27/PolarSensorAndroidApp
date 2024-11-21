@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.view.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -12,11 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.weatherapp.R
 import com.example.weatherapp.model.WeatherTime
 
+@SuppressLint("DiscouragedApi")
 @Composable
 fun WeatherReportTimeRow(weatherTime: WeatherTime) {
+    val iconResource = weatherTime.icon.toWeatherIconRes()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -31,7 +34,7 @@ fun WeatherReportTimeRow(weatherTime: WeatherTime) {
             modifier = Modifier.weight(1f)
         )
         Image(
-            painter = painterResource(id = R.drawable.sun), // byt ut sun med icon i weathertime varje bild kommer har siffran som namn
+            painter = painterResource(id = iconResource),
             contentDescription = "Weather Icon",
             modifier = Modifier
                 .size(40.dp)
