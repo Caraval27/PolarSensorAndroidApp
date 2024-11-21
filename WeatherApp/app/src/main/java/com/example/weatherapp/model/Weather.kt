@@ -7,6 +7,7 @@ import com.example.weatherapp.data.WeatherServerRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 class Weather (
     private val _location: Location?,
@@ -78,11 +79,11 @@ class Weather (
     private fun updateWeatherTime(weatherData: WeatherData?) : List<WeatherTime> {
         if (weatherData?.timeData.isNullOrEmpty()) return emptyList()
 
-        val startDateTime = LocalDateTime.parse(weatherData?.timeData?.first()?.validTime)
+        val startDateTime = LocalDateTime.parse(weatherData?.timeData?.first()?.validTime, DateTimeFormatter.ISO_DATE_TIME)
         val endDateTime = startDateTime.plusHours(24)
 
         return weatherData?.timeData?.filter { weatherTimeData ->
-            val validDateTime = LocalDateTime.parse(weatherTimeData.validTime)
+            val validDateTime = LocalDateTime.parse(weatherTimeData.validTime, DateTimeFormatter.ISO_DATE_TIME)
             validDateTime.isAfter(startDateTime) && validDateTime.isBefore(endDateTime)
         }?.map { weatherTimeData ->
             WeatherTime(
