@@ -1,5 +1,6 @@
 package com.example.weatherapp.ui.view.components
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -13,10 +14,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.weatherapp.R
-import com.example.weatherapp.model.WeatherTime
+import com.example.weatherapp.model.WeatherDay
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun WeatherReportTimeRow(weatherTime: WeatherTime) {
+fun WeatherReportDayRow(weatherDay: WeatherDay) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -24,21 +26,21 @@ fun WeatherReportTimeRow(weatherTime: WeatherTime) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = weatherTime.time.toString(),
+            text = weatherDay.date.format(DateTimeFormatter.ofPattern("dd/MM")),
             fontSize = 16.sp,
             color = Color.White,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(0.8f)
         )
         Image(
-            painter = painterResource(id = R.drawable.sun), // byt ut sun med icon i weathertime varje bild kommer har siffran som namn
+            painter = painterResource(id = R.drawable.sun), // weatherDay.mostCommonIcon
             contentDescription = "Weather Icon",
             modifier = Modifier
                 .size(40.dp)
                 .weight(0.2f)
         )
         Text(
-            text = "${weatherTime.temperature}°C",
+            text = "${weatherDay.minTemperature}°C \t -- \t ${weatherDay.maxTemperature}°C",
             fontSize = 16.sp,
             color = Color.White,
             modifier = Modifier
