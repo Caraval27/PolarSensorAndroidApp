@@ -10,9 +10,9 @@ class CoordinatesRepository {
         return try {
             val fetchedData = coordinatesApi.getLonLat(location?.locality)
 
-            val locationData = fetchedData.locations.find { it.municipality == location?.municipality && it.county == location.county }
-            val lon = locationData?.lon?.toDouble()
-            val lat = locationData?.lat?.toDouble()
+            val locationData = fetchedData.find { it.municipality == location?.municipality } //&& it.county == location.county
+            val lon = locationData?.lon
+            val lat = locationData?.lat
 
             Log.d("Coordinates", "API response successful: lon = $lon lat = $lat")
 

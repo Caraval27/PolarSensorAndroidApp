@@ -36,9 +36,7 @@ class Weather (
             // istället skickar vi in location direct
         val coordinatesString = fetchCoordinates(location)
         Log.d("Coordinates", "Coordinate string getWeather: $coordinatesString")
-
-        //val weatherData = fetchWeather(coordinatesString)
-        val weatherData = fetchWeather("lon/14.333/lat/60.38")
+        val weatherData = fetchWeather(coordinatesString)
         if (weatherData != null) {
             Log.d("Weather", "Approved Time getWeather: $_approvedTime")
 
@@ -58,12 +56,11 @@ class Weather (
     }
 
     private suspend fun fetchCoordinates(location: Location) : String {
-        //val locality = "Sigfridstorp"
-        var _coordinatesData = coordinatesRepository.fetchCoordinates(location)
-        if (_coordinatesData != null) {
-            return "lon/" + _coordinatesData.lon + "/lat/" + _coordinatesData.lat
+        val _coordinatesData = coordinatesRepository.fetchCoordinates(location)
+        return if (_coordinatesData != null) {
+            "lon/" + _coordinatesData.lon + "/lat/" + _coordinatesData.lat
         } else {
-            return ""
+            ""
         }
     }
 
@@ -80,7 +77,7 @@ class Weather (
     private fun updateWeatherTime(weatherData: WeatherData?) : List<WeatherTime> {
         return weatherData?.timeData?.map { weatherTimeData ->
             WeatherTime(
-                time = LocalTime.parse(weatherTimeData.validTime),
+                time = LocalTime.parse(weatherTimeData.validTime.substring(11, 19)),
                 temperature = weatherTimeData.temperature.toInt(),
                 icon = weatherTimeData.symbol
             )

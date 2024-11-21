@@ -30,17 +30,19 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WeatherAppTheme {
+                WeatherScreen(weatherVM = weatherVM)
                 // endast för loggning
                 val weather by weatherVM.weather.collectAsState()
                 Log.d("MainActivity", "Observed Weather: Approved Time = ${weather.approvedTime}")
 
+                /*
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
-                    WeatherScreen(weatherVM = weatherVM)
                 }
+                 */
             }
         }
     }
