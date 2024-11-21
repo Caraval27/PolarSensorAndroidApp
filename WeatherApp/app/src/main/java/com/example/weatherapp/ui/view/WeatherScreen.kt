@@ -28,19 +28,15 @@ fun WeatherScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        if (weather.approvedTime == null) {
-            Text (
-                text = "Hej : ${weather.approvedTime ?: "No data available"}"
-            )
-        } else {
-            Search() // TODO
-            CurrentWeatherReport() // TODO
-            // test för day
+        Search() // TODO
+        CurrentWeatherReport() // TODO
+        // test för day
+        if (weather.weather7Days.isNotEmpty()) {
             val index = 0
-            Text (
-                text = "Max : ${weather.weather7Days?.get(index)?.maxTemperature ?: "No data available"} " +
-                        "Min : ${weather.weather7Days?.get(index)?.minTemperature ?: "No data available"} " +
-                        "Icon: ${weather.weather7Days?.get(index)?.mostCommonIcon ?: "No data available"} "
+            Text(
+                text = "Max : ${weather.weather7Days.get(index).maxTemperature ?: "No data available"} " +
+                        "Min : ${weather.weather7Days.get(index).minTemperature ?: "No data available"} " +
+                        "Icon: ${weather.weather7Days.get(index).mostCommonIcon ?: "No data available"} "
 
             )
             WeatherReportList(weatherVM = weatherVM)
