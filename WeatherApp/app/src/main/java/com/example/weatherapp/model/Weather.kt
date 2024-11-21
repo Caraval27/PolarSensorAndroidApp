@@ -1,35 +1,39 @@
 package com.example.weatherapp.model
 
+import android.content.Context
 import android.util.Log
 import com.example.weatherapp.data.CoordinatesData
 import com.example.weatherapp.data.CoordinatesRepository
 import com.example.weatherapp.data.WeatherData
+import com.example.weatherapp.data.WeatherDbRepository
 import com.example.weatherapp.data.WeatherServerRepository
 
 class Weather (
-    private val _location: Location?,
-    private val _approvedTime: String?,
-    private val _weather7Days: List<WeatherDay>?,
-    private val _weather24Hours: List<WeatherTime>?
+    private val _location: Location = Location("", "", ""),
+    private val _approvedTime: String = "",
+    private val _weather7Days: List<WeatherDay> = emptyList(),
+    private val _weather24Hours: List<WeatherTime> = emptyList(),
+    private val _applicationContext: Context
 ) {
-    val location: Location?
+    val location: Location
         get() = _location
 
-    val approvedTime: String?
+    val approvedTime: String
         get() = _approvedTime
 
-    val weather7Days: List<WeatherDay>?
+    val weather7Days: List<WeatherDay>
         get() = _weather7Days
 
-    val weather24Hours: List<WeatherTime>?
+    val weather24Hours: List<WeatherTime>
         get() = _weather24Hours
 
     private val weatherServerRepository = WeatherServerRepository()
     private val coordinatesRepository = CoordinatesRepository()
+    private val weatherDbRepository = WeatherDbRepository(_applicationContext)
 
     suspend fun getWeather(location: Location) : Weather {
         // kolla ifall platsen är samma som tidiagre -->
-        // var approved time för länge sen? --> ja: hämta ny data
+        // var approved time för länge sen (över 1 h) --> ja: hämta ny data
         // om det är nyligen så kolla i databasen, o hämta därifrån
         // går ej längre då dem inte kan ges värden utan ett nytt object måste skapas: _location = location
             // istället skickar vi in location direct
@@ -43,7 +47,8 @@ class Weather (
                 _location = location,
                 _approvedTime = weatherData.approvedTime,
                 _weather7Days = emptyList(),
-                _weather24Hours = emptyList()
+                _weather24Hours = emptyList(),
+                _applicationContext = _applicationContext
             )
             //saveWeather()
             return updatedWeather

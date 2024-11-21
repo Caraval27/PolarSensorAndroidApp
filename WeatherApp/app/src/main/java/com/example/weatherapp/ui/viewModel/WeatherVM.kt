@@ -1,6 +1,9 @@
 package com.example.weatherapp.ui.viewModel
 
+import android.app.Application
+import android.content.Context
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.Location
@@ -10,8 +13,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class WeatherVM : ViewModel() {
-    private val _weather = MutableStateFlow(Weather(null, "", null, null))
+class WeatherVM(
+    application: Application
+) : AndroidViewModel(application) {
+    private val _weather = MutableStateFlow(Weather(Location("", "", ""),
+        "", emptyList(), emptyList(), application.applicationContext))
     val weather: StateFlow<Weather>
         get() = _weather.asStateFlow()
 
