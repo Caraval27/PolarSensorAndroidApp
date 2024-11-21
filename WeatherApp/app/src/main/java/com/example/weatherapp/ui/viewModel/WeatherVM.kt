@@ -14,13 +14,13 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 
-open class WeatherVM : ViewModel() {
+class WeatherVM : ViewModel() {
     private val _weather = MutableStateFlow(Weather(null, "", null, null))
-    open val weather: StateFlow<Weather>
+    val weather: StateFlow<Weather>
         get() = _weather.asStateFlow()
 
     private val _weatherState = MutableStateFlow(WeatherState())
-    open val weatherState: StateFlow<WeatherState>
+    val weatherState: StateFlow<WeatherState>
         get() = _weatherState.asStateFlow()
 
     init {
@@ -42,7 +42,7 @@ data class WeatherState (
     //val selectedLocation: Location = Location("Flemingsberg", "Stockholm", "Huddinge kommun")
 )
 
-
+/*
 class FakeVM: WeatherVM() {
     private val _weather = MutableStateFlow(
         Weather(
@@ -82,3 +82,4 @@ class FakeVM: WeatherVM() {
     override val weatherState: StateFlow<WeatherState>
         get() = _weatherState.asStateFlow()
 }
+ */

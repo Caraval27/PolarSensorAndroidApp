@@ -12,8 +12,8 @@ class WeatherServerRepository {
             Log.d("Weather", "API response successful: ${fetchedData.approvedTime}")
 
             val weatherTimeData = fetchedData.timeSeries.map { timeSeries ->
-                val temperature = timeSeries.parameters.find { it.name == "t" }?.value?.get(0) ?: 0f
-                val symbol = timeSeries.parameters.find { it.name == "Wsymb2" }?.value?.get(0) ?: 0
+                val temperature = timeSeries.parameters.find { it.name == "t" }?.values?.firstOrNull() ?: 0f
+                val symbol = timeSeries.parameters.find { it.name == "Wsymb2" }?.values?.firstOrNull() ?: 0
 
                 WeatherTimeData (
                     validTime = timeSeries.validTime,

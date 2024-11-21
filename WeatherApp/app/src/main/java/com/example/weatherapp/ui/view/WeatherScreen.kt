@@ -10,9 +10,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.*
 import androidx.compose.ui.unit.dp
+import com.example.weatherapp.ui.view.components.CurrentWeatherReport
+import com.example.weatherapp.ui.view.components.Search
 import com.example.weatherapp.ui.viewModel.WeatherVM
 import com.example.weatherapp.ui.view.components.WeatherReportList
-import com.example.weatherapp.ui.viewModel.FakeVM
 
 @Composable
 fun WeatherScreen(
@@ -27,23 +28,16 @@ fun WeatherScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // komponent för search
-
-        // komponent för just nu
-
-        //WeatherReportList(weatherVM = weatherVM)
-        Text (
-            text = "Hej : ${weather.approvedTime ?: "No data available"}"
-        )
+        if (weather.approvedTime == null) {
+            Text (
+                text = "Hej : ${weather.approvedTime ?: "No data available"}"
+            )
+        } else {
+            Search() // TODO
+            CurrentWeatherReport() // TODO
+            WeatherReportList(weatherVM = weatherVM)
+        }
     }
-
-    /*
-    val weather by weatherVM.weather.collectAsState()
-    Log.d("WeatherScreen", "Observed Approved Time: ${weather.approvedTime}")
-
-    Text (
-        text = "Hej : ${weather.approvedTime ?: "No data available"}"
-    )*/
 
     /*
     val weather by weatherVM.weather.collectAsState()
@@ -62,7 +56,7 @@ fun WeatherScreen(
     }
      */
 }
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun WeatherScreenPreview() {
@@ -72,3 +66,4 @@ fun WeatherScreenPreview() {
         WeatherScreen(weatherVM = fakeWeatherVM)
     }
 }
+ */

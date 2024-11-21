@@ -12,7 +12,7 @@ import com.example.weatherapp.R
 import com.example.weatherapp.model.WeatherTime
 
 @Composable
-fun WeatherTimeReportRow(weatherTime: WeatherTime) {
+fun WeatherReportTimeRow(weatherTime: WeatherTime) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
