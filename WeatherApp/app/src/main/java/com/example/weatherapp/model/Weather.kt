@@ -33,7 +33,9 @@ class Weather (
         // om det är nyligen så kolla i databasen, o hämta därifrån
         // går ej längre då dem inte kan ges värden utan ett nytt object måste skapas: _location = location
             // istället skickar vi in location direct
-        //val coordinatesString = fetchCoordinates(location)
+        val coordinatesString = fetchCoordinates(location)
+        Log.d("Coordinates", "Coordinate string getWeather: $coordinatesString")
+
         //val weatherData = fetchWeather(coordinatesString)
         val weatherData = fetchWeather("lon/14.333/lat/60.38")
         if (weatherData != null) {
@@ -54,21 +56,18 @@ class Weather (
         return this
     }
 
-    private fun fetchCoordinates() : String {
+    private suspend fun fetchCoordinates(location: Location) : String {
         //val locality = "Sigfridstorp"
-        var _coordinatesData: CoordinatesData? = null
-        coordinatesRepository.fetchCoordinates(_location) { coordinatesData ->
-            _coordinatesData = coordinatesData }
-        if (_coordinatesData == null) {
-            return ""
+        var _coordinatesData = coordinatesRepository.fetchCoordinates(location)
+        if (_coordinatesData != null) {
+            return "lon/" + _coordinatesData.lon + "/lat/" + _coordinatesData.lat
         } else {
-            return "lon/" + _coordinatesData!!.lon + "/lat/" + _coordinatesData!!.lat
+            return ""
         }
     }
 
     private suspend fun fetchWeather(lonLat: String) : WeatherData? {
-        val ll = "lon/14.333/lat/60.38" // temp
-        val _weatherData = weatherServerRepository.fetchWeather(ll)
+        val _weatherData = weatherServerRepository.fetchWeather(lonLat)
         if (_weatherData != null) {
             Log.d("Weather", "Approved Time in fetchWeather: ${_weatherData.approvedTime}")
         } else {

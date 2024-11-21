@@ -34,5 +34,6 @@ enum class ViewType {
 
 data class WeatherState (
     val viewType: ViewType = ViewType.Day,
-    val selectedLocation: Location = Location("Flemingsberg", "Stockholm", "Huddinge kommun")
+    val selectedLocation: Location = Location("Sigfridstorp", "Dalarnas län", "Vansbro") // för test
+    //val selectedLocation: Location = Location("Flemingsberg", "Stockholm", "Huddinge kommun")
 )
