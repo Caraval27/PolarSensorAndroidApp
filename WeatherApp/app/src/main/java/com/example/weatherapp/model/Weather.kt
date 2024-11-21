@@ -78,12 +78,12 @@ class Weather (
     private fun updateWeatherTime(weatherData: WeatherData?) : List<WeatherTime> {
         if (weatherData?.timeData.isNullOrEmpty()) return emptyList()
 
-        val startDateTime = LocalDateTime.parse(weatherData?.timeData?.first()?.validTime, DateTimeFormatter.ISO_DATE_TIME)
-        val endDateTime = startDateTime.plusHours(25)
+        val startDateTime = LocalDateTime.parse(weatherData?.timeData?.first()?.validTime, DateTimeFormatter.ISO_DATE_TIME).minusHours(1)
+        val endDateTime = startDateTime.plusHours(24)
 
         return weatherData?.timeData?.filter { weatherTimeData ->
             val validDateTime = LocalDateTime.parse(weatherTimeData.validTime, DateTimeFormatter.ISO_DATE_TIME)
-            validDateTime.isAfter(startDateTime.minusHours(1)) && validDateTime.isBefore(endDateTime)
+            validDateTime.isAfter(startDateTime) && validDateTime.isBefore(endDateTime)
         }?.map { weatherTimeData ->
             WeatherTime(
                 time = LocalTime.parse(weatherTimeData.validTime.substring(11, 19)),
