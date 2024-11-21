@@ -1,16 +1,17 @@
 package com.example.weatherapp.model
 
 import android.util.Log
-import com.example.weatherapp.data.CoordinatesData
 import com.example.weatherapp.data.CoordinatesRepository
 import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherServerRepository
+import java.time.LocalDate
+import java.time.LocalTime
 
 class Weather (
     private val _location: Location?,
     private val _approvedTime: String?,
-    private val _weather7Days: List<WeatherDay>?,
-    private val _weather24Hours: List<WeatherTime>?
+    private val _weather7Days: List<WeatherDay>?, // summary of weather times for 7 days
+    private val _weather24Hours: List<WeatherTime>? // weather times today
 ) {
     val location: Location?
         get() = _location
@@ -40,12 +41,12 @@ class Weather (
         val weatherData = fetchWeather("lon/14.333/lat/60.38")
         if (weatherData != null) {
             Log.d("Weather", "Approved Time getWeather: $_approvedTime")
-            //updateWeather(weatherData)
+
             val updatedWeather = Weather(
                 _location = location,
                 _approvedTime = weatherData.approvedTime,
-                _weather7Days = emptyList(),
-                _weather24Hours = emptyList()
+                _weather7Days = weather7Days, // updateWeatherDay can returnera en lista av hela veckan
+                _weather24Hours = updateWeatherTime(weatherData) // om det blir en lista skicka in första weatherData.get(0)
             )
             //saveWeather()
             return updatedWeather
@@ -76,10 +77,37 @@ class Weather (
         return _weatherData
     }
 
-    private fun updateWeather(weatherData: WeatherData?) {
-        // omvandla weatherdata till listorna med siffror i
-        TODO()
-        return;
+    private fun updateWeatherTime(weatherData: WeatherData?) : List<WeatherTime> {
+        return weatherData?.timeData?.map { weatherTimeData ->
+            WeatherTime(
+                time = LocalTime.parse(weatherTimeData.validTime),
+                temperature = weatherTimeData.temperature.toInt(),
+                icon = weatherTimeData.symbol
+            )
+        } ?: emptyList()
+    }
+
+    private fun updateWeatherDay(weatherData: WeatherData) : WeatherDay? {
+        val date = weatherData.approvedTime?.let { LocalDate.parse(it.substring(0, 10)) }
+
+        if (date == null || weatherData.timeData.isNullOrEmpty()) {
+            return null
+        }
+
+        val weatherTimes = updateWeatherTime(weatherData)
+
+        val minTemperature = weatherTimes.minOfOrNull { it.temperature } ?: 0
+        val maxTemperature = weatherTimes.maxOfOrNull { it.temperature } ?: 0
+        val mostCommonIcon = weatherTimes.groupingBy { it.icon }
+            .eachCount()
+            .maxByOrNull { it.value }?.key ?: 0
+
+        return WeatherDay(
+            date = date,
+            minTemperature = minTemperature,
+            maxTemperature = maxTemperature,
+            mostCommonIcon = mostCommonIcon
+        )
     }
 
     private fun saveWeather() {

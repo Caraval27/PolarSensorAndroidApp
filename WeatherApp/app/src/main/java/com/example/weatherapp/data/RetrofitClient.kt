@@ -9,12 +9,12 @@ object RetrofitClient {
     private const val COORDINATES_SERVER = "https://geocode.maps.co/"
     private const val WEATHER_SERVER = " "
 
-    val coordinatesClient: Retrofit = Retrofit.Builder()
+    private val coordinatesClient: Retrofit = Retrofit.Builder()
         .baseUrl(COORDINATES_SERVER_TEST)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
-    val weatherClient: Retrofit = Retrofit.Builder()
+    private val weatherClient: Retrofit = Retrofit.Builder()
         .baseUrl(WEATHER_SERVER_TEST)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
