@@ -29,8 +29,9 @@ interface WeatherDao {
     suspend fun insertWeatherTimes(weatherTimes: List<WeatherTimeEntity>)
 
     @Transaction
-    suspend fun getWeatherDayAndTimeByLocation(location: Location) : WeatherEntity {
+    suspend fun getWeatherDayAndTimeByLocation(location: Location) : WeatherEntity? {
         val weather = getWeatherByLocation(location.locality, location.municipality, location.county)
+            ?: return null
         weather.weather7Days = getWeatherDaysByLocation(location.locality, location.municipality, location.county)
         weather.weather24Hours = getWeatherTimesByLocation(location.locality, location.municipality, location.county)
         return weather
@@ -41,7 +42,7 @@ interface WeatherDao {
         FROM weather
         WHERE locality = :locality AND municipality = :municipality AND county = :county
     """)
-    suspend fun getWeatherByLocation(locality: String, municipality: String, county: String) : WeatherEntity
+    suspend fun getWeatherByLocation(locality: String, municipality: String, county: String) : WeatherEntity?
 
     @Query("""
         SELECT *

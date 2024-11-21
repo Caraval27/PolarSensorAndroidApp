@@ -1,6 +1,7 @@
 package com.example.weatherapp.data
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import com.example.weatherapp.model.Location
 import com.example.weatherapp.model.Weather
@@ -83,7 +84,7 @@ class WeatherDbRepository(
 
     private suspend fun toWeatherDays(weatherDayEntities : List<WeatherDayEntity>) : List<WeatherDay> {
         return weatherDayEntities.map { weatherDayEntity -> WeatherDay(
-            date = LocalDate.parse(weatherDayEntity.date, DateTimeFormatter.ISO_LOCAL_TIME),
+            date = LocalDate.parse(weatherDayEntity.date, DateTimeFormatter.ISO_LOCAL_DATE),
             minTemperature = weatherDayEntity.minTemperature,
             maxTemperature = weatherDayEntity.maxTemperature,
             mostCommonIcon = weatherDayEntity.mostCommonIcon,
@@ -123,12 +124,15 @@ class WeatherDbRepository(
     }*/
 
     suspend fun insertWeather(weather: Weather) {
+        Log.d("WeatherDbRepository", "Insert approved time:" + weather.approvedTime)
         val weatherEntity = toWeatherEntity(weather);
         dao.insertWeatherDayAndTime(weatherEntity)
     }
 
-    suspend fun getWeather(location: Location) : Weather {
-        val weatherEntity = dao.getWeatherDayAndTimeByLocation(location)
+    suspend fun getWeather(location: Location) : Weather? {
+        Log.d("WeatherDbRepository", "Get")
+        val weatherEntity = dao.getWeatherDayAndTimeByLocation(location) ?: return null
+        Log.d("WeatherDbRepository", "Get approved time:" + weatherEntity.approvedTime)
         return toWeather(weatherEntity)
     }
 

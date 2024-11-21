@@ -6,6 +6,7 @@ import com.example.weatherapp.data.CoordinatesRepository
 import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherDbRepository
 import com.example.weatherapp.data.WeatherServerRepository
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -36,9 +37,15 @@ class Weather (
     private val weatherDbRepository = WeatherDbRepository(_applicationContext)
 
     suspend fun getWeather(location: Location) : Weather {
-        // kolla ifall platsen är samma som tidiagre -->
-        // var approved time för länge sen (över 1 h) --> ja: hämta ny data
-        // om det är nyligen så kolla i databasen, o hämta därifrån
+        val storedWeather = weatherDbRepository.getWeather(location)
+        if (storedWeather != null &&
+            Duration.between(LocalDateTime.parse(storedWeather._approvedTime,
+                    DateTimeFormatter.ISO_DATE_TIME ),
+                LocalDateTime.now()).toHours() < 1) {
+            Log.d("Weather", Duration.between(LocalDateTime.parse(storedWeather._approvedTime,
+                    DateTimeFormatter.ISO_DATE_TIME ), LocalDateTime.now()).toHours().toString())//tänker att datuemet i weather redan ska vara i dateTime-format, så det måste formatteras varje gång man hämtar ny data
+            return storedWeather
+        }
         // går ej längre då dem inte kan ges värden utan ett nytt object måste skapas: _location = location
             // istället skickar vi in location direct
         val coordinatesString = fetchCoordinates(location)
@@ -52,7 +59,7 @@ class Weather (
                 _weather24Hours = updateWeatherTime(weatherData),
                 _applicationContext = _applicationContext
             )
-            //saveWeather()
+            weatherDbRepository.insertWeather(updatedWeather)
             return updatedWeather
         } else {
             Log.d("Weather", "Weather data is null in getWeather.")
