@@ -5,6 +5,7 @@ import com.example.weatherapp.data.CoordinatesRepository
 import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherServerRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 class Weather (
@@ -39,14 +40,12 @@ class Weather (
         val weatherData = fetchWeather(coordinatesString)
         if (weatherData != null) {
             Log.d("Weather", "Approved Time getWeather: $_approvedTime")
-
             val updatedWeather = Weather(
                 _location = location,
                 _approvedTime = weatherData.approvedTime,
-                _weather7Days = weather7Days, // updateWeatherDay can returnera en lista av hela veckan
-                _weather24Hours = updateWeatherTime(weatherData) // om det blir en lista skicka in första weatherData.get(0)
+                _weather7Days = updateWeatherDay(weatherData),
+                _weather24Hours = updateWeatherTime(weatherData)
             )
-            Log.d("Weather", "Items in weather24Hours: ${_weather24Hours?.size}")
             //saveWeather()
             return updatedWeather
         } else {
@@ -75,8 +74,17 @@ class Weather (
         return _weatherData
     }
 
+    // ej testad
     private fun updateWeatherTime(weatherData: WeatherData?) : List<WeatherTime> {
-        return weatherData?.timeData?.map { weatherTimeData ->
+        if (weatherData?.timeData.isNullOrEmpty()) return emptyList()
+
+        val startDateTime = LocalDateTime.parse(weatherData?.timeData?.first()?.validTime)
+        val endDateTime = startDateTime.plusHours(24)
+
+        return weatherData?.timeData?.filter { weatherTimeData ->
+            val validDateTime = LocalDateTime.parse(weatherTimeData.validTime)
+            validDateTime.isAfter(startDateTime) && validDateTime.isBefore(endDateTime)
+        }?.map { weatherTimeData ->
             WeatherTime(
                 time = LocalTime.parse(weatherTimeData.validTime.substring(11, 19)),
                 temperature = weatherTimeData.temperature.toInt(),
@@ -85,27 +93,30 @@ class Weather (
         } ?: emptyList()
     }
 
-    private fun updateWeatherDay(weatherData: WeatherData) : WeatherDay? {
-        val date = weatherData.approvedTime?.let { LocalDate.parse(it.substring(0, 10)) }
+    // ej testad
+    private fun updateWeatherDay(weatherData: WeatherData?) : List<WeatherDay>? {
+        if (weatherData?.timeData.isNullOrEmpty()) return emptyList()
 
-        if (date == null || weatherData.timeData.isNullOrEmpty()) {
-            return null
+        val groupedByDate = weatherData?.timeData?.groupBy { timeData ->
+            LocalDate.parse(timeData.validTime.substring(0, 10))
         }
 
-        val weatherTimes = updateWeatherTime(weatherData)
+        return groupedByDate?.map { (date, weatherTimes) ->
+            val minTemperature = weatherTimes.minOfOrNull { it.temperature.toInt() } ?: 0
+            val maxTemperature = weatherTimes.maxOfOrNull { it.temperature.toInt() } ?: 0
+            val mostCommonIcon = weatherTimes.groupingBy { it.symbol }
+                .eachCount()
+                .maxByOrNull { it.value }?.key ?: 0
 
-        val minTemperature = weatherTimes.minOfOrNull { it.temperature } ?: 0
-        val maxTemperature = weatherTimes.maxOfOrNull { it.temperature } ?: 0
-        val mostCommonIcon = weatherTimes.groupingBy { it.icon }
-            .eachCount()
-            .maxByOrNull { it.value }?.key ?: 0
+            Log.d("Weather", "In update day: $date")
 
-        return WeatherDay(
-            date = date,
-            minTemperature = minTemperature,
-            maxTemperature = maxTemperature,
-            mostCommonIcon = mostCommonIcon
-        )
+            WeatherDay(
+                date = date,
+                minTemperature = minTemperature,
+                maxTemperature = maxTemperature,
+                mostCommonIcon = mostCommonIcon
+            )
+        }
     }
 
     private fun saveWeather() {
