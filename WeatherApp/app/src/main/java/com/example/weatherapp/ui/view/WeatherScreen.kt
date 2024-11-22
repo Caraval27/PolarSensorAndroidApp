@@ -12,7 +12,7 @@ import com.example.weatherapp.ui.view.components.CurrentWeatherReport
 import com.example.weatherapp.ui.view.components.Search
 import com.example.weatherapp.ui.viewModel.WeatherVM
 import com.example.weatherapp.ui.view.components.WeatherReportList
-import com.example.weatherapp.ui.view.components.WeatherViewTypeSwitch
+import com.example.weatherapp.ui.view.components.WeatherViewTypeSelector
 
 @Composable
 fun WeatherScreen(
@@ -50,10 +50,10 @@ fun PortraitLayout(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                WeatherViewTypeSwitch(
+                WeatherViewTypeSelector(
                     currentViewType = weatherState.viewType,
                     onViewTypeChange = { newViewType ->
                         weatherVM.updateViewType(newViewType)
@@ -100,10 +100,10 @@ fun LandscapeLayout(
             if (weather.weather7Days.isNotEmpty()) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
+                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    WeatherViewTypeSwitch(
+                    WeatherViewTypeSelector(
                         currentViewType = weatherState.viewType,
                         onViewTypeChange = { newViewType ->
                             weatherVM.updateViewType(newViewType)

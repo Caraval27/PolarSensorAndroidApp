@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -33,7 +32,7 @@ fun Search(weatherVM: WeatherVM) {
         onClick = { showDialog = true },
         modifier = Modifier.padding(8.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(67, 91, 196)
+            containerColor = Color(115, 135, 224)
         ),
     ) {
         Text("Select location")
