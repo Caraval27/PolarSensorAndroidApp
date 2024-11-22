@@ -1,7 +1,12 @@
 package com.example.weatherapp.model
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkInfo
 import android.util.Log
+import androidx.core.content.ContextCompat.getSystemService
 import com.example.weatherapp.data.CoordinatesRepository
 import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherDbRepository
@@ -18,6 +23,7 @@ class Weather (
     private val _approvedTime: LocalDateTime = LocalDateTime.MIN,
     private val _weather7Days: List<WeatherDay> = emptyList(), // summary of weather times for 7 days
     private val _weather24Hours: List<WeatherTime> = emptyList(), // weather times today
+    private var _hasInternetConnection : Boolean = true,
     private val _applicationContext: Context
 ) {
     val location: Location
@@ -32,12 +38,25 @@ class Weather (
     val weather24Hours: List<WeatherTime>
         get() = _weather24Hours
 
+    val hasInternetConnection: Boolean
+        get() = _hasInternetConnection
+
     private val weatherServerRepository = WeatherServerRepository()
     private val coordinatesRepository = CoordinatesRepository()
     private val weatherDbRepository = WeatherDbRepository(_applicationContext)
 
     suspend fun getWeather(location: Location) : Weather {
         val storedWeather = weatherDbRepository.getWeather(location)
+        val connectivityManager = _applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (networkCapabilities == null || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+            Log.d("Weather", "No internet connection")
+            if (storedWeather == null) {
+                return Weather(_applicationContext = _applicationContext, _hasInternetConnection = false)
+            }
+            storedWeather._hasInternetConnection = false;
+            return storedWeather
+        }
         if (storedWeather != null &&
             Duration.between(storedWeather._approvedTime,
                 LocalDateTime.now()).toHours() < 1) {

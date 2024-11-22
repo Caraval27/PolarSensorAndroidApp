@@ -21,8 +21,7 @@ import java.time.LocalTime
 class WeatherVM(
     application: Application
 ) : AndroidViewModel(application) {
-    private val _weather = MutableStateFlow(Weather(Location("", "", ""),
-        LocalDateTime.MIN, emptyList(), emptyList(), application.applicationContext))
+    private val _weather = MutableStateFlow(Weather( _applicationContext =  application.applicationContext))
     val weather: StateFlow<Weather>
         get() = _weather.asStateFlow()
 
