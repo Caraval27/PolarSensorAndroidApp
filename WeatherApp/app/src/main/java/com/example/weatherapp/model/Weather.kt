@@ -128,7 +128,7 @@ class Weather (
         if (weatherData?.timeData.isNullOrEmpty()) return emptyList()
 
         val groupedByDate = weatherData?.timeData?.groupBy { timeData ->
-            LocalDate.parse(timeData.validTime.substring(0, 10))
+            LocalDate.parse(timeData.validTime.substring(0, 10)) //tror kanske det är snyggare att först göra om till dateTime och sen till date, istället för att använda substring
         }
 
         return groupedByDate?.map { (date, weatherTimes) ->
@@ -145,10 +145,6 @@ class Weather (
                 mostCommonIcon = mostCommonIcon
             )
         } ?: emptyList()
-    }
-
-    private fun saveWeather() {
-        TODO()
     }
 }
 
