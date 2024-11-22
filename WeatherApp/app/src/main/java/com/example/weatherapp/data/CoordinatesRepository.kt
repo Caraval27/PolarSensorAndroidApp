@@ -9,8 +9,7 @@ class CoordinatesRepository {
     suspend fun fetchCoordinates(location: Location?) : CoordinatesData? {
         return try {
             val fetchedData = coordinatesApi.getLonLat(location?.locality)
-
-            val locationData = fetchedData.find { it.municipality == location?.municipality } //&& it.county == location.county
+            val locationData = fetchedData.find { it.municipality == location?.municipality /*&& it.county == location.county*/ }
             val lon = locationData?.lon
             val lat = locationData?.lat
 

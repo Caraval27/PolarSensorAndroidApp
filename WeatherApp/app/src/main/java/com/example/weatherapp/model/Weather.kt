@@ -64,8 +64,6 @@ class Weather (
                 , LocalDateTime.now()).toHours().toString())
             return storedWeather
         }
-        // går ej längre då dem inte kan ges värden utan ett nytt object måste skapas: _location = location
-            // istället skickar vi in location direct
         val coordinatesString = fetchCoordinates(location)
         Log.d("Coordinates", "Coordinate string getWeather: $coordinatesString")
         val weatherData = fetchWeather(coordinatesString)
@@ -75,7 +73,6 @@ class Weather (
                 _approvedTime = LocalDateTime.parse(weatherData.approvedTime, DateTimeFormatter.ISO_DATE_TIME),
                 _weather7Days = updateWeatherDay(weatherData),
                 _weather24Hours = updateWeatherTime(weatherData),
-                _hasInternetConnection = _hasInternetConnection,
                 _applicationContext = _applicationContext
             )
             weatherDbRepository.insertWeather(updatedWeather)

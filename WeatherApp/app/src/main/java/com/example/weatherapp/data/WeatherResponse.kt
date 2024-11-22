@@ -14,5 +14,5 @@ data class TimeSeries(
 data class Parameter(
     val name: String,
     val values: List<Float>,
-    val unit: String
+    val unit: String //när används denna?
 )
