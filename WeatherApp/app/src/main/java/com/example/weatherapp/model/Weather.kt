@@ -54,7 +54,7 @@ class Weather (
             if (storedWeather == null) {
                 return Weather(_applicationContext = _applicationContext, _hasInternetConnection = false)
             }
-            storedWeather._hasInternetConnection = false;
+            storedWeather._hasInternetConnection = false
             return storedWeather
         }
         if (storedWeather != null &&
@@ -75,6 +75,7 @@ class Weather (
                 _approvedTime = LocalDateTime.parse(weatherData.approvedTime, DateTimeFormatter.ISO_DATE_TIME),
                 _weather7Days = updateWeatherDay(weatherData),
                 _weather24Hours = updateWeatherTime(weatherData),
+                _hasInternetConnection = _hasInternetConnection,
                 _applicationContext = _applicationContext
             )
             weatherDbRepository.insertWeather(updatedWeather)

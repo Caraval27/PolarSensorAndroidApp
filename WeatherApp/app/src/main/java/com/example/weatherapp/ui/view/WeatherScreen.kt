@@ -1,24 +1,39 @@
 package com.example.weatherapp.ui.view
 
-import android.util.Log
+import android.content.res.Configuration
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.*
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.weatherapp.R
 import com.example.weatherapp.ui.view.components.CurrentWeatherReport
+import com.example.weatherapp.ui.view.components.InternetConnectionIcon
 import com.example.weatherapp.ui.view.components.Search
 import com.example.weatherapp.ui.viewModel.WeatherVM
 import com.example.weatherapp.ui.view.components.WeatherReportList
-import com.example.weatherapp.ui.view.components.WeatherViewTypeSwitch
+import com.example.weatherapp.ui.view.components.WeatherViewTypeSelector
 
 @Composable
 fun WeatherScreen(
     weatherVM: WeatherVM,
+) {
+    val configuration = LocalConfiguration.current
+
+    when (configuration.orientation) {
+        Configuration.ORIENTATION_PORTRAIT -> PortraitLayout(weatherVM = weatherVM)
+        Configuration.ORIENTATION_LANDSCAPE -> LandscapeLayout(weatherVM = weatherVM)
+    }
+}
+
+@Composable
+fun PortraitLayout(
+    weatherVM: WeatherVM
 ) {
     val weather by weatherVM.weather.collectAsState()
     val weatherState by weatherVM.weatherState.collectAsState()
@@ -29,16 +44,24 @@ fun WeatherScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Search() // TODO
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            Search(weatherVM = weatherVM)
+            Spacer(modifier = Modifier.weight(0.6f))
+            InternetConnectionIcon(weather)
+        }
         if (weather.weather7Days.isNotEmpty()) { // temporärt måste hantera tom lista
-            CurrentWeatherReport() // TODO
+            CurrentWeatherReport(weather = weather)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                WeatherViewTypeSwitch(
+                WeatherViewTypeSelector(
                     currentViewType = weatherState.viewType,
                     onViewTypeChange = { newViewType ->
                         weatherVM.updateViewType(newViewType)
@@ -49,32 +72,63 @@ fun WeatherScreen(
             WeatherReportList(weatherVM = weatherVM)
         }
     }
+}
 
-    /*
+@Composable
+fun LandscapeLayout(
+    weatherVM: WeatherVM
+) {
     val weather by weatherVM.weather.collectAsState()
-    val configuration = LocalConfiguration.current
+    val weatherState by weatherVM.weatherState.collectAsState()
 
-    if (weather.weather24Hours.isNullOrEmpty()) {
-        Text(text = "No weather data available")
-    } else {
-        when (configuration.orientation) {
-            Configuration.ORIENTATION_PORTRAIT -> WeatherTimeList(weatherTimes = weather.weather24Hours!!)
-            Configuration.ORIENTATION_LANDSCAPE -> {
-                // You can create a different layout for landscape if needed
-                WeatherTimeList(weatherTimes = weather.weather24Hours!!)
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .padding(top = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                InternetConnectionIcon(weather)
+                Spacer(modifier = Modifier.weight(0.6f))
+                Search(weatherVM = weatherVM)
+                Spacer(modifier = Modifier.weight(1f))
+            }
+            Spacer(modifier = Modifier.height(1.dp))
+            CurrentWeatherReport(weather = weather)
+        }
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            if (weather.weather7Days.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    WeatherViewTypeSelector(
+                        currentViewType = weatherState.viewType,
+                        onViewTypeChange = { newViewType ->
+                            weatherVM.updateViewType(newViewType)
+                        }
+                    )
+                }
+
+                WeatherReportList(weatherVM = weatherVM)
             }
         }
     }
-     */
 }
-/*
-@Preview(showBackground = true)
-@Composable
-fun WeatherScreenPreview() {
-    val fakeWeatherVM = FakeVM()
-
-    Surface {
-        WeatherScreen(weatherVM = fakeWeatherVM)
-    }
-}
- */

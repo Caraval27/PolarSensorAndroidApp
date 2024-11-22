@@ -26,7 +26,7 @@ fun WeatherReportList(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(6.dp)
+            .padding(bottom = 6.dp)
             .background(
                 Color(174, 200, 247),
                 shape = RoundedCornerShape(12.dp))
