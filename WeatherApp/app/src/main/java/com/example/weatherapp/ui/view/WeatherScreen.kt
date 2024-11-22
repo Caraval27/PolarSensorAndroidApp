@@ -36,7 +36,7 @@ fun WeatherScreen(
             Search(weatherVM = weatherVM)
         }
         if (weather.weather7Days.isNotEmpty()) { // temporärt måste hantera tom lista
-            CurrentWeatherReport() // TODO
+            CurrentWeatherReport(weather = weather)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
