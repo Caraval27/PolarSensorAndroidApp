@@ -49,7 +49,6 @@ class WeatherVM(
     init {
         viewModelScope.launch {
             _weather.value = _weather.value.getWeather(_weatherState.value.selectedLocation)
-            Log.d("WeatherVM", "Updated Weather: Approved Time = ${_weather.value.approvedTime}")
         }
     }
 }

@@ -7,6 +7,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkInfo
 import android.util.Log
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.room.util.copy
 import com.example.weatherapp.data.CoordinatesRepository
 import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherDbRepository
@@ -19,11 +20,12 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
 class Weather (
-    private val _location: Location = Location("", "", ""),
+    private val _location: Location = Location(),
     private val _approvedTime: LocalDateTime = LocalDateTime.MIN,
-    private val _weather7Days: List<WeatherDay> = emptyList(), // summary of weather times for 7 days
-    private val _weather24Hours: List<WeatherTime> = emptyList(), // weather times today
+    private val _weather7Days: List<WeatherDay> = emptyList(),
+    private val _weather24Hours: List<WeatherTime> = emptyList(),
     private var _hasInternetConnection : Boolean = true,
+    private var _locationIsFound : Boolean = true,
     private val _applicationContext: Context
 ) {
     val location: Location
@@ -41,6 +43,9 @@ class Weather (
     val hasInternetConnection: Boolean
         get() = _hasInternetConnection
 
+    val locationIsFound: Boolean
+        get() = _locationIsFound
+
     private val weatherServerRepository = WeatherServerRepository()
     private val coordinatesRepository = CoordinatesRepository()
     private val weatherDbRepository = WeatherDbRepository(_applicationContext)
@@ -52,7 +57,14 @@ class Weather (
         if (networkCapabilities == null || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
             Log.d("Weather", "No internet connection")
             if (storedWeather == null) {
-                return Weather(_applicationContext = _applicationContext, _hasInternetConnection = false)
+                return Weather(
+                    _location = _location,
+                    _approvedTime = _approvedTime,
+                    _weather7Days = _weather7Days,
+                    _weather24Hours = _weather24Hours,
+                    _hasInternetConnection = false,
+                    _applicationContext = _applicationContext
+                )
             }
             storedWeather._hasInternetConnection = false
             return storedWeather
@@ -65,6 +77,14 @@ class Weather (
             return storedWeather
         }
         val coordinatesString = fetchCoordinates(location)
+            ?: return Weather(
+                _location = _location,
+                _approvedTime = _approvedTime,
+                _weather7Days = _weather7Days,
+                _weather24Hours = _weather24Hours,
+                _locationIsFound = false,
+                _applicationContext = _applicationContext
+            )
         Log.d("Coordinates", "Coordinate string getWeather: $coordinatesString")
         val weatherData = fetchWeather(coordinatesString)
         if (weatherData != null) {
@@ -84,12 +104,12 @@ class Weather (
         return this
     }
 
-    private suspend fun fetchCoordinates(location: Location) : String {
-        val _coordinatesData = coordinatesRepository.fetchCoordinates(location)
-        return if (_coordinatesData != null) {
-            "lon/" + _coordinatesData.lon + "/lat/" + _coordinatesData.lat
+    private suspend fun fetchCoordinates(location: Location) : String? {
+        val coordinatesData = coordinatesRepository.fetchCoordinates(location)
+        return if (coordinatesData != null) {
+            "lon/" + coordinatesData.lon + "/lat/" + coordinatesData.lat
         } else {
-            ""
+            null
         }
     }
 
@@ -115,7 +135,7 @@ class Weather (
                     validDateTime.isBefore(endDateTime)
         }?.map { weatherTimeData ->
             WeatherTime(
-                time = LocalTime.parse(weatherTimeData.validTime.substring(11, 19)),
+                time = LocalTime.parse(weatherTimeData.validTime.substring(11, 19)), //som nedan
                 temperature = weatherTimeData.temperature.roundToInt(),
                 icon = weatherTimeData.symbol
             )

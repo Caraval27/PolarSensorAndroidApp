@@ -128,10 +128,11 @@ class WeatherDbRepository(
         Log.d("WeatherDbRepository", "Insert approved time:" + weather.approvedTime)
         val weatherEntity = toWeatherEntity(weather);
         dao.insertWeatherDayAndTime(weatherEntity)
+        //fånga exceptions?
     }
 
     suspend fun getWeather(location: Location) : Weather? {
-        Log.d("WeatherDbRepository", "Get")
+        Log.d("WeatherDbRepository", "Entering get")
         val weatherEntity = dao.getWeatherDayAndTimeByLocation(location) ?: return null
         Log.d("WeatherDbRepository", "Get approved time:" + weatherEntity.approvedTime)
         return toWeather(weatherEntity)

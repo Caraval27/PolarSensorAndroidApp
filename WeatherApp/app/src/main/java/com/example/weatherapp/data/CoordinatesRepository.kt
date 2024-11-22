@@ -6,12 +6,17 @@ import com.example.weatherapp.model.Location
 class CoordinatesRepository {
     private val coordinatesApi = RetrofitClient.coordinatesApi
 
-    suspend fun fetchCoordinates(location: Location?) : CoordinatesData? {
+    suspend fun fetchCoordinates(location: Location) : CoordinatesData? {
         return try {
-            val fetchedData = coordinatesApi.getLonLat(location?.locality)
-            val locationData = fetchedData.find { it.municipality == location?.municipality /*&& it.county == location.county*/ }
-            val lon = locationData?.lon
-            val lat = locationData?.lat
+            val fetchedData = coordinatesApi.getLonLat(location.locality)
+            val locationData = fetchedData.find { it.municipality == location.municipality /*&& it.county == location.county*/ }
+
+            if (locationData == null) {
+                return null;
+            }
+
+            val lon = locationData.lon
+            val lat = locationData.lat
 
             Log.d("Coordinates", "API response successful: lon = $lon lat = $lat")
 
