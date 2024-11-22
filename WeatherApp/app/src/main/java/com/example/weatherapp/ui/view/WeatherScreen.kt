@@ -29,7 +29,12 @@ fun WeatherScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Search() // TODO
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Search(weatherVM = weatherVM)
+        }
         if (weather.weather7Days.isNotEmpty()) { // temporärt måste hantera tom lista
             CurrentWeatherReport() // TODO
 

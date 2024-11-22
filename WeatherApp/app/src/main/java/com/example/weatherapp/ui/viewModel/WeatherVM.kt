@@ -34,6 +34,19 @@ class WeatherVM(
         _weatherState.value = _weatherState.value.copy(viewType = newViewType)
     }
 
+    fun searchLocation(searchedLocation: Location) {
+        _weatherState.value = _weatherState.value.copy(selectedLocation = searchedLocation)
+        Log.d("WeatherVM", "Updated Weather: Municipality = ${_weatherState.value.selectedLocation.municipality}")
+        getWeather()
+    }
+
+    private fun getWeather() {
+        viewModelScope.launch {
+            _weather.value = _weather.value.getWeather(_weatherState.value.selectedLocation)
+            Log.d("WeatherVM", "Updated weather")
+        }
+    }
+
     init {
         viewModelScope.launch {
             _weather.value = _weather.value.getWeather(_weatherState.value.selectedLocation)

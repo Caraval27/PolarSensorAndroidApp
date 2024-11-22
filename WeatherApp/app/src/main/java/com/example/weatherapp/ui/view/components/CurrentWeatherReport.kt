@@ -16,6 +16,8 @@ fun CurrentWeatherReport() {
             .height(150.dp),
         contentAlignment = Alignment.Center
     ) {
+        //display the current localtion
+        //the current degrees
         Text(
             text = "Todo current weather",
             fontSize = 20.sp
