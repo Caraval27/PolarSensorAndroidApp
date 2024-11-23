@@ -72,9 +72,9 @@ fun LocationFormPortrait(onSubmit: (Location) -> Unit, onCancel: () -> Unit) {
                     if (!localityEmpty && !municipalityEmpty && !countyEmpty) {
                         onSubmit(
                             Location(
-                                locality = locality,
-                                county = county,
-                                municipality = municipality
+                                locality = locality.trim(),
+                                county = county.trim(),
+                                municipality = municipality.trim()
                             )
                         )
                     }
