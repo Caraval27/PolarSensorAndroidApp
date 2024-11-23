@@ -29,6 +29,7 @@ fun Search(weatherVM: WeatherVM) {
     var showDialog by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
     val weather by weatherVM.weather.collectAsState()
+    val weatherState by weatherVM.weatherState.collectAsState()
 
     Button(
         onClick = { showDialog = true },
@@ -71,7 +72,7 @@ fun Search(weatherVM: WeatherVM) {
                                 showDialog = false
                             },
                             onCancel = { showDialog = false },
-                            weather.location
+                            weatherState.searchedLocation
                         )
                     }
                 }
@@ -106,7 +107,7 @@ fun Search(weatherVM: WeatherVM) {
                                 showDialog = false
                             },
                             onCancel = { showDialog = false },
-                            weather.location
+                            weatherState.searchedLocation
                         )
                     }
                 }
