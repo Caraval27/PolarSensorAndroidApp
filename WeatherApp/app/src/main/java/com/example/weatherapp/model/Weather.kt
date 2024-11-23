@@ -12,6 +12,9 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
@@ -56,11 +59,10 @@ class Weather (
             storedWeather._errorType = ErrorType.NoConnection
             return storedWeather
         }
+        val currentTime = ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime()
         if (storedWeather != null &&
-            Duration.between(storedWeather._approvedTime,
-                LocalDateTime.now()).toHours() < 1) {
-            Log.d("Weather", Duration.between(storedWeather._approvedTime
-                , LocalDateTime.now()).toHours().toString())
+            Duration.between(storedWeather._approvedTime, currentTime).toHours() < 1) {
+            Log.d("Weather", Duration.between(storedWeather._approvedTime, currentTime).toHours().toString())
             return storedWeather
         }
 

@@ -28,7 +28,6 @@ import com.example.weatherapp.ui.viewModel.WeatherVM
 fun Search(weatherVM: WeatherVM) {
     var showDialog by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
-    val weather by weatherVM.weather.collectAsState()
     val weatherState by weatherVM.weatherState.collectAsState()
 
     Button(
