@@ -23,8 +23,8 @@ import com.example.weatherapp.model.Location
 @Composable
 fun LocationFormPortrait(onSubmit: (Location) -> Unit, onCancel: () -> Unit, location: Location) {
     var locality by remember { mutableStateOf(location.locality) }
-    var county by remember { mutableStateOf(location.municipality) }
-    var municipality by remember { mutableStateOf(location.county) }
+    var municipality by remember { mutableStateOf(location.municipality) }
+    var county by remember { mutableStateOf(location.county) }
     var localityEmpty by remember { mutableStateOf(false) }
     var municipalityEmpty by remember { mutableStateOf(false) }
     var countyEmpty by remember { mutableStateOf(false) }
