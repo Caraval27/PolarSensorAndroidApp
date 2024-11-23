@@ -1,22 +1,15 @@
 package com.example.weatherapp.ui.viewModel
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.Location
 import com.example.weatherapp.model.Weather
-import com.example.weatherapp.model.WeatherDay
-import com.example.weatherapp.model.WeatherTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 
 class WeatherVM(
     application: Application
@@ -34,21 +27,22 @@ class WeatherVM(
     }
 
     fun searchLocation(searchedLocation: Location) {
-        _weatherState.value = _weatherState.value.copy(selectedLocation = searchedLocation)
+        _weatherState.value = _weatherState.value.copy(selectedLocation = searchedLocation, searched = false)
         Log.d("WeatherVM", "Updated Weather: Municipality = ${_weatherState.value.selectedLocation.municipality}")
         getWeather()
     }
 
     private fun getWeather() {
         viewModelScope.launch {
-            _weather.value = _weather.value.getWeather(_weatherState.value.selectedLocation)
+            _weather.value = _weather.value.updateWeather(_weatherState.value.selectedLocation)
             Log.d("WeatherVM", "Updated weather")
+            _weatherState.value = _weatherState.value.copy(searched = true)
         }
     }
 
     init {
         viewModelScope.launch {
-            _weather.value = _weather.value.getWeather(_weatherState.value.selectedLocation)
+            _weather.value = _weather.value.updateWeather(_weatherState.value.selectedLocation)
         }
     }
 }
@@ -60,8 +54,9 @@ enum class ViewType {
 
 data class WeatherState (
     val viewType: ViewType = ViewType.Day,
-    val selectedLocation: Location = Location("Sigfridstorp", "Dalarnas län", "Vansbro") // för test
-    //val selectedLocation: Location = Location("Flemingsberg", "Stockholm", "Huddinge kommun")
+    val selectedLocation: Location = Location("Sigfridstorp", "Dalarnas län", "Vansbro"), // för test
+    //val selectedLocation: Location = Location("Flemingsberg", "Stockholm", "Huddinge kommun"),
+    val searched: Boolean = false
 )
 
 /*

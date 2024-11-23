@@ -16,14 +16,12 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
 class Weather (
-    private val _location: Location = Location(),
-    private val _approvedTime: LocalDateTime = LocalDateTime.MIN,
-    private val _weather7Days: List<WeatherDay> = emptyList(),
-    private val _weather24Hours: List<WeatherTime> = emptyList(),
-    private var _hasInternetConnection : Boolean = true,
-    private var _locationIsFound : Boolean = true,
-    private var _weatherIsFound : Boolean = true,
-    private val _applicationContext: Context
+    private var _location: Location = Location(),
+    private var _approvedTime: LocalDateTime = LocalDateTime.MIN,
+    private var _weather7Days: List<WeatherDay> = emptyList(),
+    private var _weather24Hours: List<WeatherTime> = emptyList(),
+    private var _errorType: ErrorType = ErrorType.None,
+    private var _applicationContext: Context
 ) {
     val location: Location
         get() = _location
@@ -37,31 +35,24 @@ class Weather (
     val weather24Hours: List<WeatherTime>
         get() = _weather24Hours
 
-    val hasInternetConnection: Boolean
-        get() = _hasInternetConnection
-
-    val locationIsFound: Boolean
-        get() = _locationIsFound
-
-    val weatherIsFound : Boolean
-        get() = _weatherIsFound
+    val errorType: ErrorType
+        get() = _errorType
 
     private val weatherApiRepository = WeatherApiRepository()
     private val coordinatesApiRepository = CoordinatesApiRepository()
     private val weatherDbRepository = WeatherDbRepository(_applicationContext)
 
-    suspend fun getWeather(location: Location) : Weather {
+    suspend fun updateWeather(location: Location) : Weather {
         val storedWeather = weatherDbRepository.getWeather(location)
         val connectivityManager = _applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         if (networkCapabilities == null || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
             Log.d("Weather", "No internet connection")
             if (storedWeather == null) {
-                val weatherCopy = copyWeather()
-                weatherCopy._hasInternetConnection = false
+                val weatherCopy = copyWeather(ErrorType.NoConnection)
                 return weatherCopy
             }
-            storedWeather._hasInternetConnection = false
+            storedWeather._errorType = ErrorType.NoConnection
             return storedWeather
         }
         if (storedWeather != null &&
@@ -73,16 +64,14 @@ class Weather (
         }
         val coordinatesString = fetchCoordinates(location)
         if (coordinatesString == null) {
-            val weatherCopy = copyWeather()
-            weatherCopy._locationIsFound = false
+            val weatherCopy = copyWeather(ErrorType.NoCoordinates)
             return weatherCopy
         }
         Log.d("Coordinates", "Coordinate string getWeather: $coordinatesString")
         val weatherData = fetchWeather(coordinatesString)
         if (weatherData == null) {
             Log.d("Weather", "Weather data is null in getWeather.")
-            val weatherCopy = copyWeather()
-            weatherCopy._weatherIsFound = false
+            val weatherCopy = copyWeather(ErrorType.NoWeather)
             return weatherCopy
         }
         val updatedWeather = Weather(
@@ -96,12 +85,13 @@ class Weather (
         return updatedWeather
     }
 
-    private suspend fun copyWeather() : Weather {
+    private suspend fun copyWeather(errorType: ErrorType) : Weather {
         return Weather(
             _location = _location,
             _approvedTime = _approvedTime,
             _weather7Days = _weather7Days,
             _weather24Hours = _weather24Hours,
+            _errorType = errorType,
             _applicationContext = _applicationContext
         )
     }
@@ -167,6 +157,13 @@ class Weather (
             )
         }
     }
+}
+
+enum class ErrorType {
+    None,
+    NoConnection,
+    NoCoordinates,
+    NoWeather,
 }
 
 data class Location (
