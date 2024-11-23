@@ -1,9 +1,8 @@
 package com.example.weatherapp.ui.view
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -15,12 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.weatherapp.R
 import com.example.weatherapp.model.ErrorType
 import com.example.weatherapp.ui.view.components.CurrentWeatherReport
-import com.example.weatherapp.ui.view.components.InternetConnectionIcon
 import com.example.weatherapp.ui.view.components.Search
 import com.example.weatherapp.ui.viewModel.WeatherVM
 import com.example.weatherapp.ui.view.components.WeatherReportList
@@ -74,12 +70,10 @@ fun PortraitLayout(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Spacer(modifier = Modifier.weight(1f))
                     Search(weatherVM = weatherVM)
-                    Spacer(modifier = Modifier.weight(0.6f))
-                    InternetConnectionIcon(weather)
                 }
                 if (weather.weather7Days.isNotEmpty()) { // temporärt måste hantera tom lista
                     CurrentWeatherReport(weather = weather)
@@ -147,12 +141,10 @@ fun LandscapeLayout(
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        InternetConnectionIcon(weather)
-                        Spacer(modifier = Modifier.weight(0.6f))
                         Search(weatherVM = weatherVM)
-                        Spacer(modifier = Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(1.dp))
                     CurrentWeatherReport(weather = weather)
