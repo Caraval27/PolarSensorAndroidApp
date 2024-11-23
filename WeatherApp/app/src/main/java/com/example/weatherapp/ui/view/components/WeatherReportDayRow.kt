@@ -38,7 +38,7 @@ fun WeatherReportDayRow(weatherDay: WeatherDay) {
             contentDescription = "Weather Icon",
             modifier = Modifier
                 .size(40.dp)
-                .weight(0.2f)
+                .weight(0.3f)
         )
         Text(
             text = "${weatherDay.minTemperature}°C \t -- \t ${weatherDay.maxTemperature}°C",

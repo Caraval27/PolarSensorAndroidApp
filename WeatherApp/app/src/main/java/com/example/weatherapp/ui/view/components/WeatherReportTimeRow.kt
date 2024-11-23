@@ -38,7 +38,7 @@ fun WeatherReportTimeRow(weatherTime: WeatherTime) {
             contentDescription = "Weather Icon",
             modifier = Modifier
                 .size(40.dp)
-                .weight(0.2f)
+                .weight(0.3f)
         )
         Text(
             text = "${weatherTime.temperature}°C",
