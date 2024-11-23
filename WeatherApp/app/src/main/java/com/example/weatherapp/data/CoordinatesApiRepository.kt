@@ -9,14 +9,14 @@ class CoordinatesApiRepository {
     suspend fun fetchCoordinates(location: Location) : CoordinatesData? {
         return try {
             val fetchedData = coordinatesApi.getLonLat(location.locality)
-            val locationData = fetchedData.find { it.municipality == location.municipality /*&& it.county == location.county*/ }
+            val locationData = fetchedData.find { it.municipality == location.municipality && it.county == location.county }
 
             if (locationData == null) {
                 return null;
             }
 
-            val lon = locationData.lon
-            val lat = locationData.lat
+            val lon = kotlin.math.round(locationData.lon * 1000000) / 1000000
+            val lat = kotlin.math.round(locationData.lat * 1000000) / 1000000
 
             Log.d("Coordinates", "API response successful: lon = $lon lat = $lat")
 
