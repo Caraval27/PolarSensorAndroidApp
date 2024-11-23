@@ -46,6 +46,7 @@ class Weather (
         val storedWeather = weatherDbRepository.getWeather(location)
         val connectivityManager = _applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+
         if (networkCapabilities == null || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
             Log.d("Weather", "No internet connection")
             if (storedWeather == null) {
@@ -62,6 +63,7 @@ class Weather (
                 , LocalDateTime.now()).toHours().toString())
             return storedWeather
         }
+
         val coordinatesString = fetchCoordinates(location)
         if (coordinatesString == null) {
             val weatherCopy = copyWeather(ErrorType.NoCoordinates)
@@ -137,7 +139,6 @@ class Weather (
     }
 
     private fun updateWeatherDay(weatherData: WeatherData) : List<WeatherDay> {
-
         val groupedByDate = weatherData.timeData.groupBy { timeData ->
             LocalDate.parse(timeData.validTime.substring(0, 10)) //tror kanske det är snyggare att först göra om till dateTime och sen till date, istället för att använda substring
         }
