@@ -1,11 +1,14 @@
 package com.example.weatherapp.ui.view.components
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,6 +25,11 @@ fun WeatherReportList(
     val weather by weatherVM.weather.collectAsState()
     val weather24Hours = weather.weather24Hours
     val weather7Days = weather.weather7Days
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(weatherState.viewType) {
+        listState.animateScrollToItem(0)
+    }
 
     Box(
         modifier = Modifier
@@ -33,6 +41,7 @@ fun WeatherReportList(
             .padding(8.dp)
     ) {
         LazyColumn(
+            state = listState,
             modifier = Modifier.fillMaxSize()
         ) {
             if (weatherState.viewType == ViewType.Day && weather24Hours.isNotEmpty()) {

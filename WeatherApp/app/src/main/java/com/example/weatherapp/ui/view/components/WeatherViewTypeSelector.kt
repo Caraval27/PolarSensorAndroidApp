@@ -19,7 +19,7 @@ fun WeatherViewTypeSelector(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = "Day view",
+            text = "Day",
             fontSize = 14.sp,
             color = Color.White,
         )
@@ -35,7 +35,7 @@ fun WeatherViewTypeSelector(
         Spacer(modifier = Modifier.width(16.dp))
 
         Text(
-            text = "Week view",
+            text = "Week",
             fontSize = 14.sp,
             color = Color.White,
         )
