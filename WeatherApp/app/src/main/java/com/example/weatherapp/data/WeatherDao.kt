@@ -1,5 +1,6 @@
 package com.example.weatherapp.data
 
+import android.util.Log
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -14,9 +15,14 @@ interface WeatherDao {
 
     @Transaction
     suspend fun insertWeatherDayAndTime(weather: WeatherEntity) {
-        insertWeather(weather)
-        insertWeatherDays(weather.weather7Days)
-        insertWeatherTimes(weather.weather24Hours)
+        try {
+            insertWeather(weather)
+            insertWeatherDays(weather.weather7Days)
+            insertWeatherTimes(weather.weather24Hours)
+        }
+        catch (e: Exception) {
+            Log.e("WeatherDao", "Exception occurred: ${e.localizedMessage}", e)
+        }
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -30,11 +36,17 @@ interface WeatherDao {
 
     @Transaction
     suspend fun getWeatherDayAndTimeByLocation(location: Location) : WeatherEntity? {
-        val weather = getWeatherByLocation(location.locality, location.municipality, location.county)
-            ?: return null
-        weather.weather7Days = getWeatherDaysByLocation(location.locality, location.municipality, location.county)
-        weather.weather24Hours = getWeatherTimesByLocation(location.locality, location.municipality, location.county)
-        return weather
+        try {
+            val weather = getWeatherByLocation(location.locality, location.municipality, location.county)
+                ?: return null
+            weather.weather7Days = getWeatherDaysByLocation(location.locality, location.municipality, location.county)
+            weather.weather24Hours = getWeatherTimesByLocation(location.locality, location.municipality, location.county)
+            return weather
+        }
+        catch (e: Exception) {
+            Log.e("WeatherDao", "Exception occurred: ${e.localizedMessage}", e)
+            return null;
+        }
     }
 
     @Query("""

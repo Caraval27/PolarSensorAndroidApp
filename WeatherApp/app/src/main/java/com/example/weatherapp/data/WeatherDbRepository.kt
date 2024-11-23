@@ -21,25 +21,6 @@ class WeatherDbRepository(
     ).build()
     private val dao = db.weatherDao()
 
-    /*private suspend fun toWeatherTimeEntities(weatherTimes: List<WeatherTime>, weatherId: Int) : List<WeatherTimeEntity> {
-        return weatherTimes.map { weatherTime -> WeatherTimeEntity(
-            time = weatherTime.time,
-            temperature = weatherTime.temperature,
-            icon = weatherTime.icon,
-            weatherId = weatherId
-        ) }
-    }
-
-    private suspend fun toWeatherDayEntities(weatherDays : List<WeatherDay>, weatherId: Int) : List<WeatherDayEntity> {
-        return weatherDays.map { weatherDay -> WeatherDayEntity(
-            date = weatherDay.date,
-            minTemperature = weatherDay.minTemperature,
-            maxTemperature = weatherDay.maxTemperature,
-            mostCommonIcon = weatherDay.mostCommonIcon,
-            weatherId = weatherId
-        ) }
-    }*/
-
     private suspend fun toWeatherTimeEntities(weatherTimes: List<WeatherTime>, location: Location) : List<WeatherTimeEntity> {
         return weatherTimes.map { weatherTime -> WeatherTimeEntity(
             time = weatherTime.time.format(DateTimeFormatter.ISO_LOCAL_TIME),
@@ -108,6 +89,38 @@ class WeatherDbRepository(
         )
     }
 
+    suspend fun insertWeather(weather: Weather) {
+        Log.d("WeatherDbRepository", "Insert approved time:" + weather.approvedTime)
+        val weatherEntity = toWeatherEntity(weather);
+        dao.insertWeatherDayAndTime(weatherEntity)
+    }
+
+    suspend fun getWeather(location: Location) : Weather? {
+        Log.d("WeatherDbRepository", "Entering get")
+        val weatherEntity = dao.getWeatherDayAndTimeByLocation(location) ?: return null
+        Log.d("WeatherDbRepository", "Get approved time:" + weatherEntity.approvedTime)
+        return toWeather(weatherEntity)
+    }
+
+    /*private suspend fun toWeatherTimeEntities(weatherTimes: List<WeatherTime>, weatherId: Int) : List<WeatherTimeEntity> {
+        return weatherTimes.map { weatherTime -> WeatherTimeEntity(
+            time = weatherTime.time,
+            temperature = weatherTime.temperature,
+            icon = weatherTime.icon,
+            weatherId = weatherId
+        ) }
+    }
+
+    private suspend fun toWeatherDayEntities(weatherDays : List<WeatherDay>, weatherId: Int) : List<WeatherDayEntity> {
+        return weatherDays.map { weatherDay -> WeatherDayEntity(
+            date = weatherDay.date,
+            minTemperature = weatherDay.minTemperature,
+            maxTemperature = weatherDay.maxTemperature,
+            mostCommonIcon = weatherDay.mostCommonIcon,
+            weatherId = weatherId
+        ) }
+    }*/
+
     /*private suspend fun toWeather(weatherEntity : WeatherEntityDayAndTime) : Weather {
         val weather7Days = toWeatherDays(weatherEntity.weather7Days)
         val weather24Hours = toWeatherTimes(weatherEntity.weather24Hours)
@@ -123,20 +136,6 @@ class WeatherDbRepository(
             _applicationContext = applicationContext
         )
     }*/
-
-    suspend fun insertWeather(weather: Weather) {
-        Log.d("WeatherDbRepository", "Insert approved time:" + weather.approvedTime)
-        val weatherEntity = toWeatherEntity(weather);
-        dao.insertWeatherDayAndTime(weatherEntity)
-        //fånga exceptions?
-    }
-
-    suspend fun getWeather(location: Location) : Weather? {
-        Log.d("WeatherDbRepository", "Entering get")
-        val weatherEntity = dao.getWeatherDayAndTimeByLocation(location) ?: return null
-        Log.d("WeatherDbRepository", "Get approved time:" + weatherEntity.approvedTime)
-        return toWeather(weatherEntity)
-    }
 
     /*
     suspend fun getWeather(location: Location) : Weather {
