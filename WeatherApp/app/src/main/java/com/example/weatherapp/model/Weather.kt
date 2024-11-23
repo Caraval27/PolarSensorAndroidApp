@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
 import com.example.weatherapp.data.CoordinatesApiRepository
+import com.example.weatherapp.data.CoordinatesData
 import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherDbRepository
 import com.example.weatherapp.data.WeatherApiRepository
@@ -66,13 +67,13 @@ class Weather (
             return storedWeather
         }
 
-        val coordinatesString = fetchCoordinates(location)
-        if (coordinatesString == null) {
+        val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
+        if (coordinatesData == null) {
             val weatherCopy = copyWeather(ErrorType.NoCoordinates)
             return weatherCopy
         }
-        Log.d("Coordinates", "Coordinate string getWeather: $coordinatesString")
-        val weatherData = fetchWeather(coordinatesString)
+        Log.d("Coordinates", "Coordinate string getWeather: ${coordinatesData.lon} and ${coordinatesData.lat}")
+        val weatherData = fetchWeather(coordinatesData)
         if (weatherData == null) {
             Log.d("Weather", "Weather data is null in getWeather.")
             val weatherCopy = copyWeather(ErrorType.NoWeather)
@@ -100,17 +101,8 @@ class Weather (
         )
     }
 
-    private suspend fun fetchCoordinates(location: Location) : String? {
-        val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
-        return if (coordinatesData != null) {
-            "lon/" + coordinatesData.lon + "/lat/" + coordinatesData.lat
-        } else {
-            null
-        }
-    }
-
-    private suspend fun fetchWeather(lonLat: String) : WeatherData? {
-        val weatherData = weatherApiRepository.fetchWeather(lonLat)
+    private suspend fun fetchWeather(coordinatesData: CoordinatesData) : WeatherData? {
+        val weatherData = weatherApiRepository.fetchWeather(coordinatesData)
         if (weatherData == null) {
             Log.d("Weather", "Failed to fetch weather data in fetchWeather.")
         } else {
@@ -170,10 +162,10 @@ enum class ErrorType {
 }
 
 data class Location (
-    var locality: String = "Sigfridstorp",
+    /*var locality: String = "Sigfridstorp",
     var county: String = "Dalarnas län",
-    var municipality: String = "Vansbro"
-    /*val locality: String = "Flemingsberg",
+    var municipality: String = "Vansbro"*/
+    val locality: String = "Flemingsberg",
     val county: String = "Stockholms län",
-    val municipality: String = "Huddinge"*/
+    val municipality: String = "Huddinge"
 )

@@ -6,9 +6,9 @@ import android.util.Log
 class WeatherApiRepository {
     private val weatherApi = RetrofitClient.weatherApi
 
-    suspend fun fetchWeather(lonLat: String) : WeatherData? {
+    suspend fun fetchWeather(coordinatesData: CoordinatesData) : WeatherData? {
         return try {
-            val fetchedData = weatherApi.getForecast(lonLat)
+            val fetchedData = weatherApi.getForecast(coordinatesData.lon, coordinatesData.lat)
             Log.d("Weather", "API response successful: ${fetchedData.approvedTime}")
 
             val weatherTimeData = fetchedData.timeSeries.map { timeSeries ->
