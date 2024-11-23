@@ -16,10 +16,10 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
 class Weather (
-    private val _location: Location,
-    private val _approvedTime: LocalDateTime,
-    private val _weather7Days: List<WeatherDay>,
-    private val _weather24Hours: List<WeatherTime>,
+    private val _location: Location = Location(),
+    private val _approvedTime: LocalDateTime = LocalDateTime.MIN,
+    private val _weather7Days: List<WeatherDay> = emptyList(),
+    private val _weather24Hours: List<WeatherTime> = emptyList(),
     private var _hasInternetConnection : Boolean = true,
     private var _locationIsFound : Boolean = true,
     private var _weatherIsFound : Boolean = true,
@@ -170,7 +170,7 @@ class Weather (
 }
 
 data class Location (
-    val locality: String,
-    val county: String,
-    val municipality: String
+    val locality: String = "",
+    val county: String = "",
+    val municipality: String = ""
 )
