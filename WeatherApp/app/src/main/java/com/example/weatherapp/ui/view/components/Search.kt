@@ -8,6 +8,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +28,7 @@ import com.example.weatherapp.ui.viewModel.WeatherVM
 fun Search(weatherVM: WeatherVM) {
     var showDialog by remember { mutableStateOf(false) }
     val configuration = LocalConfiguration.current
+    val weather by weatherVM.weather.collectAsState()
 
     Button(
         onClick = { showDialog = true },
@@ -68,7 +70,8 @@ fun Search(weatherVM: WeatherVM) {
                                 weatherVM.searchLocation(location)
                                 showDialog = false
                             },
-                            onCancel = { showDialog = false }
+                            onCancel = { showDialog = false },
+                            weather.location
                         )
                     }
                 }
@@ -102,7 +105,8 @@ fun Search(weatherVM: WeatherVM) {
                                 weatherVM.searchLocation(location)
                                 showDialog = false
                             },
-                            onCancel = { showDialog = false }
+                            onCancel = { showDialog = false },
+                            weather.location
                         )
                     }
                 }

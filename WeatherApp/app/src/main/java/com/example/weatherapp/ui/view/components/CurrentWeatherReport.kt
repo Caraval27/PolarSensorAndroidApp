@@ -13,7 +13,7 @@ import com.example.weatherapp.model.Weather
 @Composable
 fun CurrentWeatherReport(weather: Weather) {
     val locality: String = weather.location.locality
-    val municipality: String = weather.location.municipality
+    val county: String = weather.location.county
     val currentTemperature: Int = weather.weather24Hours.firstOrNull()?.temperature ?: 0
     val minTemperature: Int = weather.weather7Days.firstOrNull()?.minTemperature ?: 0
     val maxTemperature: Int = weather.weather7Days.firstOrNull()?.maxTemperature ?: 0
@@ -35,7 +35,7 @@ fun CurrentWeatherReport(weather: Weather) {
             )
 
             Text(
-                text = municipality,
+                text = county,
                 fontSize = 22.sp,
                 color = Color.White
             )

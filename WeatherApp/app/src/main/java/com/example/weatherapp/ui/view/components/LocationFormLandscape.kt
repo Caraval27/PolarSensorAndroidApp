@@ -21,10 +21,10 @@ import androidx.compose.ui.unit.dp
 import com.example.weatherapp.model.Location
 
 @Composable
-fun LocationFormLandscape(onSubmit: (Location) -> Unit, onCancel: () -> Unit) {
-    var locality by remember { mutableStateOf("") }
-    var county by remember { mutableStateOf("") }
-    var municipality by remember { mutableStateOf("") }
+fun LocationFormLandscape(onSubmit: (Location) -> Unit, onCancel: () -> Unit, location: Location) {
+    var locality by remember { mutableStateOf(location.locality) }
+    var county by remember { mutableStateOf(location.county) }
+    var municipality by remember { mutableStateOf(location.municipality) }
     var localityEmpty by remember { mutableStateOf(false) }
     var municipalityEmpty by remember { mutableStateOf(false) }
     var countyEmpty by remember { mutableStateOf(false) }
