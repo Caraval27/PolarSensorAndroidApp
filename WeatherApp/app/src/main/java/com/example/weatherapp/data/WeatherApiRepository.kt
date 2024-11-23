@@ -1,6 +1,8 @@
 package com.example.weatherapp.data
 
 import android.util.Log
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 
 class WeatherApiRepository {
@@ -15,19 +17,19 @@ class WeatherApiRepository {
                 val temperature = timeSeries.parameters.find { it.name == "t" }?.values?.firstOrNull()
                 val symbol = timeSeries.parameters.find { it.name == "Wsymb2" }?.values?.firstOrNull()
 
-                if (temperature == null || symbol == null) { //osäker på om jag ska returnera att hela anropet misslyckades eller endast de tider/dagar som faktiskt misslyckades
+                if (temperature == null || symbol == null) {
                     return null;
                 }
 
                 WeatherTimeData (
-                    validTime = timeSeries.validTime,
+                    validTime = ZonedDateTime.parse(timeSeries.validTime).withZoneSameInstant(ZoneId.of("Europe/Stockholm")).toLocalDateTime(),
                     temperature = temperature,
                     symbol = symbol.toInt()
                 )
             }
 
             WeatherData (
-                approvedTime = fetchedData.approvedTime,
+                approvedTime = ZonedDateTime.parse(fetchedData.approvedTime).withZoneSameInstant(ZoneId.of("Europe/Stockholm")).toLocalDateTime(),
                 timeData = weatherTimeData
             )
         } catch (e: Exception) {

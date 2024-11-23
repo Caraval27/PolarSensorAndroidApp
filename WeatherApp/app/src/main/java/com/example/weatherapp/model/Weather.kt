@@ -81,7 +81,7 @@ class Weather (
         }
         val updatedWeather = Weather(
             _location = location,
-            _approvedTime = LocalDateTime.parse(weatherData.approvedTime, DateTimeFormatter.ISO_DATE_TIME),
+            _approvedTime = weatherData.approvedTime,
             _weather7Days = updateWeatherDay(weatherData),
             _weather24Hours = updateWeatherTime(weatherData),
             _applicationContext = _applicationContext
@@ -116,16 +116,16 @@ class Weather (
             return emptyList()
         }
 
-        val startDateTime = LocalDateTime.parse(weatherData.timeData.first().validTime, DateTimeFormatter.ISO_DATE_TIME)
+        val startDateTime = weatherData.timeData.first().validTime
         val endDateTime = startDateTime.plusHours(24)
 
         return weatherData.timeData.filter { weatherTimeData ->
-            val validDateTime = LocalDateTime.parse(weatherTimeData.validTime, DateTimeFormatter.ISO_DATE_TIME)
-            (validDateTime.isEqual(startDateTime) || validDateTime.isAfter(startDateTime)) &&
-            validDateTime.isBefore(endDateTime)
+            (weatherTimeData.validTime.isEqual(startDateTime) ||
+                    weatherTimeData.validTime.isAfter(startDateTime)) &&
+                    weatherTimeData.validTime.isBefore(endDateTime)
         }.map { weatherTimeData ->
             WeatherTime(
-                time = LocalTime.parse(weatherTimeData.validTime.substring(11, 19)), //som kommentaren nedan
+                time = weatherTimeData.validTime.toLocalTime(),
                 temperature = weatherTimeData.temperature.roundToInt(),
                 icon = weatherTimeData.symbol
             )
@@ -134,7 +134,7 @@ class Weather (
 
     private fun updateWeatherDay(weatherData: WeatherData) : List<WeatherDay> {
         val groupedByDate = weatherData.timeData.groupBy { timeData ->
-            LocalDate.parse(timeData.validTime.substring(0, 10)) //tror kanske det är snyggare att först göra om till dateTime och sen till date, istället för att använda substring
+            timeData.validTime.toLocalDate()
         }
 
         return groupedByDate.map { (date, weatherTimes) ->
