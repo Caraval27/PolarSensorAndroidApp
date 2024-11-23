@@ -25,6 +25,9 @@ fun LocationFormPortrait(onSubmit: (Location) -> Unit, onCancel: () -> Unit) {
     var locality by remember { mutableStateOf("") }
     var county by remember { mutableStateOf("") }
     var municipality by remember { mutableStateOf("") }
+    var localityEmpty by remember { mutableStateOf(false) }
+    var municipalityEmpty by remember { mutableStateOf(false) }
+    var countyEmpty by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -37,18 +40,21 @@ fun LocationFormPortrait(onSubmit: (Location) -> Unit, onCancel: () -> Unit) {
             value = locality,
             onValueChange = { locality = it },
             label = { Text("Locality") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        TextField(
-            value = county,
-            onValueChange = { county = it },
-            label = { Text("County") },
+            isError = localityEmpty,
             modifier = Modifier.fillMaxWidth()
         )
         TextField(
             value = municipality,
             onValueChange = { municipality = it },
             label = { Text("Municipality") },
+            isError = municipalityEmpty,
+            modifier = Modifier.fillMaxWidth()
+        )
+        TextField(
+            value = county,
+            onValueChange = { county = it },
+            label = { Text("County") },
+            isError = countyEmpty,
             modifier = Modifier.fillMaxWidth()
         )
         Row(
@@ -60,13 +66,18 @@ fun LocationFormPortrait(onSubmit: (Location) -> Unit, onCancel: () -> Unit) {
             }
             TextButton(
                 onClick = {
-                    onSubmit(
-                        Location(
-                            locality = locality,
-                            county = county,
-                            municipality = municipality
+                    localityEmpty = locality.isEmpty()
+                    municipalityEmpty = municipality.isEmpty()
+                    countyEmpty = county.isEmpty()
+                    if (!localityEmpty && !municipalityEmpty && !countyEmpty) {
+                        onSubmit(
+                            Location(
+                                locality = locality,
+                                county = county,
+                                municipality = municipality
+                            )
                         )
-                    )
+                    }
                 }
             ) {
                 Text("Search", color = Color.Blue)

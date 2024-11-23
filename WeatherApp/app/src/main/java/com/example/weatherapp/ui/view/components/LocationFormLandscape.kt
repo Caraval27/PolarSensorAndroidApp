@@ -46,17 +46,17 @@ fun LocationFormLandscape(onSubmit: (Location) -> Unit, onCancel: () -> Unit) {
                     .weight(1f),
             )
             TextField(
-                value = county,
-                onValueChange = { county = it },
-                label = { Text("County") },
+                value = municipality,
+                onValueChange = { municipality = it },
+                label = { Text("Municipality") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
             )
             TextField(
-                value = municipality,
-                onValueChange = { municipality = it },
-                label = { Text("Municipality") },
+                value = county,
+                onValueChange = { county = it },
+                label = { Text("County") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)

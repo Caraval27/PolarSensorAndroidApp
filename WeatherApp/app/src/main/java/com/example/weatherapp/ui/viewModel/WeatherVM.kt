@@ -27,14 +27,14 @@ class WeatherVM(
     }
 
     fun searchLocation(searchedLocation: Location) {
-        _weatherState.value = _weatherState.value.copy(selectedLocation = searchedLocation, searched = false)
-        Log.d("WeatherVM", "Updated Weather: Municipality = ${_weatherState.value.selectedLocation.municipality}")
-        getWeather()
+        _weatherState.value = _weatherState.value.copy(searched = false)
+        Log.d("WeatherVM", "Updated Weather: Municipality = ${searchedLocation.municipality}")
+        getWeather(searchedLocation)
     }
 
-    private fun getWeather() {
+    private fun getWeather(searchedLocation: Location) {
         viewModelScope.launch {
-            _weather.value = _weather.value.updateWeather(_weatherState.value.selectedLocation)
+            _weather.value = _weather.value.updateWeather(searchedLocation)
             Log.d("WeatherVM", "Updated weather")
             _weatherState.value = _weatherState.value.copy(searched = true)
         }
@@ -42,7 +42,7 @@ class WeatherVM(
 
     init {
         viewModelScope.launch {
-            _weather.value = _weather.value.updateWeather(_weatherState.value.selectedLocation)
+            _weather.value = _weather.value.updateWeather(Location())
         }
     }
 }
@@ -54,8 +54,6 @@ enum class ViewType {
 
 data class WeatherState (
     val viewType: ViewType = ViewType.Day,
-    val selectedLocation: Location = Location("Sigfridstorp", "Dalarnas län", "Vansbro"), // för test
-    //val selectedLocation: Location = Location("Flemingsberg", "Stockholm", "Huddinge kommun"),
     val searched: Boolean = false
 )
 

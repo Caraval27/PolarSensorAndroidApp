@@ -167,7 +167,10 @@ enum class ErrorType {
 }
 
 data class Location (
-    val locality: String = "",
-    val county: String = "",
-    val municipality: String = ""
+    val locality: String = "Sigfridstorp",
+    val county: String = "Dalarnas län",
+    val municipality: String = "Vansbro"
+    /*val locality: String = "Flemingsberg",
+    val county: String = "Stockholms län",
+    val municipality: String = "Huddinge"*/
 )
