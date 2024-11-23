@@ -41,6 +41,7 @@ fun LocationFormPortrait(onSubmit: (Location) -> Unit, onCancel: () -> Unit, loc
             onValueChange = { locality = it },
             label = { Text("Locality") },
             isError = localityEmpty,
+            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
         TextField(
@@ -48,6 +49,7 @@ fun LocationFormPortrait(onSubmit: (Location) -> Unit, onCancel: () -> Unit, loc
             onValueChange = { municipality = it },
             label = { Text("Municipality") },
             isError = municipalityEmpty,
+            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
         TextField(
@@ -55,6 +57,7 @@ fun LocationFormPortrait(onSubmit: (Location) -> Unit, onCancel: () -> Unit, loc
             onValueChange = { county = it },
             label = { Text("County") },
             isError = countyEmpty,
+            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
         Row(
