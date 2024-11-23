@@ -45,6 +45,7 @@ fun LocationFormLandscape(onSubmit: (Location) -> Unit, onCancel: () -> Unit) {
                 onValueChange = { locality = it },
                 label = { Text("Locality") },
                 isError = localityEmpty,
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
@@ -54,6 +55,7 @@ fun LocationFormLandscape(onSubmit: (Location) -> Unit, onCancel: () -> Unit) {
                 onValueChange = { municipality = it },
                 label = { Text("Municipality") },
                 isError = municipalityEmpty,
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
@@ -63,6 +65,7 @@ fun LocationFormLandscape(onSubmit: (Location) -> Unit, onCancel: () -> Unit) {
                 onValueChange = { county = it },
                 label = { Text("County") },
                 isError = countyEmpty,
+                singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
