@@ -16,10 +16,10 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
 class Weather (
-    private val _location: Location = Location(),
-    private val _approvedTime: LocalDateTime = LocalDateTime.MIN,
-    private val _weather7Days: List<WeatherDay> = emptyList(),
-    private val _weather24Hours: List<WeatherTime> = emptyList(),
+    private val _location: Location,
+    private val _approvedTime: LocalDateTime,
+    private val _weather7Days: List<WeatherDay>,
+    private val _weather24Hours: List<WeatherTime>,
     private var _hasInternetConnection : Boolean = true,
     private var _locationIsFound : Boolean = true,
     private var _weatherIsFound : Boolean = true,
@@ -57,14 +57,9 @@ class Weather (
         if (networkCapabilities == null || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
             Log.d("Weather", "No internet connection")
             if (storedWeather == null) {
-                return Weather(
-                    _location = _location,
-                    _approvedTime = _approvedTime,
-                    _weather7Days = _weather7Days,
-                    _weather24Hours = _weather24Hours,
-                    _hasInternetConnection = false,
-                    _applicationContext = _applicationContext
-                )
+                val weatherCopy = copyWeather()
+                weatherCopy._hasInternetConnection = false
+                return weatherCopy
             }
             storedWeather._hasInternetConnection = false
             return storedWeather
@@ -77,26 +72,18 @@ class Weather (
             return storedWeather
         }
         val coordinatesString = fetchCoordinates(location)
-            ?: return Weather(
-                _location = _location,
-                _approvedTime = _approvedTime,
-                _weather7Days = _weather7Days,
-                _weather24Hours = _weather24Hours,
-                _locationIsFound = false,
-                _applicationContext = _applicationContext
-            )
+        if (coordinatesString == null) {
+            val weatherCopy = copyWeather()
+            weatherCopy._locationIsFound = false
+            return weatherCopy
+        }
         Log.d("Coordinates", "Coordinate string getWeather: $coordinatesString")
         val weatherData = fetchWeather(coordinatesString)
         if (weatherData == null) {
             Log.d("Weather", "Weather data is null in getWeather.")
-            return Weather(
-                _location = _location,
-                _approvedTime = _approvedTime,
-                _weather7Days = _weather7Days,
-                _weather24Hours = _weather24Hours,
-                _weatherIsFound = false,
-                _applicationContext = _applicationContext
-            )
+            val weatherCopy = copyWeather()
+            weatherCopy._weatherIsFound = false
+            return weatherCopy
         }
         val updatedWeather = Weather(
             _location = location,
@@ -107,6 +94,16 @@ class Weather (
         )
         weatherDbRepository.insertWeather(updatedWeather)
         return updatedWeather
+    }
+
+    private suspend fun copyWeather() : Weather {
+        return Weather(
+            _location = _location,
+            _approvedTime = _approvedTime,
+            _weather7Days = _weather7Days,
+            _weather24Hours = _weather24Hours,
+            _applicationContext = _applicationContext
+        )
     }
 
     private suspend fun fetchCoordinates(location: Location) : String? {
@@ -128,51 +125,52 @@ class Weather (
         return weatherData
     }
 
-    private fun updateWeatherTime(weatherData: WeatherData?) : List<WeatherTime> {
-        if (weatherData?.timeData.isNullOrEmpty()) return emptyList()
+    private fun updateWeatherTime(weatherData: WeatherData) : List<WeatherTime> {
+        if (weatherData.timeData.isEmpty()) {
+            return emptyList()
+        }
 
-        val startDateTime = LocalDateTime.parse(weatherData?.timeData?.first()?.validTime, DateTimeFormatter.ISO_DATE_TIME)
+        val startDateTime = LocalDateTime.parse(weatherData.timeData.first().validTime, DateTimeFormatter.ISO_DATE_TIME)
         val endDateTime = startDateTime.plusHours(24)
 
-        return weatherData?.timeData?.filter { weatherTimeData ->
+        return weatherData.timeData.filter { weatherTimeData ->
             val validDateTime = LocalDateTime.parse(weatherTimeData.validTime, DateTimeFormatter.ISO_DATE_TIME)
-                    (validDateTime.isEqual(startDateTime) || validDateTime.isAfter(startDateTime)) &&
-                    validDateTime.isBefore(endDateTime)
-        }?.map { weatherTimeData ->
+            (validDateTime.isEqual(startDateTime) || validDateTime.isAfter(startDateTime)) &&
+            validDateTime.isBefore(endDateTime)
+        }.map { weatherTimeData ->
             WeatherTime(
-                time = LocalTime.parse(weatherTimeData.validTime.substring(11, 19)), //som nedan
+                time = LocalTime.parse(weatherTimeData.validTime.substring(11, 19)), //som kommentaren nedan
                 temperature = weatherTimeData.temperature.roundToInt(),
                 icon = weatherTimeData.symbol
             )
-        } ?: emptyList()
+        }
     }
 
-    private fun updateWeatherDay(weatherData: WeatherData?) : List<WeatherDay> {
-        if (weatherData?.timeData.isNullOrEmpty()) return emptyList()
+    private fun updateWeatherDay(weatherData: WeatherData) : List<WeatherDay> {
 
-        val groupedByDate = weatherData?.timeData?.groupBy { timeData ->
+        val groupedByDate = weatherData.timeData.groupBy { timeData ->
             LocalDate.parse(timeData.validTime.substring(0, 10)) //tror kanske det är snyggare att först göra om till dateTime och sen till date, istället för att använda substring
         }
 
-        return groupedByDate?.map { (date, weatherTimes) ->
-            val minTemperature = weatherTimes.minOfOrNull { it.temperature.roundToInt() } ?: 0
-            val maxTemperature = weatherTimes.maxOfOrNull { it.temperature.roundToInt() } ?: 0
+        return groupedByDate.map { (date, weatherTimes) ->
+            val minTemperature = weatherTimes.minOf { it.temperature.roundToInt() }
+            val maxTemperature = weatherTimes.maxOf { it.temperature.roundToInt() }
             val mostCommonIcon = weatherTimes.groupingBy { it.symbol }
                 .eachCount()
-                .maxByOrNull { it.value }?.key ?: 0
-            
+                .maxBy { it.value }.key
+
             WeatherDay(
                 date = date,
                 minTemperature = minTemperature,
                 maxTemperature = maxTemperature,
                 mostCommonIcon = mostCommonIcon
             )
-        } ?: emptyList()
+        }
     }
 }
 
 data class Location (
-    val locality: String = "Flemingsberg",
-    val county: String = "Stockholm",
-    val municipality: String = "Huddinge kommun"
+    val locality: String,
+    val county: String,
+    val municipality: String
 )
