@@ -60,7 +60,7 @@ class Weather (
             storedWeather._errorType = ErrorType.NoConnection
             return storedWeather
         }
-        val currentTime = ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime()
+        val currentTime = ZonedDateTime.now().withZoneSameInstant(ZoneId.of("Europe/Stockholm")).toLocalDateTime()
         if (storedWeather != null &&
             Duration.between(storedWeather._approvedTime, currentTime).toHours() < 1) {
             Log.d("Weather", Duration.between(storedWeather._approvedTime, currentTime).toHours().toString())
