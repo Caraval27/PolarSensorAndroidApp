@@ -3,7 +3,7 @@ package com.example.weatherapp.data
 import android.util.Log
 
 
-class WeatherServerRepository {
+class WeatherApiRepository {
     private val weatherApi = RetrofitClient.weatherApi
 
     suspend fun fetchWeather(lonLat: String) : WeatherData? {
@@ -12,8 +12,12 @@ class WeatherServerRepository {
             Log.d("Weather", "API response successful: ${fetchedData.approvedTime}")
 
             val weatherTimeData = fetchedData.timeSeries.map { timeSeries ->
-                val temperature = timeSeries.parameters.find { it.name == "t" }?.values?.firstOrNull() ?: 0f
-                val symbol = timeSeries.parameters.find { it.name == "Wsymb2" }?.values?.firstOrNull() ?: 0
+                val temperature = timeSeries.parameters.find { it.name == "t" }?.values?.firstOrNull()
+                val symbol = timeSeries.parameters.find { it.name == "Wsymb2" }?.values?.firstOrNull()
+
+                if (temperature == null || symbol == null) { //osäker på om jag ska returnera att hela anropet misslyckades eller endast de tider/dagar som faktiskt misslyckades
+                    return null;
+                }
 
                 WeatherTimeData (
                     validTime = timeSeries.validTime,

@@ -3,7 +3,7 @@ package com.example.weatherapp.data
 import android.util.Log
 import com.example.weatherapp.model.Location
 
-class CoordinatesRepository {
+class CoordinatesApiRepository {
     private val coordinatesApi = RetrofitClient.coordinatesApi
 
     suspend fun fetchCoordinates(location: Location) : CoordinatesData? {

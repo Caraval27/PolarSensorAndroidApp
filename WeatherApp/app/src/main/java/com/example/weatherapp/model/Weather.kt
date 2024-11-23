@@ -2,16 +2,12 @@ package com.example.weatherapp.model
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkInfo
 import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.room.util.copy
-import com.example.weatherapp.data.CoordinatesRepository
+import com.example.weatherapp.data.CoordinatesApiRepository
 import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherDbRepository
-import com.example.weatherapp.data.WeatherServerRepository
+import com.example.weatherapp.data.WeatherApiRepository
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -26,6 +22,7 @@ class Weather (
     private val _weather24Hours: List<WeatherTime> = emptyList(),
     private var _hasInternetConnection : Boolean = true,
     private var _locationIsFound : Boolean = true,
+    private var _weatherIsFound : Boolean = true,
     private val _applicationContext: Context
 ) {
     val location: Location
@@ -46,8 +43,11 @@ class Weather (
     val locationIsFound: Boolean
         get() = _locationIsFound
 
-    private val weatherServerRepository = WeatherServerRepository()
-    private val coordinatesRepository = CoordinatesRepository()
+    val weatherIsFound : Boolean
+        get() = _weatherIsFound
+
+    private val weatherApiRepository = WeatherApiRepository()
+    private val coordinatesApiRepository = CoordinatesApiRepository()
     private val weatherDbRepository = WeatherDbRepository(_applicationContext)
 
     suspend fun getWeather(location: Location) : Weather {
@@ -87,25 +87,30 @@ class Weather (
             )
         Log.d("Coordinates", "Coordinate string getWeather: $coordinatesString")
         val weatherData = fetchWeather(coordinatesString)
-        if (weatherData != null) {
-            val updatedWeather = Weather(
-                _location = location,
-                _approvedTime = LocalDateTime.parse(weatherData.approvedTime, DateTimeFormatter.ISO_DATE_TIME),
-                _weather7Days = updateWeatherDay(weatherData),
-                _weather24Hours = updateWeatherTime(weatherData),
+        if (weatherData == null) {
+            Log.d("Weather", "Weather data is null in getWeather.")
+            return Weather(
+                _location = _location,
+                _approvedTime = _approvedTime,
+                _weather7Days = _weather7Days,
+                _weather24Hours = _weather24Hours,
+                _weatherIsFound = false,
                 _applicationContext = _applicationContext
             )
-            weatherDbRepository.insertWeather(updatedWeather)
-            return updatedWeather
-        } else {
-            Log.d("Weather", "Weather data is null in getWeather.")
         }
-
-        return this
+        val updatedWeather = Weather(
+            _location = location,
+            _approvedTime = LocalDateTime.parse(weatherData.approvedTime, DateTimeFormatter.ISO_DATE_TIME),
+            _weather7Days = updateWeatherDay(weatherData),
+            _weather24Hours = updateWeatherTime(weatherData),
+            _applicationContext = _applicationContext
+        )
+        weatherDbRepository.insertWeather(updatedWeather)
+        return updatedWeather
     }
 
     private suspend fun fetchCoordinates(location: Location) : String? {
-        val coordinatesData = coordinatesRepository.fetchCoordinates(location)
+        val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
         return if (coordinatesData != null) {
             "lon/" + coordinatesData.lon + "/lat/" + coordinatesData.lat
         } else {
@@ -114,13 +119,13 @@ class Weather (
     }
 
     private suspend fun fetchWeather(lonLat: String) : WeatherData? {
-        val _weatherData = weatherServerRepository.fetchWeather(lonLat)
-        if (_weatherData != null) {
-            Log.d("Weather", "Approved Time in fetchWeather: ${_weatherData.approvedTime}")
-        } else {
+        val weatherData = weatherApiRepository.fetchWeather(lonLat)
+        if (weatherData == null) {
             Log.d("Weather", "Failed to fetch weather data in fetchWeather.")
+        } else {
+            Log.d("Weather", "Approved Time in fetchWeather: ${weatherData.approvedTime}")
         }
-        return _weatherData
+        return weatherData
     }
 
     private fun updateWeatherTime(weatherData: WeatherData?) : List<WeatherTime> {

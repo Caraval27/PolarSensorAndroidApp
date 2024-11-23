@@ -1,7 +1,6 @@
 package com.example.weatherapp.data
 
 data class WeatherResponse(
-    val referenceTime: String,
     val approvedTime: String,
     val timeSeries: List<TimeSeries>
 )
@@ -14,5 +13,4 @@ data class TimeSeries(
 data class Parameter(
     val name: String,
     val values: List<Float>,
-    val unit: String //när används denna?
 )
