@@ -5,10 +5,6 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Ignore
-import androidx.room.PrimaryKey
-import androidx.room.Relation
-import java.time.LocalDate
-import java.time.LocalTime
 
 @Entity(
     tableName = "weather",
@@ -33,67 +29,13 @@ data class WeatherEntity (
 
     @Ignore
     @Embedded
-    var weather7Days: List<WeatherDayEntity> = emptyList(),
-
-    @Ignore
-    @Embedded
-    var weather24Hours: List<WeatherTimeEntity> = emptyList()
-)
-
-@Entity(
-    tableName = "weather_day",
-    primaryKeys = ["locality", "municipality", "county", "date"],
-    foreignKeys = [
-        /*ForeignKey(
-            entity = WeatherEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["weather_id"],
-            onDelete = ForeignKey.CASCADE
-        )*/
-        ForeignKey(
-            entity = WeatherEntity::class,
-            parentColumns = ["locality", "municipality", "county"],
-            childColumns = ["locality", "municipality", "county"],
-            onDelete = ForeignKey.CASCADE
-        ),
-    ]
-)
-data class WeatherDayEntity (
-    @ColumnInfo(name = "date")
-    var date: String = "",
-
-    @ColumnInfo(name = "min_temperature")
-    var minTemperature: Int = Int.MAX_VALUE,
-
-    @ColumnInfo(name = "max_temperature")
-    var maxTemperature: Int = Int.MIN_VALUE,
-
-    @ColumnInfo(name = "most_common_icon")
-    var mostCommonIcon: Int = 0,
-
-    @ColumnInfo(name = "locality")
-    var locality: String = "",
-
-    @ColumnInfo(name = "municipality")
-    var municipality: String = "",
-
-    @ColumnInfo(name = "county")
-    var county: String = "",
-
-    /*@ColumnInfo(name = "weather_id")
-    val weatherId: Int*/
+    var weatherTimeEntities: List<WeatherTimeEntity> = emptyList(),
 )
 
 @Entity(
     tableName = "weather_time",
-    primaryKeys = ["locality", "municipality", "county", "time"],
+    primaryKeys = ["locality", "municipality", "county", "valid_time"],
     foreignKeys = [
-        /*ForeignKey(
-            entity = WeatherEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["weather_id"],
-            onDelete = ForeignKey.CASCADE
-        )*/
         ForeignKey(
             entity = WeatherEntity::class,
             parentColumns = ["locality", "municipality", "county"],
@@ -103,14 +45,14 @@ data class WeatherDayEntity (
     ]
 )
 data class WeatherTimeEntity (
-    @ColumnInfo(name = "time")
-    val time: String = "",
+    @ColumnInfo(name = "valid_time")
+    val validTime: String = "",
 
     @ColumnInfo(name = "temperature")
     var temperature: Int = Int.MIN_VALUE,
 
-    @ColumnInfo(name = "icon")
-    var icon: Int = 0,
+    @ColumnInfo(name = "symbol")
+    var symbol: Int = 0,
 
     @ColumnInfo(name = "locality")
     var locality: String = "",

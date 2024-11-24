@@ -10,14 +10,10 @@ import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherDbRepository
 import com.example.weatherapp.data.WeatherApiRepository
 import java.time.Duration
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import kotlin.math.roundToInt
 
 class Weather (
     private var _location: Location = Location(),
@@ -29,9 +25,6 @@ class Weather (
 ) {
     val location: Location
         get() = _location
-
-    val approvedTime: LocalDateTime
-        get() = _approvedTime
 
     val weather7Days: List<WeatherDay>
         get() = _weather7Days
@@ -47,48 +40,39 @@ class Weather (
     private val weatherDbRepository = WeatherDbRepository(_applicationContext)
 
     suspend fun updateWeather(location: Location) : Weather {
-        val storedWeather = weatherDbRepository.getWeather(location)
+        val currentDateTime = ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime()
+        if (location == _location && Duration.between(_approvedTime, currentDateTime).toHours() < 1) {
+            return copyWeather(ErrorType.None)
+        }
+        val storedWeatherData = weatherDbRepository.getWeather(location)
         val connectivityManager = _applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-
         if (networkCapabilities == null || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
             Log.d("Weather", "No internet connection")
-            if (storedWeather == null) {
-                val weatherCopy = copyWeather(ErrorType.NoConnection)
-                return weatherCopy
+            if (storedWeatherData == null) {
+                return Weather(_location = location, _errorType = ErrorType.NoConnection, _applicationContext = _applicationContext)
             }
-            storedWeather._errorType = ErrorType.NoConnection
-            return storedWeather
+            return updateWeather(storedWeatherData, location, ErrorType.NoConnection)
         }
-        val currentDateTime = ZonedDateTime.now(ZoneId.of("Europe/Stockholm")).toLocalDateTime()
-        if (storedWeather != null &&
-            Duration.between(storedWeather._approvedTime, currentDateTime).toHours() < 1) {
-            Log.d("Weather", Duration.between(storedWeather._approvedTime, currentDateTime).toHours().toString())
-            return storedWeather
+        if (storedWeatherData != null &&
+            Duration.between(storedWeatherData.approvedTime, currentDateTime).toHours() < 1) {
+            Log.d("Weather", Duration.between(storedWeatherData.approvedTime, currentDateTime).toHours().toString())
+            return updateWeather(storedWeatherData, location, ErrorType.None)
         }
 
-        val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
+        //val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
+        val coordinatesData = CoordinatesData(14.333, 60.38)
         if (coordinatesData == null) {
-            val weatherCopy = copyWeather(ErrorType.NoCoordinates)
-            return weatherCopy
+            return copyWeather(ErrorType.NoCoordinates)
         }
-        //val coordinatesData = CoordinatesData(14.333, 60.38)
         Log.d("Coordinates", "Coordinate string getWeather: ${coordinatesData.lon} and ${coordinatesData.lat}")
         val weatherData = weatherApiRepository.fetchWeather(coordinatesData)
         if (weatherData == null) {
             Log.d("Weather", "Weather data is null in getWeather.")
-            val weatherCopy = copyWeather(ErrorType.NoWeather)
-            return weatherCopy
+            return copyWeather(ErrorType.NoWeather)
         }
-        val updatedWeather = Weather(
-            _location = location,
-            _approvedTime = weatherData.approvedTime,
-            _weather7Days = updateWeatherDay(weatherData),
-            _weather24Hours = updateWeatherTime(weatherData),
-            _applicationContext = _applicationContext
-        )
-        weatherDbRepository.insertWeather(updatedWeather)
-        return updatedWeather
+        weatherDbRepository.insertWeather(weatherData, location)
+        return updateWeather(weatherData, location, ErrorType.None)
     }
 
     private suspend fun copyWeather(errorType: ErrorType) : Weather {
@@ -98,42 +82,53 @@ class Weather (
             _weather7Days = _weather7Days,
             _weather24Hours = _weather24Hours,
             _errorType = errorType,
+            _applicationContext = _applicationContext)
+    }
+
+    private suspend fun updateWeather(weatherData: WeatherData, location: Location, errorType: ErrorType) : Weather {
+        return Weather(
+            _location = location,
+            _approvedTime = weatherData.approvedTime,
+            _weather7Days = updateWeatherDay(weatherData),
+            _weather24Hours = updateWeatherTime(weatherData),
+            _errorType = errorType,
             _applicationContext = _applicationContext
         )
     }
 
     private fun updateWeatherTime(weatherData: WeatherData) : List<WeatherTime> {
-        val currentHour = ZonedDateTime.now(ZoneId.of("Europe/Stockholm")).toLocalDateTime()
-            .withMinute(0).withSecond(0)
+        val currentHour = LocalDateTime.now().withMinute(0).withSecond(0)
         Log.d("Weather", "Current hour:" + currentHour)
-        val startDateTime = weatherData.timeData.map { it.validTime }/*.filter { it >= currentHour }*/
+        val startDateTime = weatherData.weatherTimeData
+            .map { it.validTime.atZone(ZoneId.of("Europe/Stockholm")).toLocalDateTime() }
+            .filter { it >= currentHour }
             .minOrNull()
         if (startDateTime == null) {
             return emptyList()
         }
-        Log.d("Weather", "Start time: " + startDateTime)
+        Log.d("Weather", "Start time :" + startDateTime + " First time: " + weatherData.weatherTimeData.first())
         val endDateTime = startDateTime.plusHours(24)
 
-        return weatherData.timeData.filter { weatherTimeData ->
+        return weatherData.weatherTimeData.filter { weatherTimeData ->
             weatherTimeData.validTime >= startDateTime &&
                     weatherTimeData.validTime < endDateTime
         }.map { weatherTimeData ->
             WeatherTime(
                 time = weatherTimeData.validTime.toLocalTime(),
-                temperature = weatherTimeData.temperature.roundToInt(),
+                temperature = weatherTimeData.temperature,
                 icon = weatherTimeData.symbol
             )
         }
     }
 
     private fun updateWeatherDay(weatherData: WeatherData) : List<WeatherDay> {
-        val currentDate = ZonedDateTime.now(ZoneId.of("Europe/Stockholm")).toLocalDate()
-        val groupedByDate = weatherData.timeData.groupBy { it.validTime.toLocalDate() }
+        val currentDate = ZonedDateTime.now(ZoneOffset.UTC).toLocalDate()
+        val groupedByDate = weatherData.weatherTimeData.groupBy { it.validTime.toLocalDate() }
             .filterKeys { it >= currentDate }
 
         return groupedByDate.map { (date, weatherTimes) ->
-            val minTemperature = weatherTimes.minOf { it.temperature.roundToInt() }
-            val maxTemperature = weatherTimes.maxOf { it.temperature.roundToInt() }
+            val minTemperature = weatherTimes.minOf { it.temperature }
+            val maxTemperature = weatherTimes.maxOf { it.temperature }
             val mostCommonIcon = weatherTimes.groupingBy { it.symbol }
                 .eachCount()
                 .maxBy { it.value }.key

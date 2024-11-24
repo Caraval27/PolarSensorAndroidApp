@@ -1,8 +1,11 @@
 package com.example.weatherapp.data
 
 import android.util.Log
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import kotlin.math.roundToInt
 
 
 class WeatherApiRepository {
@@ -10,8 +13,8 @@ class WeatherApiRepository {
 
     suspend fun fetchWeather(coordinatesData: CoordinatesData) : WeatherData? {
         return try {
-            //val fetchedData = weatherApi.getForecast("lon/14.333/lat/60.38")
-            val fetchedData = weatherApi.getForecast(coordinatesData.lon, coordinatesData.lat)
+            val fetchedData = weatherApi.getForecast("lon/14.333/lat/60.38")
+            //val fetchedData = weatherApi.getForecast(coordinatesData.lon, coordinatesData.lat)
             Log.d("Weather", "API response successful: ${fetchedData.approvedTime}")
 
             val weatherTimeData = fetchedData.timeSeries.map { timeSeries ->
@@ -23,15 +26,15 @@ class WeatherApiRepository {
                 }
 
                 WeatherTimeData (
-                    validTime = ZonedDateTime.parse(timeSeries.validTime).withZoneSameInstant(ZoneId.of("Europe/Stockholm")).toLocalDateTime(),
-                    temperature = temperature,
+                    validTime = LocalDateTime.parse(timeSeries.validTime, DateTimeFormatter.ISO_DATE_TIME),
+                    temperature = temperature.roundToInt(),
                     symbol = symbol.toInt()
                 )
             }
 
             WeatherData (
-                approvedTime = ZonedDateTime.parse(fetchedData.approvedTime).withZoneSameInstant(ZoneId.of("Europe/Stockholm")).toLocalDateTime(),
-                timeData = weatherTimeData
+                approvedTime = LocalDateTime.parse(fetchedData.approvedTime, DateTimeFormatter.ISO_DATE_TIME),
+                weatherTimeData = weatherTimeData
             )
         } catch (e: Exception) {
             Log.e("Weather", "Exception occurred: ${e.localizedMessage}", e)

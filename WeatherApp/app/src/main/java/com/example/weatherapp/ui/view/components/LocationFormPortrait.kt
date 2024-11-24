@@ -83,7 +83,7 @@ fun LocationFormPortrait(onSubmit: (Location) -> Unit, onCancel: () -> Unit, loc
                     }
                 }
             ) {
-                Text("Search", color = Color.Blue)
+                Text("Select", color = Color.Blue)
             }
         }
     }

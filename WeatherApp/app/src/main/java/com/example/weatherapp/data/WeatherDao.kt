@@ -6,19 +6,16 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import androidx.room.Update
 import com.example.weatherapp.model.Location
-import com.example.weatherapp.model.Weather
 
 @Dao
 interface WeatherDao {
 
     @Transaction
-    suspend fun insertWeatherDayAndTime(weather: WeatherEntity) {
+    suspend fun insertWeatherWithTime(weather: WeatherEntity) {
         try {
             insertWeather(weather)
-            insertWeatherDays(weather.weather7Days)
-            insertWeatherTimes(weather.weather24Hours)
+            insertWeatherTimes(weather.weatherTimeEntities)
         }
         catch (e: Exception) {
             Log.e("WeatherDao", "Exception occurred: ${e.localizedMessage}", e)
@@ -29,18 +26,14 @@ interface WeatherDao {
     suspend fun insertWeather(weather: WeatherEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertWeatherDays(weatherDays: List<WeatherDayEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWeatherTimes(weatherTimes: List<WeatherTimeEntity>)
 
     @Transaction
-    suspend fun getWeatherDayAndTimeByLocation(location: Location) : WeatherEntity? {
+    suspend fun getWeatherWithTimeByLocation(location: Location) : WeatherEntity? {
         try {
             val weather = getWeatherByLocation(location.locality, location.municipality, location.county)
                 ?: return null
-            weather.weather7Days = getWeatherDaysByLocation(location.locality, location.municipality, location.county)
-            weather.weather24Hours = getWeatherTimesByLocation(location.locality, location.municipality, location.county)
+            weather.weatherTimeEntities = getWeatherTimesByLocation(location.locality, location.municipality, location.county)
             return weather
         }
         catch (e: Exception) {
@@ -55,13 +48,6 @@ interface WeatherDao {
         WHERE locality = :locality AND municipality = :municipality AND county = :county
     """)
     suspend fun getWeatherByLocation(locality: String, municipality: String, county: String) : WeatherEntity?
-
-    @Query("""
-        SELECT *
-        FROM weather_day
-        WHERE locality = :locality AND municipality = :municipality AND county = :county
-    """)
-    suspend fun getWeatherDaysByLocation(locality: String, municipality: String, county: String) : List<WeatherDayEntity>
 
     @Query("""
         SELECT *

@@ -1,15 +1,14 @@
 package com.example.weatherapp.data
 
 import java.time.LocalDateTime
-import java.time.ZonedDateTime
 
 data class WeatherData (
     val approvedTime: LocalDateTime,
-    val timeData: List<WeatherTimeData>
+    val weatherTimeData: List<WeatherTimeData>
 )
 
 data class WeatherTimeData (
     val validTime: LocalDateTime,
-    val temperature: Float,
+    val temperature: Int,
     val symbol: Int
 )

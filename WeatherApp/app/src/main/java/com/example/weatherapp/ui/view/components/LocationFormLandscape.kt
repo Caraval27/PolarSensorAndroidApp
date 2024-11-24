@@ -95,7 +95,7 @@ fun LocationFormLandscape(onSubmit: (Location) -> Unit, onCancel: () -> Unit, lo
                     }
                 }
             ) {
-                Text("Search", color = Color.Blue)
+                Text("Select", color = Color.Blue)
             }
         }
     }

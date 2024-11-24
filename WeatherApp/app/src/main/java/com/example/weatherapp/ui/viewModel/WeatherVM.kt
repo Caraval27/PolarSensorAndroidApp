@@ -44,6 +44,7 @@ class WeatherVM(
         viewModelScope.launch {
             _weather.value = _weather.value.updateWeather(Location())
         }
+       // application.applicationContext.deleteDatabase("weather_db")
     }
 }
 
