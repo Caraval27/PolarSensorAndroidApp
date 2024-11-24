@@ -21,8 +21,6 @@ import androidx.compose.ui.unit.dp
 import com.example.weatherapp.model.ErrorType
 import com.example.weatherapp.model.Location
 import com.example.weatherapp.ui.view.components.CurrentWeatherReport
-import com.example.weatherapp.ui.view.components.NoWeatherDataAvailableLandscape
-import com.example.weatherapp.ui.view.components.NoWeatherDataAvailableProfile
 import com.example.weatherapp.ui.view.components.Search
 import com.example.weatherapp.ui.viewModel.WeatherVM
 import com.example.weatherapp.ui.view.components.WeatherReportList
@@ -105,7 +103,8 @@ fun PortraitLayout(
                         showDialog = showDialog,
                         setShowDialog = setShowDialog,
                         location = location,
-                        setLocation = setLocation
+                        setLocation = setLocation,
+                        onFormOpened = { snackbarHostState.currentSnackbarData?.dismiss() }
                     )
                 }
                 CurrentWeatherReport(weather = weather)
@@ -187,7 +186,8 @@ fun LandscapeLayout(
                             showDialog = showDialog,
                             setShowDialog = setShowDialog,
                             location = location,
-                            setLocation = setLocation
+                            setLocation = setLocation,
+                            onFormOpened = { snackbarHostState.currentSnackbarData?.dismiss()}
                         )
                     }
                     Spacer(modifier = Modifier.height(1.dp))
