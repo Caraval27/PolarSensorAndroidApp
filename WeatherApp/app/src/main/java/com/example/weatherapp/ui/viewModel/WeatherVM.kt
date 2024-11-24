@@ -21,12 +21,16 @@ class WeatherVM(
     val weatherState: StateFlow<WeatherState>
         get() = _weatherState.asStateFlow()
 
-    fun updateViewType(newViewType: ViewType) {
-        _weatherState.value = _weatherState.value.copy(viewType = newViewType)
+    fun setViewType(viewType: ViewType) {
+        _weatherState.value = _weatherState.value.copy(viewType = viewType)
+    }
+
+    fun setSearched(searched: Boolean) {
+        _weatherState.value = _weatherState.value.copy(searched = searched)
     }
 
     fun searchLocation(searchedLocation: Location) {
-        _weatherState.value = _weatherState.value.copy(searched = false, searchedLocation = searchedLocation)
+        _weatherState.value = _weatherState.value.copy(searchedLocation = searchedLocation)
         getWeather()
     }
 

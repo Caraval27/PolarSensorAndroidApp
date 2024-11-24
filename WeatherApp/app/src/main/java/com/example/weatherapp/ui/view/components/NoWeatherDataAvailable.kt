@@ -74,9 +74,9 @@ fun NoWeatherDataAvailableLandscape(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "No relevant data found,\n internet connection needed.",
+                text = "No current weather data found",
                 fontSize = 22.sp,
-                color = Color.White,
+                color = Color(0xFFDE6D6D),
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily.Monospace,
                 textAlign = TextAlign.Center,

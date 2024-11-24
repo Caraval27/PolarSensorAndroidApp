@@ -118,7 +118,7 @@ fun PortraitLayout(
                         WeatherViewTypeSelector(
                             currentViewType = weatherState.viewType,
                             onViewTypeChange = { newViewType ->
-                                weatherVM.updateViewType(newViewType)
+                                weatherVM.setViewType(newViewType)
                             }
                         )
                     }
@@ -153,6 +153,7 @@ fun LandscapeLayout(
                 ErrorType.None -> return@LaunchedEffect
             }
             snackbarHostState.showSnackbar(errorMessage)
+            weatherVM.setSearched(false)
         }
     }
 
@@ -160,7 +161,7 @@ fun LandscapeLayout(
         snackbarHost = { SnackbarHost(snackbarHostState) { data ->
             Snackbar(
                 snackbarData = data,
-                containerColor = Color.Red,
+                containerColor = Color(0xFFDE6D6D),
             )}},
         containerColor = Color.Transparent,
         content = { padding ->
@@ -211,7 +212,7 @@ fun LandscapeLayout(
                             WeatherViewTypeSelector(
                                 currentViewType = weatherState.viewType,
                                 onViewTypeChange = { newViewType ->
-                                    weatherVM.updateViewType(newViewType)
+                                    weatherVM.setViewType(newViewType)
                                 }
                             )
                         }
