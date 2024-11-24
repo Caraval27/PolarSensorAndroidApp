@@ -75,6 +75,7 @@ fun PortraitLayout(
                 ErrorType.None -> return@LaunchedEffect
             }
             snackbarHostState.showSnackbar(errorMessage)
+            weatherVM.setSearched(false)
         }
     }
 
