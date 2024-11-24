@@ -55,40 +55,4 @@ interface WeatherDao {
         WHERE locality = :locality AND municipality = :municipality AND county = :county
     """)
     suspend fun getWeatherTimesByLocation(locality: String, municipality: String, county: String) : List<WeatherTimeEntity>
-
-    /*@Query("""
-        SELECT *
-        FROM weather
-        WHERE locality = :locality AND municipality = :municipality AND county = :county
-    """)
-    suspend fun getWeatherByLocation(locality: String, municipality: String, county: String): WeatherEntityDayAndTime
-
-    @Query("""
-        UPDATE weather 
-        SET approved_time = :approvedTime
-        WHERE locality = :locality AND municipality = :municipality AND county = :county
-    """)
-    suspend fun updateWeatherByLocation(locality: String, municipality: String, county: String,
-                                        approvedTime: String)
-
-    @Query("""
-        UPDATE weather_day
-        SET min_temperature = :minTemperature, max_temperature = :maxTemperature, most_common_icon = :mostCommonIcon
-        WHERE date = :date AND weather_id IN (
-            SELECT id FROM weather WHERE locality = :locality AND municipality = :municipality AND county = :county
-        )
-    """)
-    suspend fun updateWeatherDayByLocation(date: String, locality: String, municipality: String,
-                                           county: String, minTemperature: Int, maxTemperature: Int,
-                                           mostCommonIcon: Int)
-
-    @Query("""
-        UPDATE weather_time
-        SET temperature = :temperature, icon = :icon
-        WHERE time = :time AND weather_id IN (
-            SELECT id FROM weather WHERE locality = :locality AND municipality = :municipality AND county = :county
-        )
-    """)
-    suspend fun updateWeatherTimeByLocation(time: String, locality: String, municipality: String,
-                                            county: String, temperature: Int, icon: Int)*/
 }

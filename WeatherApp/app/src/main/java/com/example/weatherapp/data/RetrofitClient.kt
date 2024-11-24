@@ -15,7 +15,7 @@ object RetrofitClient {
         .build()
 
     private val weatherClient: Retrofit = Retrofit.Builder()
-        .baseUrl(WEATHER_SERVER_TEST)
+        .baseUrl(WEATHER_SERVER)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

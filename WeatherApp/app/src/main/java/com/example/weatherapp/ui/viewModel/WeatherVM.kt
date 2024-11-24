@@ -43,7 +43,7 @@ class WeatherVM(
 
     init {
             getWeather()
-            //application.applicationContext.deleteDatabase("weather_db")
+            application.applicationContext.deleteDatabase("weather_db")
     }
 }
 

@@ -63,8 +63,8 @@ class Weather (
             return updateWeather(storedWeatherData, location, ErrorType.None)
         }
 
-        //val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
-        val coordinatesData = CoordinatesData(14.333, 60.38)
+        val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
+        //val coordinatesData = CoordinatesData(14.333, 60.38)
         if (coordinatesData == null) {
             return copyWeather(ErrorType.NoCoordinates)
         }
@@ -78,7 +78,7 @@ class Weather (
         return updateWeather(weatherData, location, ErrorType.None)
     }
 
-    private suspend fun copyWeather(errorType: ErrorType) : Weather {
+    private fun copyWeather(errorType: ErrorType) : Weather {
         return Weather(
             _location = _location,
             _approvedTime = _approvedTime,
@@ -88,7 +88,7 @@ class Weather (
             _applicationContext = _applicationContext)
     }
 
-    private suspend fun updateWeather(weatherData: WeatherData, location: Location, errorType: ErrorType) : Weather {
+    private fun updateWeather(weatherData: WeatherData, location: Location, errorType: ErrorType) : Weather {
         val weather7Days = updateWeatherDay(weatherData)
         val weather24Hours = updateWeatherTime(weatherData)
         var _errorType = errorType
@@ -160,12 +160,9 @@ enum class ErrorType {
 }
 
 data class Location (
-    var locality: String = "Sigfridstorp",
-    var county: String = "Dalarnas län",
-    var municipality: String = "Vansbro"
-    /*val locality: String = "Flemingsberg",
+    val locality: String = "Flemingsberg",
     val county: String = "Stockholms län",
-    val municipality: String = "Huddinge"*/
+    val municipality: String = "Huddinge"
 ) {
     companion object {
         val Saver = mapSaver(

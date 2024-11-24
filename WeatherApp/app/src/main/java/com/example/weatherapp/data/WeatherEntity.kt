@@ -11,9 +11,6 @@ import androidx.room.Ignore
     primaryKeys = ["locality", "municipality", "county"]
 )
 data class WeatherEntity (
-    /*@PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    var id: Int = -1,*/
 
     @ColumnInfo(name = "locality")
     var locality: String = "",
@@ -62,30 +59,4 @@ data class WeatherTimeEntity (
 
     @ColumnInfo(name = "county")
     var county: String = "",
-
-    /*@ColumnInfo(name = "weather_id")
-    val weatherId: Int*/
 )
-
-/*data class WeatherEntityDayAndTime(
-    @Embedded val weather: WeatherEntity,
-    @Relation(
-        parentColumn = "locality",
-        entityColumn = "locality"
-    )
-    @Relation(
-        parentColumn = "municipality",
-        entityColumn = "municipality"
-    )
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "weather_id"
-    )
-    val weather7Days: List<WeatherDayEntity>,
-
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "weather_id"
-    )
-    val weather24Hours: List<WeatherTimeEntity>
-)*/
