@@ -9,10 +9,11 @@ class CoordinatesApiRepository {
     suspend fun fetchCoordinates(location: Location) : CoordinatesData? {
         return try {
             val fetchedData = coordinatesApi.getLonLat(location.locality)
-            val locationData = fetchedData.find { it.municipality == location.municipality && it.county == location.county }
+            val locationData = fetchedData.find { it.place == location.locality && it.municipality == location.municipality && it.county == location.county }
 
             if (locationData == null) {
-                return null;
+                Log.d("Coordinates", "Place not found")
+                return null
             }
 
             val lon = kotlin.math.round(locationData.lon * 1000000) / 1000000
