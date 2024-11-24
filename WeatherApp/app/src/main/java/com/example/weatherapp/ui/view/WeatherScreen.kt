@@ -116,7 +116,7 @@ fun PortraitLayout(
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = "Refresh Weather",
-                            tint = Color(84, 106, 235)
+                            tint = Color(115, 135, 224)
                         )
                     }
                 }
@@ -198,7 +198,7 @@ fun LandscapeLayout(
                             Icon(
                                 imageVector = Icons.Default.Refresh,
                                 contentDescription = "Refresh Weather",
-                                tint = Color(84, 106, 235)
+                                tint = Color(115, 135, 224)
                             )
                         }
                         Spacer(modifier = Modifier.weight(0.6f))
