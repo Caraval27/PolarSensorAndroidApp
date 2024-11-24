@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -19,6 +21,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.example.weatherapp.model.Location
 
@@ -49,7 +53,7 @@ fun LocationForm(
                 onValueChange = {
                     onLocationChange(location.copy(locality = it))
                 },
-                label = { Text("Locality") },
+                label = { Text("Locality",  style = TextStyle(fontFamily = FontFamily.Monospace)) },
                 isError = localityEmpty,
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -59,7 +63,7 @@ fun LocationForm(
                 onValueChange = {
                     onLocationChange(location.copy(municipality = it))
                 },
-                label = { Text("Municipality") },
+                label = { Text("Municipality",  style = TextStyle(fontFamily = FontFamily.Monospace)) },
                 isError = municipalityEmpty,
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -69,7 +73,7 @@ fun LocationForm(
                 onValueChange = {
                     onLocationChange(location.copy(county = it))
                 },
-                label = { Text("County") },
+                label = { Text("County", style = TextStyle(fontFamily = FontFamily.Monospace)) },
                 isError = countyEmpty,
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -84,7 +88,7 @@ fun LocationForm(
                     onValueChange = {
                         onLocationChange(location.copy(locality = it))
                     },
-                    label = { Text("Locality") },
+                    label = { Text("Locality", style = TextStyle(fontFamily = FontFamily.Monospace)) },
                     isError = localityEmpty,
                     singleLine = true,
                     modifier = Modifier
@@ -96,7 +100,7 @@ fun LocationForm(
                     onValueChange = {
                         onLocationChange(location.copy(municipality = it))
                     },
-                    label = { Text("Municipality") },
+                    label = { Text("Municipality", style = TextStyle(fontFamily = FontFamily.Monospace)) },
                     isError = municipalityEmpty,
                     singleLine = true,
                     modifier = Modifier
@@ -108,7 +112,7 @@ fun LocationForm(
                     onValueChange = {
                         onLocationChange(location.copy(county = it))
                     },
-                    label = { Text("County") },
+                    label = { Text("County", style = TextStyle(fontFamily = FontFamily.Monospace)) },
                     isError = countyEmpty,
                     singleLine = true,
                     modifier = Modifier
@@ -122,8 +126,48 @@ fun LocationForm(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
+            Button(
+                onClick = onCancel,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFDE6D6D),
+                    contentColor = Color.White
+                ),
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Text("Cancel",  style = TextStyle(fontFamily = FontFamily.Monospace))
+            }
+
+            Button(
+                onClick = {
+                    localityEmpty = location.locality.isEmpty()
+                    municipalityEmpty = location.municipality.isEmpty()
+                    countyEmpty = location.county.isEmpty()
+                    if (!localityEmpty && !municipalityEmpty && !countyEmpty) {
+                        onSubmit(
+                            Location(
+                                locality = location.locality.trim(),
+                                county = location.county.trim(),
+                                municipality = location.municipality.trim()
+                            )
+                        )
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF6E92EB),
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Search",  style = TextStyle(fontFamily = FontFamily.Monospace))
+            }
+        }
+
+        /*
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
             TextButton(onClick = onCancel) {
-                Text("Cancel", color = Color.Red)
+                Text("Cancel", color = Color.Red, style = TextStyle(fontFamily = FontFamily.Monospace))
             }
             TextButton(
                 onClick = {
@@ -141,8 +185,8 @@ fun LocationForm(
                     }
                 }
             ) {
-                Text("Search", color = Color.Blue)
+                Text("Select", color = Color.Blue, style = TextStyle(fontFamily = FontFamily.Monospace))
             }
-        }
+        }*/
     }
 }

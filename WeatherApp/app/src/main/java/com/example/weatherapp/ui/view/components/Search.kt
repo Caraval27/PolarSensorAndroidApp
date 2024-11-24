@@ -10,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +35,7 @@ fun Search(
             containerColor = Color(115, 135, 224)
         ),
     ) {
-        Text("Select location")
+        Text("Select location", style = TextStyle(fontFamily = FontFamily.Monospace))
     }
 
     if (showDialog) {
@@ -57,6 +59,7 @@ fun Search(
                         text = "Enter location",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     LocationForm(
