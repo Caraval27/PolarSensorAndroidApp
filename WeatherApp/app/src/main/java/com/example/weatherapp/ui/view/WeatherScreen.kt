@@ -7,6 +7,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -14,9 +15,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.weatherapp.model.ErrorType
 import com.example.weatherapp.ui.view.components.CurrentWeatherReport
+import com.example.weatherapp.ui.view.components.NoWeatherDataAvailableLandscape
+import com.example.weatherapp.ui.view.components.NoWeatherDataAvailableProfile
 import com.example.weatherapp.ui.view.components.Search
 import com.example.weatherapp.ui.viewModel.WeatherVM
 import com.example.weatherapp.ui.view.components.WeatherReportList
@@ -69,13 +76,15 @@ fun PortraitLayout(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Search(weatherVM = weatherVM)
                 }
-                if (weather.weather7Days.isNotEmpty()) { // temporärt måste hantera tom lista
+                if (weather.weather7Days.isNotEmpty() && weather.weather24Hours.isNotEmpty()) {
                     CurrentWeatherReport(weather = weather)
 
                     Row(
@@ -92,6 +101,8 @@ fun PortraitLayout(
                     }
 
                     WeatherReportList(weatherVM = weatherVM)
+                } else {
+                    NoWeatherDataAvailableProfile()
                 }
             }
         }
@@ -133,30 +144,32 @@ fun LandscapeLayout(
                     .padding(top = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                if (weather.weather7Days.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Search(weatherVM = weatherVM)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Search(weatherVM = weatherVM)
+                        }
+                        Spacer(modifier = Modifier.height(1.dp))
+                        CurrentWeatherReport(weather = weather)
                     }
-                    Spacer(modifier = Modifier.height(1.dp))
-                    CurrentWeatherReport(weather = weather)
-                }
 
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    if (weather.weather7Days.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center,
@@ -172,6 +185,8 @@ fun LandscapeLayout(
 
                         WeatherReportList(weatherVM = weatherVM)
                     }
+                } else {
+                    NoWeatherDataAvailableLandscape(weatherVM = weatherVM)
                 }
             }
         }
