@@ -108,26 +108,22 @@ fun PortraitLayout(
                         setLocation = setLocation
                     )
                 }
-                if (weather.weather7Days.isNotEmpty() && weather.weather24Hours.isNotEmpty()) {
-                    CurrentWeatherReport(weather = weather)
+                CurrentWeatherReport(weather = weather)
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        WeatherViewTypeSelector(
-                            currentViewType = weatherState.viewType,
-                            onViewTypeChange = { newViewType ->
-                                weatherVM.setViewType(newViewType)
-                            }
-                        )
-                    }
-
-                    WeatherReportList(weatherVM = weatherVM)
-                } else {
-                    NoWeatherDataAvailableProfile()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    WeatherViewTypeSelector(
+                        currentViewType = weatherState.viewType,
+                        onViewTypeChange = { newViewType ->
+                            weatherVM.setViewType(newViewType)
+                        }
+                    )
                 }
+
+                WeatherReportList(weatherVM = weatherVM)
             }
         }
     )
@@ -173,61 +169,51 @@ fun LandscapeLayout(
                     .padding(top = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if (weather.weather7Days.isNotEmpty()) {
-                    Column(
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
                         modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Search(
-                                weatherVM = weatherVM,
-                                showDialog = showDialog,
-                                setShowDialog = setShowDialog,
-                                location = location,
-                                setLocation = setLocation
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(1.dp))
-                        CurrentWeatherReport(weather = weather)
+                        Search(
+                            weatherVM = weatherVM,
+                            showDialog = showDialog,
+                            setShowDialog = setShowDialog,
+                            location = location,
+                            setLocation = setLocation
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(1.dp))
+                    CurrentWeatherReport(weather = weather)
+                }
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        WeatherViewTypeSelector(
+                            currentViewType = weatherState.viewType,
+                            onViewTypeChange = { newViewType ->
+                                weatherVM.setViewType(newViewType)
+                            }
+                        )
                     }
 
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            WeatherViewTypeSelector(
-                                currentViewType = weatherState.viewType,
-                                onViewTypeChange = { newViewType ->
-                                    weatherVM.setViewType(newViewType)
-                                }
-                            )
-                        }
-
-                        WeatherReportList(weatherVM = weatherVM)
-                    }
-                } else {
-                    NoWeatherDataAvailableLandscape(
-                        weatherVM = weatherVM,
-                        showDialog = showDialog,
-                        setShowDialog = setShowDialog,
-                        location = location,
-                        setLocation = setLocation
-                    )
+                    WeatherReportList(weatherVM = weatherVM)
                 }
             }
         }

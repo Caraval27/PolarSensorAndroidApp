@@ -43,8 +43,8 @@ class Weather (
 
     suspend fun updateWeather(location: Location) : Weather {
         val currentDateTime = ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime()
-        if (location == _location && Duration.between(_approvedTime, currentDateTime).toHours() < 1) {
-            return copyWeather(ErrorType.None)
+        if (_errorType == ErrorType.None && location == _location && Duration.between(_approvedTime, currentDateTime).toHours() < 1) {
+            return copyWeather(_errorType)
         }
         val storedWeatherData = weatherDbRepository.getWeather(location)
         val connectivityManager = _applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

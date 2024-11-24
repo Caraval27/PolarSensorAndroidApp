@@ -15,9 +15,9 @@ fun CurrentWeatherReport(weather: Weather) {
     val locality: String = weather.location.locality
     val municipality: String = weather.location.municipality
     val county: String = weather.location.county
-    val currentTemperature: Int = weather.weather24Hours.firstOrNull()?.temperature ?: 0
-    val minTemperature: Int = weather.weather7Days.firstOrNull()?.minTemperature ?: 0
-    val maxTemperature: Int = weather.weather7Days.firstOrNull()?.maxTemperature ?: 0
+    val currentTemperature: String = weather.weather24Hours.firstOrNull()?.temperature?.toString() ?: " "
+    val minTemperature: String = weather.weather7Days.firstOrNull()?.minTemperature?.toString()?.plus("°") ?: " "
+    val maxTemperature: String = weather.weather7Days.firstOrNull()?.maxTemperature?.toString()?.plus("°") ?: " "
 
     Box(
         modifier = Modifier
@@ -44,7 +44,7 @@ fun CurrentWeatherReport(weather: Weather) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "$currentTemperature°",
+                text = currentTemperature,
                 fontSize = 50.sp,
                 color = Color.White
             )
@@ -52,7 +52,7 @@ fun CurrentWeatherReport(weather: Weather) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "H: ${maxTemperature}° \t L: ${minTemperature}°",
+                text = "H: $maxTemperature \t L: $minTemperature",
                 fontSize = 22.sp,
                 color = Color.White
             )
