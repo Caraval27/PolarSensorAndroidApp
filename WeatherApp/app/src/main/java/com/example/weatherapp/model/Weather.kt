@@ -53,7 +53,7 @@ class Weather (
         if (networkCapabilities == null || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
             Log.d("Weather", "No internet connection")
             if (storedWeatherData == null) {
-                return Weather(_location = location, _errorType = ErrorType.NoConnection, _applicationContext = _applicationContext)
+                return copyWeather(ErrorType.NoConnection)
             }
             return updateWeather(storedWeatherData, location, ErrorType.NoConnection)
         }
