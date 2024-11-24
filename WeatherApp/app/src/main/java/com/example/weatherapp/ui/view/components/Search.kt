@@ -26,10 +26,14 @@ fun Search(
     showDialog: Boolean,
     setShowDialog: (Boolean) -> Unit,
     location: Location,
-    setLocation: (Location) -> Unit
+    setLocation: (Location) -> Unit,
+    onFormOpened : () -> Unit
 ) {
     Button(
-        onClick = { setShowDialog(true) },
+        onClick = {
+            setShowDialog(true)
+            onFormOpened()
+                  },
         modifier = Modifier.padding(8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(115, 135, 224)
