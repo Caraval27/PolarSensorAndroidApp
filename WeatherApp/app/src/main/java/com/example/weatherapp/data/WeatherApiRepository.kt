@@ -11,8 +11,8 @@ class WeatherApiRepository {
 
     suspend fun fetchWeather(coordinatesData: CoordinatesData) : WeatherData? {
         return try {
-            //val fetchedData = weatherApi.getForecast("lon/14.333/lat/60.38")
-            val fetchedData = weatherApi.getForecast(coordinatesData.lon, coordinatesData.lat)
+            val fetchedData = weatherApi.getForecast("lon/14.333/lat/60.38")
+            //val fetchedData = weatherApi.getForecast(coordinatesData.lon, coordinatesData.lat)
             Log.d("Weather", "API response successful: ${fetchedData.approvedTime}")
 
             val weatherTimeData = fetchedData.timeSeries.map { timeSeries ->

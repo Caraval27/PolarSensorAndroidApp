@@ -44,6 +44,7 @@ class Weather (
     suspend fun updateWeather(location: Location) : Weather {
         val currentDateTime = ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime()
         if (_errorType == ErrorType.None && location == _location && Duration.between(_approvedTime, currentDateTime).toHours() < 1) {
+            Log.d("Weather", "Same weather again")
             return copyWeather(_errorType)
         }
         val storedWeatherData = weatherDbRepository.getWeather(location)
@@ -62,8 +63,8 @@ class Weather (
             return updateWeather(storedWeatherData, location, ErrorType.None)
         }
 
-        val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
-        //val coordinatesData = CoordinatesData(14.333, 60.38)
+        //val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
+        val coordinatesData = CoordinatesData(14.333, 60.38)
         if (coordinatesData == null) {
             return copyWeather(ErrorType.NoCoordinates)
         }
@@ -88,12 +89,18 @@ class Weather (
     }
 
     private suspend fun updateWeather(weatherData: WeatherData, location: Location, errorType: ErrorType) : Weather {
+        val weather7Days = updateWeatherDay(weatherData)
+        val weather24Hours = updateWeatherTime(weatherData)
+        var _errorType = errorType
+        if (weather24Hours.isEmpty() && errorType == ErrorType.None) {
+            _errorType = ErrorType.NoWeather
+        }
         return Weather(
             _location = location,
             _approvedTime = weatherData.approvedTime,
-            _weather7Days = updateWeatherDay(weatherData),
-            _weather24Hours = updateWeatherTime(weatherData),
-            _errorType = errorType,
+            _weather7Days = weather7Days,
+            _weather24Hours = weather24Hours,
+            _errorType = _errorType,
             _applicationContext = _applicationContext
         )
     }
@@ -153,12 +160,12 @@ enum class ErrorType {
 }
 
 data class Location (
-    /*var locality: String = "Sigfridstorp",
+    var locality: String = "Sigfridstorp",
     var county: String = "Dalarnas län",
-    var municipality: String = "Vansbro"*/
-    val locality: String = "Flemingsberg",
+    var municipality: String = "Vansbro"
+    /*val locality: String = "Flemingsberg",
     val county: String = "Stockholms län",
-    val municipality: String = "Huddinge"
+    val municipality: String = "Huddinge"*/
 ) {
     companion object {
         val Saver = mapSaver(
