@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
+import androidx.compose.runtime.saveable.mapSaver
 import com.example.weatherapp.data.CoordinatesApiRepository
 import com.example.weatherapp.data.CoordinatesData
 import com.example.weatherapp.data.WeatherData
@@ -157,4 +158,23 @@ data class Location (
     val locality: String = "Flemingsberg",
     val county: String = "Stockholms län",
     val municipality: String = "Huddinge"
-)
+) {
+    companion object {
+        val Saver = mapSaver(
+            save = { location ->
+                mapOf(
+                    "locality" to location.locality,
+                    "county" to location.county,
+                    "municipality" to location.municipality
+                )
+            },
+            restore = { map ->
+                Location(
+                    locality = map["locality"] as String,
+                    county = map["county"] as String,
+                    municipality = map["municipality"] as String
+                )
+            }
+        )
+    }
+}

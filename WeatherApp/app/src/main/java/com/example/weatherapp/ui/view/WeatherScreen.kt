@@ -7,20 +7,19 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.weatherapp.model.ErrorType
+import com.example.weatherapp.model.Location
 import com.example.weatherapp.ui.view.components.CurrentWeatherReport
 import com.example.weatherapp.ui.view.components.NoWeatherDataAvailableLandscape
 import com.example.weatherapp.ui.view.components.NoWeatherDataAvailableProfile
@@ -34,16 +33,34 @@ fun WeatherScreen(
     weatherVM: WeatherVM,
 ) {
     val configuration = LocalConfiguration.current
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    val locationState = rememberSaveable(stateSaver = Location.Saver) {mutableStateOf(Location())}
 
     when (configuration.orientation) {
-        Configuration.ORIENTATION_PORTRAIT -> PortraitLayout(weatherVM = weatherVM)
-        Configuration.ORIENTATION_LANDSCAPE -> LandscapeLayout(weatherVM = weatherVM)
+        Configuration.ORIENTATION_PORTRAIT -> PortraitLayout(
+            weatherVM = weatherVM,
+            showDialog = showDialog,
+            setShowDialog = { showDialog = it },
+            location = locationState.value,
+            setLocation = { locationState.value = it }
+        )
+        Configuration.ORIENTATION_LANDSCAPE -> LandscapeLayout(
+            weatherVM = weatherVM,
+            showDialog = showDialog,
+            setShowDialog = { showDialog = it },
+            location = locationState.value,
+            setLocation = { locationState.value = it }
+        )
     }
 }
 
 @Composable
 fun PortraitLayout(
-    weatherVM: WeatherVM
+    weatherVM: WeatherVM,
+    showDialog: Boolean,
+    setShowDialog: (Boolean) -> Unit,
+    location: Location,
+    setLocation: (Location) -> Unit
 ) {
     val weather by weatherVM.weather.collectAsState()
     val weatherState by weatherVM.weatherState.collectAsState()
@@ -82,7 +99,13 @@ fun PortraitLayout(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Search(weatherVM = weatherVM)
+                    Search(
+                        weatherVM = weatherVM,
+                        showDialog = showDialog,
+                        setShowDialog = setShowDialog,
+                        location = location,
+                        setLocation = setLocation
+                    )
                 }
                 if (weather.weather7Days.isNotEmpty() && weather.weather24Hours.isNotEmpty()) {
                     CurrentWeatherReport(weather = weather)
@@ -111,7 +134,11 @@ fun PortraitLayout(
 
 @Composable
 fun LandscapeLayout(
-    weatherVM: WeatherVM
+    weatherVM: WeatherVM,
+    showDialog: Boolean,
+    setShowDialog: (Boolean) -> Unit,
+    location: Location,
+    setLocation: (Location) -> Unit
 ) {
     val weather by weatherVM.weather.collectAsState()
     val weatherState by weatherVM.weatherState.collectAsState()
@@ -158,7 +185,13 @@ fun LandscapeLayout(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            Search(weatherVM = weatherVM)
+                            Search(
+                                weatherVM = weatherVM,
+                                showDialog = showDialog,
+                                setShowDialog = setShowDialog,
+                                location = location,
+                                setLocation = setLocation
+                            )
                         }
                         Spacer(modifier = Modifier.height(1.dp))
                         CurrentWeatherReport(weather = weather)
@@ -186,7 +219,13 @@ fun LandscapeLayout(
                         WeatherReportList(weatherVM = weatherVM)
                     }
                 } else {
-                    NoWeatherDataAvailableLandscape(weatherVM = weatherVM)
+                    NoWeatherDataAvailableLandscape(
+                        weatherVM = weatherVM,
+                        showDialog = showDialog,
+                        setShowDialog = setShowDialog,
+                        location = location,
+                        setLocation = setLocation
+                    )
                 }
             }
         }

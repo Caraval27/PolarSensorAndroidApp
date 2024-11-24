@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.weatherapp.model.Location
 import com.example.weatherapp.ui.viewModel.WeatherVM
 
 @Composable
@@ -39,7 +40,13 @@ fun NoWeatherDataAvailableProfile() {
 }
 
 @Composable
-fun NoWeatherDataAvailableLandscape(weatherVM: WeatherVM) {
+fun NoWeatherDataAvailableLandscape(
+    weatherVM: WeatherVM,
+    showDialog: Boolean,
+    setShowDialog: (Boolean) -> Unit,
+    location: Location,
+    setLocation: (Location) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -52,7 +59,13 @@ fun NoWeatherDataAvailableLandscape(weatherVM: WeatherVM) {
                 .padding(8.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            Search(weatherVM = weatherVM)
+            Search(
+                weatherVM = weatherVM,
+                showDialog = showDialog,
+                setShowDialog = setShowDialog,
+                location = location,
+                setLocation = setLocation
+            )
         }
         Box(
             modifier = Modifier
