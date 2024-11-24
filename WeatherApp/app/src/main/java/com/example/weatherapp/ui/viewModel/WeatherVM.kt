@@ -1,7 +1,6 @@
 package com.example.weatherapp.ui.viewModel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.Location
@@ -36,7 +35,6 @@ class WeatherVM(
     }
 
     fun refreshWeather() {
-        Log.d("WeatherVM", "Refresh")
         getWeather(_weather.value.location)
     }
 
@@ -49,7 +47,6 @@ class WeatherVM(
 
     init {
         getWeather(_weatherState.value.searchedLocation)
-        //application.applicationContext.deleteDatabase("weather_db")
     }
 }
 
