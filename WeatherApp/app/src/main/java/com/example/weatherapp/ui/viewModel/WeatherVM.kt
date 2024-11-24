@@ -1,6 +1,7 @@
 package com.example.weatherapp.ui.viewModel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.Location
@@ -31,19 +32,24 @@ class WeatherVM(
 
     fun searchLocation(searchedLocation: Location) {
         _weatherState.value = _weatherState.value.copy(searchedLocation = searchedLocation)
-        getWeather()
+        getWeather(_weatherState.value.searchedLocation)
     }
 
-    private fun getWeather() {
+    fun refreshWeather() {
+        Log.d("WeatherVM", "Refresh")
+        getWeather(_weather.value.location)
+    }
+
+    private fun getWeather(location: Location) {
         viewModelScope.launch {
-            _weather.value = _weather.value.updateWeather(_weatherState.value.searchedLocation)
+            _weather.value = _weather.value.updateWeather(location)
             _weatherState.value = _weatherState.value.copy(searched = true)
         }
     }
 
     init {
-            getWeather()
-            //application.applicationContext.deleteDatabase("weather_db")
+        getWeather(_weatherState.value.searchedLocation)
+        //application.applicationContext.deleteDatabase("weather_db")
     }
 }
 

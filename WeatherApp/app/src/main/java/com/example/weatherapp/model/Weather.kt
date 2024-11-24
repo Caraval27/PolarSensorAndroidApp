@@ -63,8 +63,8 @@ class Weather (
             return updateWeather(storedWeatherData, location, ErrorType.None)
         }
 
-        //val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
-        val coordinatesData = CoordinatesData(14.333, 60.38)
+        val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
+        //val coordinatesData = CoordinatesData(14.333, 60.38)
         if (coordinatesData == null) {
             return copyWeather(ErrorType.NoCoordinates)
         }

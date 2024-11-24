@@ -3,6 +3,10 @@ package com.example.weatherapp.ui.view
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -98,6 +102,7 @@ fun PortraitLayout(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
+                    Spacer(modifier = Modifier.weight(1f))
                     Search(
                         weatherVM = weatherVM,
                         showDialog = showDialog,
@@ -106,6 +111,14 @@ fun PortraitLayout(
                         setLocation = setLocation,
                         onFormOpened = { snackbarHostState.currentSnackbarData?.dismiss() }
                     )
+                    Spacer(modifier = Modifier.weight(0.2f))
+                    IconButton(onClick = { weatherVM.refreshWeather() }) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh Weather",
+                            tint = Color(84, 106, 235)
+                        )
+                    }
                 }
                 CurrentWeatherReport(weather = weather)
 
@@ -181,6 +194,14 @@ fun LandscapeLayout(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
+                        IconButton(onClick = { weatherVM.refreshWeather() }) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Refresh Weather",
+                                tint = Color(84, 106, 235)
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(0.6f))
                         Search(
                             weatherVM = weatherVM,
                             showDialog = showDialog,
@@ -189,6 +210,7 @@ fun LandscapeLayout(
                             setLocation = setLocation,
                             onFormOpened = { snackbarHostState.currentSnackbarData?.dismiss()}
                         )
+                        Spacer(modifier = Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(1.dp))
                     CurrentWeatherReport(weather = weather)
