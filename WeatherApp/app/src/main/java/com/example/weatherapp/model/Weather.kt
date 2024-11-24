@@ -11,6 +11,7 @@ import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherDbRepository
 import com.example.weatherapp.data.WeatherApiRepository
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -61,8 +62,8 @@ class Weather (
             return updateWeather(storedWeatherData, location, ErrorType.None)
         }
 
-        //val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
-        val coordinatesData = CoordinatesData(14.333, 60.38)
+        val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
+        //val coordinatesData = CoordinatesData(14.333, 60.38)
         if (coordinatesData == null) {
             return copyWeather(ErrorType.NoCoordinates)
         }
@@ -98,10 +99,10 @@ class Weather (
     }
 
     private fun updateWeatherTime(weatherData: WeatherData) : List<WeatherTime> {
-        val currentHour = LocalDateTime.now().withMinute(0).withSecond(0)
+        val currentHour = LocalDateTime.now(ZoneOffset.UTC).withMinute(0).withSecond(0)
         Log.d("Weather", "Current hour:" + currentHour)
         val startDateTime = weatherData.weatherTimeData
-            .map { it.validTime.atZone(ZoneId.of("Europe/Stockholm")).toLocalDateTime() }
+            .map { it.validTime }
             .filter { it >= currentHour }
             .minOrNull()
         if (startDateTime == null) {
@@ -115,7 +116,7 @@ class Weather (
                     weatherTimeData.validTime < endDateTime
         }.map { weatherTimeData ->
             WeatherTime(
-                time = weatherTimeData.validTime.toLocalTime(),
+                time = weatherTimeData.validTime.atZone(ZoneId.of("Europe/Stockholm")).toLocalTime(),
                 temperature = weatherTimeData.temperature,
                 icon = weatherTimeData.symbol
             )
@@ -123,7 +124,7 @@ class Weather (
     }
 
     private fun updateWeatherDay(weatherData: WeatherData) : List<WeatherDay> {
-        val currentDate = ZonedDateTime.now(ZoneOffset.UTC).toLocalDate()
+        val currentDate = LocalDate.now(ZoneOffset.UTC)
         val groupedByDate = weatherData.weatherTimeData.groupBy { it.validTime.toLocalDate() }
             .filterKeys { it >= currentDate }
 
