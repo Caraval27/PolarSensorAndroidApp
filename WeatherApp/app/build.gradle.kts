@@ -67,4 +67,6 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.36.0")
 }
