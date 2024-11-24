@@ -208,7 +208,7 @@ fun LandscapeLayout(
                             setShowDialog = setShowDialog,
                             location = location,
                             setLocation = setLocation,
-                            onFormOpened = { snackbarHostState.currentSnackbarData?.dismiss()}
+                            onFormOpened = { snackbarHostState.currentSnackbarData?.dismiss() }
                         )
                         Spacer(modifier = Modifier.weight(1f))
                     }

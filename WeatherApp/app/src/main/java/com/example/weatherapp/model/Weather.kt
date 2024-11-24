@@ -66,6 +66,7 @@ class Weather (
         val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
         //val coordinatesData = CoordinatesData(14.333, 60.38)
         if (coordinatesData == null) {
+            Log.d("Weather", "Location not found")
             return copyWeather(ErrorType.NoCoordinates)
         }
         Log.d("Coordinates", "Coordinate string getWeather: ${coordinatesData.lon} and ${coordinatesData.lat}")
