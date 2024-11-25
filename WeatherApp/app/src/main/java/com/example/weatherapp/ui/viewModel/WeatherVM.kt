@@ -30,7 +30,7 @@ class WeatherVM(
     }
 
     fun searchLocation(searchedLocation: Location) {
-        _weatherState.value = _weatherState.value.copy(searchedLocation = searchedLocation, searched = false)
+        _weatherState.value = _weatherState.value.copy(searchedLocation = searchedLocation)
         getWeather(_weatherState.value.searchedLocation)
     }
 

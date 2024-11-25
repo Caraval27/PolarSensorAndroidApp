@@ -9,7 +9,10 @@ class CoordinatesApiRepository {
     suspend fun fetchCoordinates(location: Location) : CoordinatesData? {
         return try {
             val fetchedData = coordinatesApi.getLonLat(location.locality)
-            val locationData = fetchedData.find { it.place == location.locality && it.municipality == location.municipality && it.county == location.county }
+            val locationData = fetchedData.find {
+                it.place.equals(location.locality, ignoreCase = true)
+                        && it.municipality.equals(location.municipality, ignoreCase = true)
+                        && it.county.equals(location.county, ignoreCase = true) }
 
             if (locationData == null) {
                 Log.d("Coordinates", "Place not found")
