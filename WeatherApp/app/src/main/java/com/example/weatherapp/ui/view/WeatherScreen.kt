@@ -1,7 +1,6 @@
 package com.example.weatherapp.ui.view
 
 import android.content.res.Configuration
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
@@ -161,7 +160,6 @@ fun LandscapeLayout(
                 ErrorType.NoWeather -> "Weather data not found"
                 ErrorType.None -> return@LaunchedEffect
             }
-            Log.d("WeatherScreen", "Error message: " + errorMessage)
             snackbarHostState.showSnackbar(errorMessage)
             weatherVM.setSearched(false)
         }

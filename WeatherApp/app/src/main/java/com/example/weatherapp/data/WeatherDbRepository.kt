@@ -1,7 +1,6 @@
 package com.example.weatherapp.data
 
 import android.content.Context
-import android.util.Log
 import androidx.room.Room
 import com.example.weatherapp.model.Location
 import java.time.LocalDateTime
@@ -55,15 +54,12 @@ class WeatherDbRepository(
     }
 
     suspend fun insertWeather(weatherData: WeatherData, location: Location) {
-        Log.d("WeatherDbRepository", "Insert approved time:" + weatherData.approvedTime)
         val weatherEntity = toWeatherEntity(weatherData, location);
         dao.insertWeatherWithTime(weatherEntity)
     }
 
     suspend fun getWeather(location: Location) : WeatherData? {
-        Log.d("WeatherDbRepository", "Entering get")
         val weatherEntity = dao.getWeatherWithTimeByLocation(location) ?: return null
-        Log.d("WeatherDbRepository", "Get approved time:" + weatherEntity.approvedTime)
         return toWeatherData(weatherEntity)
     }
 }

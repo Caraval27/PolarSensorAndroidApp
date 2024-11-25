@@ -3,7 +3,6 @@ package com.example.weatherapp.model
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import android.util.Log
 import androidx.compose.runtime.saveable.mapSaver
 import com.example.weatherapp.data.CoordinatesApiRepository
 import com.example.weatherapp.data.WeatherData
@@ -49,13 +48,10 @@ class Weather (
 
         val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
         if (coordinatesData == null) {
-            Log.d("Weather", "Location not found")
             return copyWeather(ErrorType.NoCoordinates)
         }
-        Log.d("Coordinates", "Coordinate string getWeather: ${coordinatesData.lon} and ${coordinatesData.lat}")
         val weatherData = weatherApiRepository.fetchWeather(coordinatesData)
         if (weatherData == null) {
-            Log.d("Weather", "Weather data is null in getWeather.")
             return copyWeather(ErrorType.NoWeather)
         }
         weatherDbRepository.insertWeather(weatherData, location)
@@ -65,14 +61,12 @@ class Weather (
     private suspend fun getOldWeather(location: Location) : Weather? {
         val currentDateTime = ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime()
         if (location == _location && Duration.between(_approvedTime, currentDateTime).toHours() < 1) {
-            Log.d("Weather", "Same weather again")
             return copyWeather(ErrorType.None)
         }
         val storedWeatherData = weatherDbRepository.getWeather(location)
         val connectivityManager = _applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCapabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         if (networkCapabilities == null || !networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-            Log.d("Weather", "No internet connection")
             if (storedWeatherData == null) {
                 return copyWeather(ErrorType.NoConnection)
             }
@@ -80,7 +74,6 @@ class Weather (
         }
         if (storedWeatherData != null &&
             Duration.between(storedWeatherData.approvedTime, currentDateTime).toHours() < 1) {
-            Log.d("Weather", Duration.between(storedWeatherData.approvedTime, currentDateTime).toHours().toString())
             return getWeather(storedWeatherData, location, ErrorType.None)
         }
         return null;
@@ -115,7 +108,6 @@ class Weather (
 
     private fun updateWeatherTime(weatherData: WeatherData) : List<WeatherTime> {
         val currentHour = LocalDateTime.now(ZoneOffset.UTC).withMinute(0).withSecond(0)
-        Log.d("Weather", "Current hour:" + currentHour)
         val startDateTime = weatherData.weatherTimeData
             .map { it.validTime }
             .filter { it >= currentHour }
@@ -123,7 +115,6 @@ class Weather (
         if (startDateTime == null) {
             return emptyList()
         }
-        Log.d("Weather", "Start time :" + startDateTime + " First time: " + weatherData.weatherTimeData.first())
         val endDateTime = startDateTime.plusHours(24)
 
         return weatherData.weatherTimeData.filter { weatherTimeData ->

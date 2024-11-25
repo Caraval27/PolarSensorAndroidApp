@@ -15,14 +15,11 @@ class CoordinatesApiRepository {
                         && it.county.equals(location.county, ignoreCase = true) }
 
             if (locationData == null) {
-                Log.d("Coordinates", "Place not found")
                 return null
             }
 
             val lon = kotlin.math.round(locationData.lon * 1000000) / 1000000
             val lat = kotlin.math.round(locationData.lat * 1000000) / 1000000
-
-            Log.d("Coordinates", "API response successful: lon = $lon lat = $lat")
 
             CoordinatesData (
                 lon = lon,

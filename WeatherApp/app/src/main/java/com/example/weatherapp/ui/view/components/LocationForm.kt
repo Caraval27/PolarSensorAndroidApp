@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -160,33 +159,5 @@ fun LocationForm(
                 Text("Search",  style = TextStyle(fontFamily = FontFamily.Monospace))
             }
         }
-
-        /*
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            TextButton(onClick = onCancel) {
-                Text("Cancel", color = Color.Red, style = TextStyle(fontFamily = FontFamily.Monospace))
-            }
-            TextButton(
-                onClick = {
-                    localityEmpty = location.locality.isEmpty()
-                    municipalityEmpty = location.municipality.isEmpty()
-                    countyEmpty = location.county.isEmpty()
-                    if (!localityEmpty && !municipalityEmpty && !countyEmpty) {
-                        onSubmit(
-                            Location(
-                                locality = location.locality.trim(),
-                                county = location.county.trim(),
-                                municipality = location.municipality.trim()
-                            )
-                        )
-                    }
-                }
-            ) {
-                Text("Select", color = Color.Blue, style = TextStyle(fontFamily = FontFamily.Monospace))
-            }
-        }*/
     }
 }
