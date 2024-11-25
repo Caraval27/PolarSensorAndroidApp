@@ -26,7 +26,9 @@ class CoordinatesApiRepository {
 
             CoordinatesData (
                 lon = lon,
-                lat = lat
+                lat = lat,
+                location = Location(locality = locationData.place,
+                    municipality = locationData.municipality, county = locationData.county)
             )
         } catch (e: Exception) {
             Log.e("Coordinates", "Exception occurred: ${e.localizedMessage}", e)

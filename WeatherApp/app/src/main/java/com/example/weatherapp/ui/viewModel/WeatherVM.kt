@@ -47,6 +47,7 @@ class WeatherVM(
 
     init {
         getWeather(_weatherState.value.searchedLocation)
+        application.applicationContext.deleteDatabase("weather_db")
     }
 }
 

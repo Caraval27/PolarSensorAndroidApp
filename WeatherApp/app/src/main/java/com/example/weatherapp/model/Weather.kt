@@ -60,7 +60,7 @@ class Weather (
             return copyWeather(ErrorType.NoWeather)
         }
         weatherDbRepository.insertWeather(weatherData, location)
-        return updateWeather(weatherData, location, ErrorType.None)
+        return updateWeather(weatherData, coordinatesData.location, ErrorType.None)
     }
 
     private suspend fun getOldWeather(location: Location) : Weather? {
