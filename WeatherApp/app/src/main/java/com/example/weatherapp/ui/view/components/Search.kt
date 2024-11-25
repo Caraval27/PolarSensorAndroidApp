@@ -29,7 +29,10 @@ fun Search(
     setLocation: (Location) -> Unit
 ) {
     Button(
-        onClick = { setShowDialog(true) },
+        onClick = {
+            setShowDialog(true)
+            weatherVM.setSearched(false)
+        },
         modifier = Modifier.padding(8.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(115, 135, 224)

@@ -42,6 +42,28 @@ class Weather (
     private val weatherDbRepository = WeatherDbRepository(_applicationContext)
 
     suspend fun updateWeather(location: Location) : Weather {
+        val weather = getOldWeather(location)
+
+        if (weather != null) {
+            return weather
+        }
+
+        val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
+        if (coordinatesData == null) {
+            Log.d("Weather", "Location not found")
+            return copyWeather(ErrorType.NoCoordinates)
+        }
+        Log.d("Coordinates", "Coordinate string getWeather: ${coordinatesData.lon} and ${coordinatesData.lat}")
+        val weatherData = weatherApiRepository.fetchWeather(coordinatesData)
+        if (weatherData == null) {
+            Log.d("Weather", "Weather data is null in getWeather.")
+            return copyWeather(ErrorType.NoWeather)
+        }
+        weatherDbRepository.insertWeather(weatherData, location)
+        return updateWeather(weatherData, location, ErrorType.None)
+    }
+
+    private suspend fun getOldWeather(location: Location) : Weather? {
         val currentDateTime = ZonedDateTime.now(ZoneOffset.UTC).toLocalDateTime()
         if (location == _location && Duration.between(_approvedTime, currentDateTime).toHours() < 1) {
             Log.d("Weather", "Same weather again")
@@ -62,21 +84,7 @@ class Weather (
             Log.d("Weather", Duration.between(storedWeatherData.approvedTime, currentDateTime).toHours().toString())
             return updateWeather(storedWeatherData, location, ErrorType.None)
         }
-
-        val coordinatesData = coordinatesApiRepository.fetchCoordinates(location)
-        //val coordinatesData = CoordinatesData(14.333, 60.38)
-        if (coordinatesData == null) {
-            Log.d("Weather", "Location not found")
-            return copyWeather(ErrorType.NoCoordinates)
-        }
-        Log.d("Coordinates", "Coordinate string getWeather: ${coordinatesData.lon} and ${coordinatesData.lat}")
-        val weatherData = weatherApiRepository.fetchWeather(coordinatesData)
-        if (weatherData == null) {
-            Log.d("Weather", "Weather data is null in getWeather.")
-            return copyWeather(ErrorType.NoWeather)
-        }
-        weatherDbRepository.insertWeather(weatherData, location)
-        return updateWeather(weatherData, location, ErrorType.None)
+        return null;
     }
 
     private fun copyWeather(errorType: ErrorType) : Weather {
