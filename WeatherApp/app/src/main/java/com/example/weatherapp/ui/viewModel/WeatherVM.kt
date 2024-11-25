@@ -40,7 +40,7 @@ class WeatherVM(
 
     private fun getWeather(location: Location) {
         viewModelScope.launch {
-            _weather.value = _weather.value.updateWeather(location)
+            _weather.value = _weather.value.getWeather(location)
             _weatherState.value = _weatherState.value.copy(searched = true)
         }
     }

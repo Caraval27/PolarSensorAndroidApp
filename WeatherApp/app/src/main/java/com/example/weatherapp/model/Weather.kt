@@ -6,7 +6,6 @@ import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.compose.runtime.saveable.mapSaver
 import com.example.weatherapp.data.CoordinatesApiRepository
-import com.example.weatherapp.data.CoordinatesData
 import com.example.weatherapp.data.WeatherData
 import com.example.weatherapp.data.WeatherDbRepository
 import com.example.weatherapp.data.WeatherApiRepository
@@ -41,7 +40,7 @@ class Weather (
     private val coordinatesApiRepository = CoordinatesApiRepository()
     private val weatherDbRepository = WeatherDbRepository(_applicationContext)
 
-    suspend fun updateWeather(location: Location) : Weather {
+    suspend fun getWeather(location: Location) : Weather {
         val weather = getOldWeather(location)
 
         if (weather != null) {
@@ -60,7 +59,7 @@ class Weather (
             return copyWeather(ErrorType.NoWeather)
         }
         weatherDbRepository.insertWeather(weatherData, location)
-        return updateWeather(weatherData, coordinatesData.location, ErrorType.None)
+        return getWeather(weatherData, coordinatesData.location, ErrorType.None)
     }
 
     private suspend fun getOldWeather(location: Location) : Weather? {
@@ -77,12 +76,12 @@ class Weather (
             if (storedWeatherData == null) {
                 return copyWeather(ErrorType.NoConnection)
             }
-            return updateWeather(storedWeatherData, location, ErrorType.NoConnection)
+            return getWeather(storedWeatherData, location, ErrorType.NoConnection)
         }
         if (storedWeatherData != null &&
             Duration.between(storedWeatherData.approvedTime, currentDateTime).toHours() < 1) {
             Log.d("Weather", Duration.between(storedWeatherData.approvedTime, currentDateTime).toHours().toString())
-            return updateWeather(storedWeatherData, location, ErrorType.None)
+            return getWeather(storedWeatherData, location, ErrorType.None)
         }
         return null;
     }
@@ -97,7 +96,7 @@ class Weather (
             _applicationContext = _applicationContext)
     }
 
-    private fun updateWeather(weatherData: WeatherData, location: Location, errorType: ErrorType) : Weather {
+    private fun getWeather(weatherData: WeatherData, location: Location, errorType: ErrorType) : Weather {
         val weather7Days = updateWeatherDay(weatherData)
         val weather24Hours = updateWeatherTime(weatherData)
         var _errorType = errorType
