@@ -1,4 +1,7 @@
 package com.example.bluetoothapp.model
 
-class Sample {
-}
+data class Sample (
+    val sequenceNr : Int,
+    val valueAlgo1 : Float,
+    val valueAlgo2 : Float
+)
