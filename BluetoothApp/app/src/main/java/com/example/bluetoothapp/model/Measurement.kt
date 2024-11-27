@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Build
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.lifecycle.MediatorLiveData
-import com.example.bluetoothapp.Manifest
 import com.example.bluetoothapp.data.DeviceData
 import com.example.bluetoothapp.data.InternalSensorRepository
 import com.example.bluetoothapp.data.MeasurementData
@@ -44,33 +43,35 @@ class Measurement (
     private val measurementDbRepository : MeasurementDbRepository = MeasurementDbRepository(_applicationContext)
 
     init {
-        var currentLinearSample : Float = -1f
-        var currentAngularSample : Float = -1f
+        var currentLinearSample : Float? = null
+        var currentAngularSample : Float? = null
+
         val sampleMediator = MediatorLiveData<Pair<Float, Float>>()
+
+        //felhantering krävs sen ifall en sensor misslyckades att producera ett värde i följden
+
         sampleMediator.addSource(internalSensorRepository.linearAccelerationData) {
             val linearSample = calculateElevationLinear(it[1], it[2])
             applyLinearFilter(linearSample)
-            if (currentAngularSample >= 0) {
-                sampleMediator.value = Pair(linearSample, currentLinearSample)
-                currentAngularSample = -1f
-            }
-            else {
+            currentAngularSample?.let { angularSample ->
+                sampleMediator.value = Pair(linearSample, angularSample)
+            } ?: run {
                 currentLinearSample = linearSample
             }
         }
        sampleMediator.addSource(internalSensorRepository.gyroscopeData) {
-            val angularSample = calculateElevationAngular()
-           if (currentLinearSample >= 0) {
-               sampleMediator.value = Pair(currentLinearSample, angularSample)
-               currentLinearSample = -1f
-           }
-           else {
+           val angularSample = calculateElevationAngular()
+           currentLinearSample?.let { linearSample ->
+               sampleMediator.value = Pair(linearSample, angularSample)
+           } ?: run {
                currentAngularSample = angularSample
            }
        }
-        sampleMediator.observeForever( {
+        sampleMediator.observeForever {
             applyFusionFilter(it.first, it.second)
-        })
+            currentLinearSample = null
+            currentAngularSample = null
+        }
     }
 
     fun startRecording() {
