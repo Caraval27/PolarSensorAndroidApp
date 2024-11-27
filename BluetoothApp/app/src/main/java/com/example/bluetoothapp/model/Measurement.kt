@@ -4,24 +4,23 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MediatorLiveData
 import com.example.bluetoothapp.data.InternalSensorRepository
-import com.example.bluetoothapp.data.MeasurementData
 import com.example.bluetoothapp.data.MeasurementDbRepository
 import com.example.bluetoothapp.data.PolarSensorRepository
-import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import kotlin.math.PI
+import kotlin.math.atan
+import kotlin.math.pow
 
 class Measurement (
     private var id : Int = 0,
     private var _measured : LocalDateTime = LocalDateTime.now(),
     private var _linearFilteredSamples : MutableList<Float> = mutableListOf(),
     private var _fusionFilteredSamples : MutableList<Float> = mutableListOf(),
+    private var _lastAngularSample: Float = -1f,
     private var _applicationContext : Context,
     private var _finished: Boolean = false
 ){
@@ -41,17 +40,21 @@ class Measurement (
     private val polarSensorRepository : PolarSensorRepository = PolarSensorRepository(_applicationContext)
     private val measurementDbRepository : MeasurementDbRepository = MeasurementDbRepository(_applicationContext)
 
+    companion object {
+        const val SENSOR_DELAY = 60000
+    }
+
     init {
         var currentLinearSample : Float? = null
         var currentAngularSample : Float? = null
 
         val sampleMediator = MediatorLiveData<Pair<Float, Float>>()
 
-        //felhantering krävs sen ifall en sensor misslyckades att producera ett värde i följden
+        //felhantering krävs sen ifall en sensor misslyckades att producera ett värde i följden, just nu kommer det värdet bara att hoppas över
 
         sampleMediator.addSource(internalSensorRepository.linearAccelerationData) {
             val linearSample = calculateElevationLinear(it[1], it[2])
-            applyLinearFilter(linearSample)
+            applyLinearFilter(linearSample, 0.1f)
             currentAngularSample?.let { angularSample ->
                 sampleMediator.value = Pair(linearSample, angularSample)
             } ?: run {
@@ -59,7 +62,7 @@ class Measurement (
             }
         }
        sampleMediator.addSource(internalSensorRepository.gyroscopeData) {
-           val angularSample = calculateElevationAngular()
+           val angularSample = calculateElevationAngular(it[2])
            currentLinearSample?.let { linearSample ->
                sampleMediator.value = Pair(linearSample, angularSample)
            } ?: run {
@@ -83,19 +86,26 @@ class Measurement (
     }
 
     private fun calculateElevationLinear(yValue: Float, zValue: Float) : Float {
-        TODO()
+        val quota = zValue / yValue
+        val angleDegrees = atan(quota) / PI * 180
+        return angleDegrees.toFloat()
     }
 
-    private fun calculateElevationAngular() : Float {
-        TODO()
+    private fun calculateElevationAngular(zValue: Float) : Float {
+        val timeDelta = SENSOR_DELAY / 10.0f.pow(6)
+        val angle = _lastAngularSample + zValue * timeDelta
+        return angle
     }
 
-    private fun applyLinearFilter(linearSample : Float) {
-        TODO()
+    private fun applyLinearFilter(linearSample : Float, filterFactor: Float) {
+        val linearFilteredSample = filterFactor * linearSample + (1 - filterFactor) * _linearFilteredSamples.last()
+        _linearFilteredSamples.add(linearFilteredSample)
     }
 
     private fun applyFusionFilter(linearSample: Float, angularSample: Float) {
-        TODO()
+        val filterFactor = 0.98f
+        val fusionFilteredSample = filterFactor * linearSample + (1 - filterFactor) * angularSample
+        _fusionFilteredSamples.add(fusionFilteredSample)
     }
 
     suspend fun getMeasurementsHistory() : List<Measurement> {

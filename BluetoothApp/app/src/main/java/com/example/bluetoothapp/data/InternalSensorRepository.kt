@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.bluetoothapp.model.Measurement
 
 class InternalSensorRepository(
     applicationContext : Context
@@ -33,8 +34,8 @@ class InternalSensorRepository(
         if (gyroscopeSensor == null || linearAccelerationSensor == null) {
             return false;
         }
-        sensorManager.registerListener(sensorEventListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_UI)
-        sensorManager.registerListener(sensorEventListener, linearAccelerationSensor, SensorManager.SENSOR_DELAY_UI)
+        sensorManager.registerListener(sensorEventListener, gyroscopeSensor, Measurement.SENSOR_DELAY)
+        sensorManager.registerListener(sensorEventListener, linearAccelerationSensor, Measurement.SENSOR_DELAY)
         return true;
     }
 
