@@ -39,7 +39,7 @@ fun HomeScreen(
     var isScanning by remember { mutableStateOf(false) }
     var permissionDenied by remember { mutableStateOf(false) }
 
-    //val measurement by measurementVM.measurement.collectAsState()
+    //Knapp för history ska finnas, när man trycker ska den hämta history i vm
 
     Column(
         modifier = Modifier

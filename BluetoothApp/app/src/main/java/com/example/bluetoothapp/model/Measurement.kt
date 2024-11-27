@@ -16,7 +16,7 @@ import kotlin.math.atan
 import kotlin.math.pow
 
 class Measurement (
-    private var id : Int = 0,
+    private var _id : Int = 0,
     private var _measured : LocalDateTime = LocalDateTime.now(),
     private var _linearFilteredSamples : MutableList<Float> = mutableListOf(),
     private var _fusionFilteredSamples : MutableList<Float> = mutableListOf(),
@@ -24,6 +24,10 @@ class Measurement (
     private var _applicationContext : Context,
     private var _finished: Boolean = false
 ){
+
+    val id: Int
+        get() = _id
+
     val measured: LocalDateTime
         get() = _measured
 
@@ -38,7 +42,6 @@ class Measurement (
 
     private val internalSensorRepository : InternalSensorRepository = InternalSensorRepository(_applicationContext)
     private val polarSensorRepository : PolarSensorRepository = PolarSensorRepository(_applicationContext)
-    private val measurementDbRepository : MeasurementDbRepository = MeasurementDbRepository(_applicationContext)
 
     companion object {
         const val SENSOR_DELAY = 60000
@@ -106,27 +109,6 @@ class Measurement (
         val filterFactor = 0.98f
         val fusionFilteredSample = filterFactor * linearSample + (1 - filterFactor) * angularSample
         _fusionFilteredSamples.add(fusionFilteredSample)
-    }
-
-    suspend fun getMeasurementsHistory() : List<Measurement> {
-        val measurementsData = measurementDbRepository.getMeasurements()
-
-        if (measurementsData.isEmpty()) return emptyList()
-
-        return measurementsData.map { measurementData ->
-            measurementData.let { data ->
-                Measurement(
-                    id = data.id,
-                    _measured = data.timeMeasured,
-                    _linearFilteredSamples = data.sampleData.map { it.singleFilterValue }
-                        .toMutableList(),
-                    _fusionFilteredSamples = data.sampleData.map { it.fusionFilterValue }
-                        .toMutableList(),
-                    _applicationContext = _applicationContext,
-                    _finished = _finished
-                )
-            }
-        }
     }
 
     fun hasRequiredPermissions(): Boolean {

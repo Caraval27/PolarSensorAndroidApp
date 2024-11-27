@@ -9,7 +9,6 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "measurement",
-    //primaryKeys = ["id"]
 )
 
 data class MeasurementEntity (
@@ -27,7 +26,7 @@ data class MeasurementEntity (
 
 @Entity(
     tableName = "sample",
-    //primaryKeys = ["id"],
+    primaryKeys = ["sequence_number", "measurement_id"],
     foreignKeys = [
         ForeignKey(
             entity = MeasurementEntity::class,
@@ -39,10 +38,6 @@ data class MeasurementEntity (
 )
 
 data class SampleEntity(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
-    var id: Int = -1,
-
     @ColumnInfo(name = "sequence_number")
     var sequenceNumber: Int = -1,
 
