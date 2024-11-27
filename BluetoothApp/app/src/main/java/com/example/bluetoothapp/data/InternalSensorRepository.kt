@@ -29,9 +29,13 @@ class InternalSensorRepository(
         linearAccelerationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
     }
 
-    fun startListening() {
+    fun startListening() : Boolean {
+        if (gyroscopeSensor == null || linearAccelerationSensor == null) {
+            return false;
+        }
         sensorManager.registerListener(sensorEventListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_UI)
         sensorManager.registerListener(sensorEventListener, linearAccelerationSensor, SensorManager.SENSOR_DELAY_UI)
+        return true;
     }
 
     fun stopListening() {
@@ -40,13 +44,13 @@ class InternalSensorRepository(
 
     private val sensorEventListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent?) {
-            event?.let {
-                when (it.sensor.type) {
+            if (event != null) {
+                when (event.sensor.type) {
                     Sensor.TYPE_GYROSCOPE -> {
-                        _gyroscopeData.value = it.values
+                        _gyroscopeData.value = event.values
                     }
                     Sensor.TYPE_LINEAR_ACCELERATION -> {
-                        _linearAccelerationData.value = it.values
+                        _linearAccelerationData.value = event.values
                     }
                 }
             }

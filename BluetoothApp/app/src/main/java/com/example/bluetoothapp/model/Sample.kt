@@ -1,4 +1,6 @@
 package com.example.bluetoothapp.model
 
-class Sample {
-}
+data class Sample (
+    val singleFilterValue : Float,
+    val fusionFilterValue : Float
+)
