@@ -1,8 +1,11 @@
 package com.example.bluetoothapp.ui.viewModel
 
 import android.app.Application
+import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bluetoothapp.model.Device
 import com.example.bluetoothapp.model.Measurement
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,9 +20,22 @@ class MeasurementVM(
     val measurement: StateFlow<Measurement>
         get() = _measurement.asStateFlow()
 
+    private val _devices = MutableStateFlow<List<Device>>(emptyList())
+    val devices: StateFlow<List<Device>>
+        get() = _devices.asStateFlow()
+
+    fun hasRequiredPermissions() : Boolean {
+        return measurement.value.hasRequiredPermissions()
+    }
+
     fun searchForDevices() {
         viewModelScope.launch {
             measurement.value.searchForDevices()
+                .subscribe ({ deviceList ->
+                    _devices.value = deviceList
+                }, { error ->
+                    Log.e("MeasurementVM", "Error searching devices: ${error.message}")
+                })
         }
     }
 
