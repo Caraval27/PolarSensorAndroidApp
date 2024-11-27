@@ -1,15 +1,18 @@
 package com.example.bluetoothapp.model
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MediatorLiveData
-import com.example.bluetoothapp.data.DeviceData
 import com.example.bluetoothapp.data.InternalSensorRepository
 import com.example.bluetoothapp.data.MeasurementData
 import com.example.bluetoothapp.data.MeasurementDbRepository
 import com.example.bluetoothapp.data.PolarSensorRepository
 import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -33,10 +36,6 @@ class Measurement (
 
     val finished: Boolean
         get() = _finished
-
-    var _devices: Flowable<DeviceData> = Flowable.empty()
-    val devices: Flowable<DeviceData>
-        get() = _devices
 
     private val internalSensorRepository : InternalSensorRepository = InternalSensorRepository(_applicationContext)
     private val polarSensorRepository : PolarSensorRepository = PolarSensorRepository(_applicationContext)
@@ -120,9 +119,20 @@ class Measurement (
         }
     }
 
-    fun searchForDevices(){
-        //requestPermissionsIfNeeded()
-        _devices = polarSensorRepository.searchForDevices()
+    fun hasRequiredPermissions(): Boolean {
+        val context = _applicationContext
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        } else {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    fun searchForDevices() : Single<List<Device>> {
+        return polarSensorRepository.searchForDevices()
     }
 
     fun connectToPolarDevice(deviceId: String) {
@@ -141,26 +151,4 @@ class Measurement (
     fun disconnectFromPolarDevice(deviceId: String) {
         polarSensorRepository.disconnectFromDevice(deviceId)
     }
-
-    /*private fun requestPermissionsIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            requestPermissions(
-                arrayOf(
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ),
-                PERMISSION_REQUEST_CODE
-            )
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                PERMISSION_REQUEST_CODE
-            )
-        } else {
-            requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-                PERMISSION_REQUEST_CODE
-            )
-        }
-    }*/
 }

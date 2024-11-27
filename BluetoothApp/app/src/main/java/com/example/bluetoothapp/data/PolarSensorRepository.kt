@@ -4,13 +4,14 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.bluetoothapp.model.Device
 import com.polar.sdk.api.PolarBleApi
 import com.polar.sdk.api.PolarBleApiCallback
 import com.polar.sdk.api.PolarBleApiDefaultImpl
 import com.polar.sdk.api.model.PolarDeviceInfo
 import com.polar.sdk.api.model.PolarSensorSetting
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 class PolarSensorRepository(applicationContext: Context) {
@@ -50,15 +51,15 @@ class PolarSensorRepository(applicationContext: Context) {
         })
     }
 
-    fun searchForDevices(): Flowable<DeviceData> {
-        val polarDeviceInfo = api.searchForDevice()
-        return polarDeviceInfo.map { info ->
-            DeviceData(
-                deviceId = info.deviceId,
-                name = info.name,
-                isConnectable = info.isConnectable
+    fun searchForDevices(): Single<List<Device>> {
+        return api.searchForDevice()
+            .map { info ->
+                Device(
+                    deviceId = info.deviceId,
+                    name = info.name,
+                    isConnectable = info.isConnectable
             )
-        }
+        }.toList()
     }
 
     fun connectToDevice(deviceId: String) {
@@ -81,7 +82,6 @@ class PolarSensorRepository(applicationContext: Context) {
                  error -> Log.e("PolarSensorRepository", "Error streaming ACC data: ${error.message}")
              })
         )
-
     }
 
     fun startGyroStreaming(deviceId: String) {
