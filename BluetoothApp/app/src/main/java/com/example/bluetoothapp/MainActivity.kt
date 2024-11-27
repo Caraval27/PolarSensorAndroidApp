@@ -11,11 +11,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
 import com.example.bluetoothapp.ui.theme.BluetoothAppTheme
+import com.example.bluetoothapp.ui.viewModel.MeasurementVM
 
 class MainActivity : ComponentActivity() {
+    private lateinit var measurementVM: MeasurementVM
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        measurementVM = ViewModelProvider(this)[MeasurementVM::class.java]
         enableEdgeToEdge()
         setContent {
             BluetoothAppTheme {

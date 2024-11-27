@@ -6,7 +6,6 @@ data class Sample(
     val x: Float,
     val y: Float,
     val z: Float,
-    val time: LocalDateTime
 )
-
+//tror inte vi behöver denna alls
 // vet ej vad vi hämtar från frontend tror denna ska innehålla xyz värden, dvs rå data

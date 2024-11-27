@@ -1,15 +1,22 @@
 package com.example.bluetoothapp.model
 
 import android.content.Context
+import android.os.Build
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.lifecycle.MediatorLiveData
+import com.example.bluetoothapp.Manifest
+import com.example.bluetoothapp.data.DeviceData
 import com.example.bluetoothapp.data.InternalSensorRepository
 import com.example.bluetoothapp.data.MeasurementData
 import com.example.bluetoothapp.data.MeasurementDbRepository
+import com.example.bluetoothapp.data.PolarSensorRepository
+import io.reactivex.rxjava3.core.Flowable
+import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class Measurement (
-    private var id : Int,
+    private var id : Int = 0,
     private var _measured : LocalDateTime = LocalDateTime.now(),
     private var _linearFilteredSamples : MutableList<Float> = mutableListOf(),
     private var _fusionFilteredSamples : MutableList<Float> = mutableListOf(),
@@ -28,7 +35,12 @@ class Measurement (
     val finished: Boolean
         get() = _finished
 
+    var _devices: Flowable<DeviceData> = Flowable.empty()
+    val devices: Flowable<DeviceData>
+        get() = _devices
+
     private val internalSensorRepository : InternalSensorRepository = InternalSensorRepository(_applicationContext)
+    private val polarSensorRepository : PolarSensorRepository = PolarSensorRepository(_applicationContext)
     private val measurementDbRepository : MeasurementDbRepository = MeasurementDbRepository(_applicationContext)
 
     init {
@@ -106,4 +118,48 @@ class Measurement (
             }
         }
     }
+
+    fun searchForDevices(){
+        //requestPermissionsIfNeeded()
+        _devices = polarSensorRepository.searchForDevices()
+    }
+
+    fun connectToPolarDevice(deviceId: String) {
+        polarSensorRepository.connectToDevice(deviceId)
+    }
+
+    fun startStreaming(deviceId: String) {
+        polarSensorRepository.startAccStreaming(deviceId)
+        polarSensorRepository.startGyroStreaming(deviceId)
+    }
+
+    fun stopStreaming(deviceId: String) {
+        polarSensorRepository.stopStreaming()
+        _finished = true
+    }
+    fun disconnectFromPolarDevice(deviceId: String) {
+        polarSensorRepository.disconnectFromDevice(deviceId)
+    }
+
+    /*private fun requestPermissionsIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            requestPermissions(
+                arrayOf(
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ),
+                PERMISSION_REQUEST_CODE
+            )
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                PERMISSION_REQUEST_CODE
+            )
+        } else {
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+                PERMISSION_REQUEST_CODE
+            )
+        }
+    }*/
 }
