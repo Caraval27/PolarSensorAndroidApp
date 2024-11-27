@@ -4,27 +4,25 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MediatorLiveData
 import com.example.bluetoothapp.data.InternalSensorRepository
-import com.example.bluetoothapp.data.MeasurementData
-import com.example.bluetoothapp.data.MeasurementDbRepository
 import com.example.bluetoothapp.data.PolarSensorRepository
-import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class Measurement (
-    private var id : Int = 0,
+    private var _id : Int = 0,
     private var _measured : LocalDateTime = LocalDateTime.now(),
     private var _linearFilteredSamples : MutableList<Float> = mutableListOf(),
     private var _fusionFilteredSamples : MutableList<Float> = mutableListOf(),
     private var _applicationContext : Context,
     private var _finished: Boolean = false
 ){
+
+    val id: Int
+        get() = _id
+
     val measured: LocalDateTime
         get() = _measured
 
@@ -39,7 +37,6 @@ class Measurement (
 
     private val internalSensorRepository : InternalSensorRepository = InternalSensorRepository(_applicationContext)
     private val polarSensorRepository : PolarSensorRepository = PolarSensorRepository(_applicationContext)
-    private val measurementDbRepository : MeasurementDbRepository = MeasurementDbRepository(_applicationContext)
 
     init {
         var currentLinearSample : Float = -1f
@@ -94,27 +91,6 @@ class Measurement (
 
     private fun applyFusionFilter(linearSample: Float, angularSample: Float) {
         TODO()
-    }
-
-    suspend fun getMeasurementsHistory() : List<Measurement> {
-        val measurementsData = measurementDbRepository.getMeasurements()
-
-        if (measurementsData.isEmpty()) return emptyList()
-
-        return measurementsData.map { measurementData ->
-            measurementData.let { data ->
-                Measurement(
-                    id = data.id,
-                    _measured = data.timeMeasured,
-                    _linearFilteredSamples = data.sampleData.map { it.singleFilterValue }
-                        .toMutableList(),
-                    _fusionFilteredSamples = data.sampleData.map { it.fusionFilterValue }
-                        .toMutableList(),
-                    _applicationContext = _applicationContext,
-                    _finished = _finished
-                )
-            }
-        }
     }
 
     fun hasRequiredPermissions(): Boolean {

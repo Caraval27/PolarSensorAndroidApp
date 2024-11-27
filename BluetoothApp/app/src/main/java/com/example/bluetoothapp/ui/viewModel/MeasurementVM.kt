@@ -2,11 +2,11 @@ package com.example.bluetoothapp.ui.viewModel
 
 import android.app.Application
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bluetoothapp.model.Device
 import com.example.bluetoothapp.model.Measurement
+import com.example.bluetoothapp.model.MeasurementHistory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,6 +19,10 @@ class MeasurementVM(
     private val _measurement = MutableStateFlow(Measurement(_applicationContext = application.applicationContext))
     val measurement: StateFlow<Measurement>
         get() = _measurement.asStateFlow()
+
+    private val _measurementHistory = MutableStateFlow(MeasurementHistory(_applicationContext = application.applicationContext))
+    val measurementHistory: StateFlow<MeasurementHistory>
+        get() = _measurementHistory.asStateFlow()
 
     private val _devices = MutableStateFlow<List<Device>>(emptyList())
     val devices: StateFlow<List<Device>>
@@ -54,6 +58,12 @@ class MeasurementVM(
     fun stopStreaming(deviceId: String) {
         viewModelScope.launch {
             measurement.value.stopStreaming(deviceId)
+        }
+    }
+
+    fun getMeasurementHistory() {
+        viewModelScope.launch {
+            _measurementHistory.value = _measurementHistory.value.getMeasurementsHistory()
         }
     }
 }
