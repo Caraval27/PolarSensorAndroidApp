@@ -3,7 +3,10 @@ package com.example.bluetoothapp.model
 import android.content.Context
 import androidx.lifecycle.MediatorLiveData
 import com.example.bluetoothapp.data.InternalSensorRepository
+import com.example.bluetoothapp.data.MeasurementData
+import com.example.bluetoothapp.data.MeasurementDbRepository
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class Measurement (
     private var id : Int,
@@ -26,6 +29,7 @@ class Measurement (
         get() = _finished
 
     private val internalSensorRepository : InternalSensorRepository = InternalSensorRepository(_applicationContext)
+    private val measurementDbRepository : MeasurementDbRepository = MeasurementDbRepository(_applicationContext)
 
     init {
         var currentLinearSample : Float = -1f
@@ -80,5 +84,26 @@ class Measurement (
 
     private fun applyFusionFilter(linearSample: Float, angularSample: Float) {
         TODO()
+    }
+
+    suspend fun getMeasurementsHistory() : List<Measurement> {
+        val measurementsData = measurementDbRepository.getMeasurements()
+
+        if (measurementsData.isEmpty()) return emptyList()
+
+        return measurementsData.map { measurementData ->
+            measurementData.let { data ->
+                Measurement(
+                    id = data.id,
+                    _measured = data.timeMeasured,
+                    _linearFilteredSamples = data.sampleData.map { it.singleFilterValue }
+                        .toMutableList(),
+                    _fusionFilteredSamples = data.sampleData.map { it.fusionFilterValue }
+                        .toMutableList(),
+                    _applicationContext = _applicationContext,
+                    _finished = _finished
+                )
+            }
+        }
     }
 }
