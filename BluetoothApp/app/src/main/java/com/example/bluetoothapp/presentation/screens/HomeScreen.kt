@@ -42,7 +42,7 @@ fun HomeScreen(
         ) {
             Button(
                 onClick = { TODO("navcontroller to PlotScreen") },
-                modifier = Modifier.fillMaxWidth(0.5f)
+                modifier = Modifier.fillMaxWidth(0.6f)
             ) {
                 Text("Use internal sensor")
             }
@@ -51,7 +51,7 @@ fun HomeScreen(
 
             Button(
                 onClick = { polarSelected = true },
-                modifier = Modifier.fillMaxWidth(0.5f)
+                modifier = Modifier.fillMaxWidth(0.6f)
             ) {
                 Text("Use polar sensors")
             }
@@ -60,7 +60,7 @@ fun HomeScreen(
 
             Button(
                 onClick = { TODO("navcontroller to MeasurementHistoryScreen") },
-                modifier = Modifier.fillMaxWidth(0.5f)
+                modifier = Modifier.fillMaxWidth(0.6f)
             ) {
                 Text("Result history")
             }

@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
 import com.example.bluetoothapp.presentation.theme.BluetoothAppTheme
 import com.example.bluetoothapp.presentation.screens.HomeScreen
+import com.example.bluetoothapp.presentation.screens.MeasurementHistoryScreen
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +41,8 @@ class MainActivity : ComponentActivity() {
                         requestPermissionLauncher = requestPermissionLauncher,
                         measurementVM = measurementVM
                     )
+
+                    //MeasurementHistoryScreen(measurementVM) endast för test
                 }
             }
         }
