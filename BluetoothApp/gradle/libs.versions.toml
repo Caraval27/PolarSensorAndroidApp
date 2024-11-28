@@ -18,6 +18,7 @@ roomCompiler = "2.6.1"
 roomRuntimeVersion = "2.6.1"
 roomKtx = "2.6.1"
 navigationCompose = "2.8.4"
+storage = "1.4.2"
 
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
@@ -43,6 +44,7 @@ reactivex-rxandroid = { module = "io.reactivex.rxjava3:rxandroid", version.ref =
 rxjava = { module = "io.reactivex.rxjava3:rxjava", version.ref = "rxjava" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntimeVersion" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+androidx-storage = { group = "androidx.test.services", name = "storage", version.ref = "storage" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
