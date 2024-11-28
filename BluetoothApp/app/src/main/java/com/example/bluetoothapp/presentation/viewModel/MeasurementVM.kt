@@ -1,12 +1,12 @@
-package com.example.bluetoothapp.ui.viewModel
+package com.example.bluetoothapp.presentation.viewModel
 
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bluetoothapp.model.Device
-import com.example.bluetoothapp.model.Measurement
-import com.example.bluetoothapp.model.MeasurementHistory
+import com.example.bluetoothapp.application.MeasurementService
+import com.example.bluetoothapp.domain.Device
+import com.example.bluetoothapp.domain.Measurement
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,25 +16,27 @@ class MeasurementVM(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val _measurement = MutableStateFlow(Measurement(_applicationContext = application.applicationContext))
+    private val _currentMeasurement = MutableStateFlow(Measurement())
     val measurement: StateFlow<Measurement>
-        get() = _measurement.asStateFlow()
+        get() = _currentMeasurement.asStateFlow()
 
-    private val _measurementHistory = MutableStateFlow(MeasurementHistory(_applicationContext = application.applicationContext))
-    val measurementHistory: StateFlow<MeasurementHistory>
+    private val _measurementHistory = MutableStateFlow(mutableListOf<Measurement>())
+    val measurementHistory: StateFlow<MutableList<Measurement>>
         get() = _measurementHistory.asStateFlow()
 
     private val _devices = MutableStateFlow<List<Device>>(emptyList())
     val devices: StateFlow<List<Device>>
         get() = _devices.asStateFlow()
 
+    private val _measurementService = MeasurementService(_applicationContext = application.applicationContext)
+
     fun hasRequiredPermissions() : Boolean {
-        return measurement.value.hasRequiredPermissions()
+        return _measurementService.hasRequiredPermissions()
     }
 
     fun searchForDevices() {
         viewModelScope.launch {
-            measurement.value.searchForDevices()
+            _measurementService.searchForDevices()
                 .subscribe ({ deviceList ->
                     _devices.value = deviceList
                 }, { error ->
@@ -45,25 +47,25 @@ class MeasurementVM(
 
     fun connectToDevice(deviceId: String) {
         viewModelScope.launch {
-            measurement.value.connectToPolarDevice(deviceId)
+            _measurementService.connectToPolarDevice(deviceId)
         }
     }
 
     fun startStreaming(deviceId: String) {
         viewModelScope.launch {
-            measurement.value.startStreaming(deviceId)
+            _measurementService.startPolarRecording(deviceId)
         }
     }
 
     fun stopStreaming(deviceId: String) {
         viewModelScope.launch {
-            measurement.value.stopStreaming(deviceId)
+            _measurementService.stopPolarRecording(deviceId)
         }
     }
 
     fun getMeasurementHistory() {
         viewModelScope.launch {
-            _measurementHistory.value = _measurementHistory.value.getMeasurementsHistory()
+            _measurementHistory.value = _measurementService.getMeasurementsHistory()
         }
     }
 }

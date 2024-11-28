@@ -1,4 +1,4 @@
-package com.example.bluetoothapp.data
+package com.example.bluetoothapp.infrastructure
 
 import java.time.LocalDateTime
 

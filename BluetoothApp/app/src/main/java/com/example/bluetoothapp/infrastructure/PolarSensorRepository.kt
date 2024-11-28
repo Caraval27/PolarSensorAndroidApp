@@ -1,10 +1,10 @@
-package com.example.bluetoothapp.data
+package com.example.bluetoothapp.infrastructure
 
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.bluetoothapp.model.Device
+import com.example.bluetoothapp.domain.Device
 import com.polar.sdk.api.PolarBleApi
 import com.polar.sdk.api.PolarBleApiCallback
 import com.polar.sdk.api.PolarBleApiDefaultImpl

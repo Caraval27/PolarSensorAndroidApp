@@ -1,4 +1,4 @@
-package com.example.bluetoothapp.model
+package com.example.bluetoothapp.domain
 
 data class Device(
     val deviceId: String,

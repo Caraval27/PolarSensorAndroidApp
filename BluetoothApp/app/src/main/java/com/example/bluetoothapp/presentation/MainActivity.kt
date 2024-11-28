@@ -1,4 +1,4 @@
-package com.example.bluetoothapp
+package com.example.bluetoothapp.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,8 +8,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,9 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
-import com.example.bluetoothapp.ui.theme.BluetoothAppTheme
-import com.example.bluetoothapp.ui.view.HomeScreen
-import com.example.bluetoothapp.ui.viewModel.MeasurementVM
+import com.example.bluetoothapp.presentation.theme.BluetoothAppTheme
+import com.example.bluetoothapp.presentation.screens.HomeScreen
+import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 
 class MainActivity : ComponentActivity() {
     private lateinit var measurementVM: MeasurementVM

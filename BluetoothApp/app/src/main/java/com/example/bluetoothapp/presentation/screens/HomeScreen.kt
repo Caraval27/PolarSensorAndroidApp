@@ -1,7 +1,6 @@
-package com.example.bluetoothapp.ui.view
+package com.example.bluetoothapp.presentation.screens
 
 import android.os.Build
-import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,8 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.bluetoothapp.model.Device
-import com.example.bluetoothapp.ui.viewModel.MeasurementVM
+import com.example.bluetoothapp.domain.Device
+import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 
 @Composable
 fun HomeScreen(

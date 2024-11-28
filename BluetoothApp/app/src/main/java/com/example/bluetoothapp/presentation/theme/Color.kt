@@ -1,4 +1,4 @@
-package com.example.bluetoothapp.ui.theme
+package com.example.bluetoothapp.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

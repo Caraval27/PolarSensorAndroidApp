@@ -1,4 +1,4 @@
-package com.example.bluetoothapp.ui.view
+package com.example.bluetoothapp.presentation.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,7 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.bluetoothapp.ui.viewModel.MeasurementVM
+import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 
 @Composable
 fun MeasurementHistoryScreen(
@@ -21,7 +21,6 @@ fun MeasurementHistoryScreen(
     onItemClick: (Int) -> Unit // en navcontroller som tar en till plotscreen
 ) {
     val measurementHistory by measurementVM.measurementHistory.collectAsState()
-    val historyList = measurementHistory.measurementHistory
 
     Column(
         modifier = Modifier
@@ -36,9 +35,9 @@ fun MeasurementHistoryScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        if (historyList.isNotEmpty()) {
+        if (measurementHistory.isNotEmpty()) {
             LazyColumn {
-                items(historyList) { measurement ->
+                items(measurementHistory) { measurement ->
                     MeasurementItem(
                         measuredTime = measurement.measured.toString(),
                         onClick = { onItemClick(measurement.id) }
