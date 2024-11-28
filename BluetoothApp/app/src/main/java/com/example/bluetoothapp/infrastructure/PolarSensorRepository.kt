@@ -13,6 +13,9 @@ import com.polar.sdk.api.model.PolarSensorSetting
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class PolarSensorRepository(applicationContext: Context) {
 
@@ -29,11 +32,13 @@ class PolarSensorRepository(applicationContext: Context) {
     /*private val _devices = MutableStateFlow<List<PolarDeviceInfo>>(emptyList())
     val devices: StateFlow<List<PolarDeviceInfo>> = _devices*/
 
-    private val _gyroscopeData = MutableLiveData<FloatArray>()
-    val gyroscopeData: LiveData<FloatArray> get() = _gyroscopeData
+    private val _gyroscopeData = MutableStateFlow(floatArrayOf())
+    val gyroscopeData: StateFlow<FloatArray>
+        get() = _gyroscopeData.asStateFlow()
 
-    private val _linearAccelerationData = MutableLiveData<FloatArray>()
-    val linearAccelerationData: LiveData<FloatArray> get() = _linearAccelerationData
+    private val _linearAccelerationData = MutableStateFlow(floatArrayOf())
+    val linearAccelerationData: StateFlow<FloatArray>
+        get() = _linearAccelerationData.asStateFlow()
 
     init {
         api.setApiCallback(object : PolarBleApiCallback() {
@@ -74,7 +79,7 @@ class PolarSensorRepository(applicationContext: Context) {
              .observeOn(AndroidSchedulers.mainThread())
              .subscribe({ data ->
                  for (sample in data.samples) {
-                     _linearAccelerationData.postValue(floatArrayOf(
+                     _linearAccelerationData.value = (floatArrayOf(
                          sample.x.toFloat(), sample.y.toFloat(), sample.z.toFloat()
                      ))
                  }
@@ -92,7 +97,7 @@ class PolarSensorRepository(applicationContext: Context) {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ data ->
                 for (sample in data.samples) {
-                    _gyroscopeData.postValue(floatArrayOf(
+                    _gyroscopeData.value = (floatArrayOf(
                         sample.x, sample.y, sample.z
                     ))
                 }

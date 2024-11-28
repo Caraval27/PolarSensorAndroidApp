@@ -21,6 +21,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.components.DeviceScan
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
+import com.example.bluetoothapp.presentation.viewModel.SensorType
 
 @Composable
 fun HomeScreen(
@@ -44,7 +45,10 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                onClick = { navController.navigate("plot") },
+                onClick = {
+                    measurementVM.setSensorType(SensorType.Internal)
+                    navController.navigate("plot")
+                          },
                 modifier = Modifier.fillMaxWidth(0.6f)
             ) {
                 Text("Use internal sensor")

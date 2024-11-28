@@ -1,6 +1,8 @@
 package com.example.bluetoothapp.presentation.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,8 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
@@ -21,33 +26,49 @@ fun PlotScreen(
     measurementVM: MeasurementVM,
     navController: NavHostController
 ) {
-    Column (
+    val measurementState = measurementVM.measurementState.collectAsState()
+    val linearFilteredSamples = measurementVM.linearFilteredSamples.collectAsState()
+    val fusionFilteredSamples = measurementVM.fusionFilteredSamples.collectAsState()
+
+    LaunchedEffect(Unit) {
+        measurementVM.startRecording()
+    }
+
+
+    Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        //Här ska man ploten vara tänker jag
+        // Här kan man ploten vara
+
+        Text(
+            text = "Algo 1: " + linearFilteredSamples.value.last() //Ska tas bort sen, för test
+        )
+
+        Text(
+            text = "Algo 2: " + fusionFilteredSamples.value.last() //Ska också tas bort sen
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = {
-                //measurementVM.stopMeasurement()
-            },
-            modifier = Modifier.fillMaxWidth(0.6f)
-        ) {
-            Text("Stop measurement")
+        if (measurementState.value.ongoing) {
+            Button(
+                onClick = { measurementVM.stopRecording() },
+                modifier = Modifier.fillMaxWidth(0.6f)
+            ) {
+                Text("Stop")
+            }
         }
-    }
-
-    Spacer(modifier = Modifier.height(40.dp))
-
-    Button(
-        onClick = { navController.navigate("home") },
-        modifier = Modifier.fillMaxWidth(0.5f)
-    ) {
-        Text("Back")
+        else {
+            Button(
+                onClick = { },
+                modifier = Modifier.fillMaxWidth(0.6f)
+            ) {
+                Text("Export")
+            }
+        }
     }
 }

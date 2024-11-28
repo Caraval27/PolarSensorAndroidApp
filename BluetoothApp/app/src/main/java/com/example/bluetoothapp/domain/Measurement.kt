@@ -1,45 +1,26 @@
 package com.example.bluetoothapp.domain
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDateTime
 
 class Measurement (
     private var _id : Int = 0,
-    private var _measured : LocalDateTime = LocalDateTime.now(),
-    private var _linearFilteredSamples : MutableList<Float> = mutableListOf(),
-    private var _fusionFilteredSamples : MutableList<Float> = mutableListOf(),
-    private var _lastAngularSample: Float = -1f,
-    private var _finished: Boolean = false
+    private var _timeMeasured : LocalDateTime = LocalDateTime.now(),
+    val linearFilteredSamples: List<Float> = emptyList(),
+    val fusionFilteredSamples : List<Float> = emptyList(),
 ){
 
     val id: Int
         get() = _id
 
-    val measured: LocalDateTime
-        get() = _measured
-
-    val linearFilteredSamples: MutableList<Float>
-        get() = _linearFilteredSamples
-
-    val fusionFilteredSamples : MutableList<Float>
-        get() = _fusionFilteredSamples
-
-    var finished: Boolean
-        get() = _finished
-        set(value) {
-            _finished = value
-        }
+    val timeMeasured: LocalDateTime
+        get() = _timeMeasured
 
     var lastAngularSample: Float
         get() = _lastAngularSample
         set(value) {
             _lastAngularSample = value
         }
-
-    fun addLinearFilteredSample(linearFilteredSample : Float) {
-        _linearFilteredSamples.add(linearFilteredSample)
-    }
-
-    fun addFusionFilteredSample(fusionFilteredSample : Float) {
-        _fusionFilteredSamples.add(fusionFilteredSample)
-    }
 }

@@ -17,10 +17,15 @@ import kotlinx.coroutines.launch
 class MeasurementVM(
     application: Application
 ) : AndroidViewModel(application) {
+    private val _measurementService = MeasurementService(_applicationContext = application.applicationContext)
 
     private val _currentMeasurement = MutableStateFlow(Measurement())
     val currentMeasurement: StateFlow<Measurement>
         get() = _currentMeasurement.asStateFlow()
+
+    val linearFilteredSamples: StateFlow<List<Float>> = _measurementService.linearFilteredSamples
+
+    val fusionFilteredSamples: StateFlow<List<Float>> = _measurementService.fusionFilteredSamples
 
     private val _measurementHistory = MutableStateFlow(mutableListOf<Measurement>())
     val measurementHistory: StateFlow<MutableList<Measurement>>
@@ -30,7 +35,9 @@ class MeasurementVM(
     val devices: StateFlow<List<Device>>
         get() = _devices.asStateFlow()
 
-    private val _measurementService = MeasurementService(_applicationContext = application.applicationContext)
+    private val _measurementState = MutableStateFlow(MeasurementState())
+    val measurementState: StateFlow<MeasurementState>
+        get() = _measurementState.asStateFlow()
 
     fun hasRequiredPermissions() : Boolean {
         return _measurementService.hasRequiredPermissions()
@@ -50,18 +57,26 @@ class MeasurementVM(
     fun connectToDevice(deviceId: String) {
         viewModelScope.launch {
             _measurementService.connectToPolarDevice(deviceId)
+            _measurementState.value = _measurementState.value.copy(chosenDeviceId = deviceId)
         }
     }
 
-    fun startStreaming(deviceId: String) {
+    fun startRecording() {
         viewModelScope.launch {
-            _measurementService.startPolarRecording(deviceId)
+            when (_measurementState.value.sensorType) {
+                SensorType.Polar -> _measurementService.startPolarRecording(_measurementState.value.chosenDeviceId)
+                SensorType.Internal -> _measurementService.startInternalRecording()
+            }
         }
     }
 
-    fun stopStreaming(deviceId: String) {
+    fun stopRecording() {
         viewModelScope.launch {
-            _measurementService.stopPolarRecording(deviceId)
+            when (_measurementState.value.sensorType) {
+                SensorType.Polar -> _measurementService.stopPolarRecording()
+                SensorType.Internal -> _measurementService.stopInternalRecording()
+            }
+            _measurementState.value = _measurementState.value.copy(ongoing = false)
         }
     }
 
@@ -73,6 +88,10 @@ class MeasurementVM(
 
     fun setCurrentMeasurement(measurement: Measurement) {
         _currentMeasurement.value = measurement
+    }
+
+    fun setSensorType(sensorType: SensorType) {
+        _measurementState.value = _measurementState.value.copy(sensorType = sensorType)
     }
 
     /*Ska raderas sen*/
@@ -89,3 +108,14 @@ class MeasurementVM(
         }
     }
 }
+
+enum class SensorType {
+    Polar,
+    Internal
+}
+
+data class MeasurementState(
+    val sensorType: SensorType = SensorType.Internal,
+    val chosenDeviceId: String = "",
+    val ongoing: Boolean = true
+)

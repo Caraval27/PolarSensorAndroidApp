@@ -8,6 +8,9 @@ import android.hardware.SensorManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.bluetoothapp.application.MeasurementService
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class InternalSensorRepository(
     applicationContext : Context
@@ -16,19 +19,16 @@ class InternalSensorRepository(
     private val sensorManager: SensorManager =
         applicationContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
-    private var gyroscopeSensor: Sensor?
-    private var linearAccelerationSensor: Sensor?
+    private var gyroscopeSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+    private var linearAccelerationSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
 
-    private val _gyroscopeData = MutableLiveData<FloatArray>()
-    val gyroscopeData: LiveData<FloatArray> get() = _gyroscopeData
+    private val _gyroscopeData = MutableStateFlow(floatArrayOf())
+    val gyroscopeData: StateFlow<FloatArray>
+        get() = _gyroscopeData.asStateFlow()
 
-    private val _linearAccelerationData = MutableLiveData<FloatArray>()
-    val linearAccelerationData: LiveData<FloatArray> get() = _linearAccelerationData
-
-    init {
-        gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
-        linearAccelerationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
-    }
+    private val _linearAccelerationData = MutableStateFlow(floatArrayOf())
+    val linearAccelerationData: StateFlow<FloatArray>
+        get() = _linearAccelerationData.asStateFlow()
 
     fun startListening() : Boolean {
         if (gyroscopeSensor == null || linearAccelerationSensor == null) {

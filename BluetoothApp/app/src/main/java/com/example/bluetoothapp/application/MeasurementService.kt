@@ -4,39 +4,61 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.MediatorLiveData
 import com.example.bluetoothapp.infrastructure.InternalSensorRepository
 import com.example.bluetoothapp.infrastructure.MeasurementDbRepository
 import com.example.bluetoothapp.infrastructure.PolarSensorRepository
 import com.example.bluetoothapp.domain.Measurement
 import io.reactivex.rxjava3.core.Single
 import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.runtime.mutableStateOf
 import kotlin.math.PI
 import kotlin.math.atan
 import kotlin.math.pow
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.infrastructure.MeasurementData
 import com.example.bluetoothapp.infrastructure.SampleData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 class MeasurementService(
     private var _applicationContext : Context,
-    private var _measurement : Measurement = Measurement()
 ) {
+    private val _linearFilteredSamples: MutableStateFlow<List<Float>> = MutableStateFlow(emptyList())
+    val linearFilteredSamples: StateFlow<List<Float>>
+        get() = _linearFilteredSamples.asStateFlow()
+
+    private val _fusionFilteredSamples : MutableStateFlow<List<Float>> = MutableStateFlow(emptyList())
+    val fusionFilteredSamples: StateFlow<List<Float>>
+        get() = _fusionFilteredSamples.asStateFlow()
+
+    private var _lastAngularSample: Float = -1f
 
     private val internalSensorRepository : InternalSensorRepository = InternalSensorRepository(_applicationContext)
     private val polarSensorRepository : PolarSensorRepository = PolarSensorRepository(_applicationContext)
     private val measurementDbRepository : MeasurementDbRepository = MeasurementDbRepository(_applicationContext)
+
+    private val measurementJob = Job()
+
+    private val measurementScope = CoroutineScope(Dispatchers.Default + measurementJob)
+
 
     companion object {
         const val SENSOR_DELAY = 60000
     }
 
     init {
-        var currentLinearSample : Float? = null
-        var currentAngularSample : Float? = null
+        //var currentLinearSample : Float? = null
+        //var currentAngularSample : Float? = null
 
-        val sampleMediator = MediatorLiveData<Pair<Float, Float>>()
+        /*val sampleMediator = MediatorLiveData<Pair<Float, Float>>()
 
         //felhantering krävs sen ifall en sensor misslyckades att producera ett värde i följden
         // just nu kommer det värdet bara att hoppas över
@@ -62,7 +84,7 @@ class MeasurementService(
             applyFusionFilter(it.first, it.second)
             currentLinearSample = null
             currentAngularSample = null
-        }
+        }*/
     }
 
     private fun calculateElevationLinear(yValue: Float, zValue: Float) : Float {
@@ -73,20 +95,20 @@ class MeasurementService(
 
     private fun calculateElevationAngular(zValue: Float) : Float {
         val timeDelta = SENSOR_DELAY / 10.0f.pow(6)
-        val angle = _measurement.lastAngularSample + zValue * timeDelta
-        _measurement.lastAngularSample = angle
+        val angle = _lastAngularSample + zValue * timeDelta
+        _lastAngularSample = angle
         return angle
     }
 
     private fun applyLinearFilter(linearSample : Float, filterFactor: Float) {
-        val linearFilteredSample = filterFactor * linearSample + (1 - filterFactor) * _measurement.linearFilteredSamples.last()
-        _measurement.addLinearFilteredSample(linearFilteredSample)
+        val linearFilteredSample = filterFactor * linearSample + (1 - filterFactor) * _linearFilteredSamples.value.last()
+        _linearFilteredSamples.value += linearFilteredSample
     }
 
     private fun applyFusionFilter(linearSample: Float, angularSample: Float) {
         val filterFactor = 0.98f
         val fusionFilteredSample = filterFactor * linearSample + (1 - filterFactor) * angularSample
-        _measurement.addFusionFilteredSample(fusionFilteredSample)
+        _fusionFilteredSamples.value += fusionFilteredSample
     }
 
     suspend fun insertMeasurement(measurement: Measurement) {
@@ -96,7 +118,7 @@ class MeasurementService(
 
         val measurementData = MeasurementData(
             measurement.id,
-            timeMeasured = measurement.measured,
+            timeMeasured = measurement.timeMeasured,
             sampleData = measurement.linearFilteredSamples.zip(measurement.fusionFilteredSamples) { linear, fusion ->
                 SampleData(
                     singleFilterValue = linear,
@@ -115,12 +137,11 @@ class MeasurementService(
                 measurementData.let { data ->
                     Measurement(
                         _id = data.id,
-                        _measured = data.timeMeasured,
-                        _linearFilteredSamples = data.sampleData.map { it.singleFilterValue }
+                        _timeMeasured = data.timeMeasured,
+                        linearFilteredSamples = data.sampleData.map { it.singleFilterValue }
                             .toMutableList(),
-                        _fusionFilteredSamples = data.sampleData.map { it.fusionFilterValue }
+                        fusionFilteredSamples = data.sampleData.map { it.fusionFilterValue }
                             .toMutableList(),
-                        _finished = true
                     )
                 }
             }.toMutableList()
@@ -130,12 +151,22 @@ class MeasurementService(
     }
 
     fun startInternalRecording() {
+        measurementScope.launch {
+            internalSensorRepository.linearAccelerationData.zip(internalSensorRepository.gyroscopeData) { linearAcceleration, angularVelocity ->
+                Pair(linearAcceleration, angularVelocity)
+            }.collect { sample ->
+                val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
+                applyLinearFilter(linearSample, 0.1f)
+                val angularSample = calculateElevationAngular(sample.second[2])
+                applyFusionFilter(linearSample, angularSample)
+            }
+        }
         internalSensorRepository.startListening()
     }
 
     fun stopInternalRecording() {
         internalSensorRepository.stopListening()
-        _measurement.finished = true
+        measurementJob.cancel()
     }
 
     fun hasRequiredPermissions(): Boolean {
@@ -159,13 +190,23 @@ class MeasurementService(
     }
 
     fun startPolarRecording(deviceId: String) {
+        measurementScope.launch {
+            polarSensorRepository.linearAccelerationData.zip(polarSensorRepository.gyroscopeData) { linearAcceleration, angularVelocity ->
+                Pair(linearAcceleration, angularVelocity)
+            }.collect { sample ->
+                val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
+                applyLinearFilter(linearSample, 0.1f)
+                val angularSample = calculateElevationAngular(sample.second[2])
+                applyFusionFilter(linearSample, angularSample)
+            }
+        }
         polarSensorRepository.startAccStreaming(deviceId)
         polarSensorRepository.startGyroStreaming(deviceId)
     }
 
-    fun stopPolarRecording(deviceId: String) {
+    fun stopPolarRecording() {
         polarSensorRepository.stopStreaming()
-        _measurement.finished = true
+        measurementJob.cancel()
     }
 
     fun disconnectFromPolarDevice(deviceId: String) {
@@ -177,11 +218,9 @@ class MeasurementService(
         val fusionSamples = mutableListOf(4.0f, 5.0f, 6.0f)
 
         return Measurement(
-            _measured = LocalDateTime.now(),
-            _linearFilteredSamples = linearSamples,
-            _fusionFilteredSamples = fusionSamples,
-            _lastAngularSample = 45.5f,
-            _finished = true
+            _timeMeasured = LocalDateTime.now(),
+            linearFilteredSamples = linearSamples,
+            fusionFilteredSamples = fusionSamples,
         )
     }
 
