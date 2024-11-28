@@ -12,45 +12,85 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
+import java.time.LocalDateTime
 
 @Composable
+<<<<<<< HEAD:BluetoothApp/app/src/main/java/com/example/bluetoothapp/presentation/screens/HistoryScreen.kt
 fun HistoryScreen(
     measurementVM: MeasurementVM,
     navController: NavHostController
+=======
+fun MeasurementHistoryScreen(
+    measurementVM: MeasurementVM
+    // en navcontroller som tar en till plotscreen
+>>>>>>> 2ff4b8058245d18e1a7ef93856f9677d751f1c6a:BluetoothApp/app/src/main/java/com/example/bluetoothapp/presentation/screens/MeasurementHistoryScreen.kt
 ) {
     val measurementHistory by measurementVM.measurementHistory.collectAsState()
 
+    /* testdata för endast tid
+    val measurementHistory = mutableListOf<LocalDateTime>()
+
+    measurementHistory.add(LocalDateTime.of(2024, 11, 28, 16, 20, 2, 872739))
+    measurementHistory.add(LocalDateTime.of(2024, 11, 27, 16, 20, 2, 872739))
+    measurementHistory.add(LocalDateTime.of(2024, 11, 26, 16, 20, 2, 872739))
+    measurementHistory.add(LocalDateTime.of(2024, 11, 25, 16, 20, 2, 872739))
+    measurementHistory.add(LocalDateTime.of(2024, 11, 24, 16, 20, 2, 872739))
+    measurementHistory.add(LocalDateTime.of(2024, 11, 23, 16, 20, 2, 872739))
+    measurementHistory.add(LocalDateTime.of(2024, 11, 22, 16, 20, 2, 872739))
+    measurementHistory.add(LocalDateTime.of(2024, 11, 21, 16, 20, 2, 872739))
+    measurementHistory.add(LocalDateTime.of(2024, 11, 20, 16, 20, 2, 872739))
+    measurementHistory.add(LocalDateTime.of(2024, 11, 19, 16, 20, 2, 872739))
+     */
+
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize(0.8f)
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Measurement History",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
+            text = "Measurement history",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(30.dp),
+            fontFamily = FontFamily.Monospace
         )
 
-        if (measurementHistory.isNotEmpty()) {
-            LazyColumn {
+        if (measurementHistory.isNotEmpty()) { //measurementHistory.isNotEmpty()
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 items(measurementHistory) { measurement ->
                     MeasurementItem(
                         measuredTime = measurement.measured.toString(),
+<<<<<<< HEAD:BluetoothApp/app/src/main/java/com/example/bluetoothapp/presentation/screens/HistoryScreen.kt
                         onClick = {
                             measurementVM.setMeasurement(measurement)
                             navController.navigate("plot")
                         }
+=======
+                        onClick = { /*TODO("navcontroller till plotscreen") PlotScreen(measurement)*/ }
+>>>>>>> 2ff4b8058245d18e1a7ef93856f9677d751f1c6a:BluetoothApp/app/src/main/java/com/example/bluetoothapp/presentation/screens/MeasurementHistoryScreen.kt
                     )
                 }
             }
         } else {
-            Text("No history available.")
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No history available.",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = FontFamily.Monospace
+                )
+            }
         }
     }
 }

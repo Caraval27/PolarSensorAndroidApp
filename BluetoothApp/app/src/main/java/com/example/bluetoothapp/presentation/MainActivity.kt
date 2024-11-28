@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.bluetoothapp.presentation.theme.BluetoothAppTheme
 import com.example.bluetoothapp.presentation.screens.HomeScreen
 import com.example.bluetoothapp.presentation.screens.HistoryScreen
+import com.example.bluetoothapp.presentation.screens.PlotScreen
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 
 class MainActivity : ComponentActivity() {
@@ -48,7 +49,7 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(requestPermissionLauncher = requestPermissionLauncher, measurementVM = measurementVM, navController = navController)
                         }
                         composable("plot") {
-                            HistoryScreen(measurementVM = measurementVM, navController = navController)
+                            PlotScreen(measurementVM = measurementVM, navController = navController)
                         }
                         composable("history") {
                             HistoryScreen(measurementVM = measurementVM, navController = navController)

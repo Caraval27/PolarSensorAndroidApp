@@ -25,6 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
@@ -36,7 +38,7 @@ fun DeviceScan(
 ) {
     val devices by measurementVM.devices.collectAsState()
     var isScanning by remember { mutableStateOf(false) }
-    var permissionDenied by remember { mutableStateOf(false) }
+    var permissionDenied by remember { mutableStateOf(false) } // kanske ej behövs
 
     Column(
         modifier = Modifier
@@ -71,9 +73,14 @@ fun DeviceScan(
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth(0.5f)
+            modifier = Modifier.fillMaxWidth(0.6f)
         ) {
-            Text(if (isScanning) "Searching..." else "Search for Devices")
+            Text(
+                if (isScanning) "Searching..." else "Search for Devices",
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                fontFamily = FontFamily.Monospace
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -92,7 +99,12 @@ fun DeviceScan(
                 }
             }
         } else if (!isScanning) {
-            Text("No devices found. Press search to start scanning.")
+            Text(
+                "No devices found. \nPress search to start scanning.",
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                fontFamily = FontFamily.Monospace
+            )
         }
 
         Spacer(modifier = Modifier.height(40.dp))
