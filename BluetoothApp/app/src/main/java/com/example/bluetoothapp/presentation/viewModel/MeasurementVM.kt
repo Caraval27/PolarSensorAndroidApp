@@ -69,7 +69,7 @@ class MeasurementVM(
         }
     }
 
-    fun setMeasurement(measurement: Measurement) {
+    fun setCurrentMeasurement(measurement: Measurement) {
         _currentMeasurement.value = measurement
     }
 }

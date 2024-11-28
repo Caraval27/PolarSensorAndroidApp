@@ -14,21 +14,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
-import java.time.LocalDateTime
 
 @Composable
-<<<<<<< HEAD:BluetoothApp/app/src/main/java/com/example/bluetoothapp/presentation/screens/HistoryScreen.kt
 fun HistoryScreen(
     measurementVM: MeasurementVM,
     navController: NavHostController
-=======
-fun MeasurementHistoryScreen(
-    measurementVM: MeasurementVM
-    // en navcontroller som tar en till plotscreen
->>>>>>> 2ff4b8058245d18e1a7ef93856f9677d751f1c6a:BluetoothApp/app/src/main/java/com/example/bluetoothapp/presentation/screens/MeasurementHistoryScreen.kt
 ) {
     val measurementHistory by measurementVM.measurementHistory.collectAsState()
 
@@ -69,14 +61,10 @@ fun MeasurementHistoryScreen(
                 items(measurementHistory) { measurement ->
                     MeasurementItem(
                         measuredTime = measurement.measured.toString(),
-<<<<<<< HEAD:BluetoothApp/app/src/main/java/com/example/bluetoothapp/presentation/screens/HistoryScreen.kt
                         onClick = {
-                            measurementVM.setMeasurement(measurement)
+                            measurementVM.setCurrentMeasurement(measurement)
                             navController.navigate("plot")
                         }
-=======
-                        onClick = { /*TODO("navcontroller till plotscreen") PlotScreen(measurement)*/ }
->>>>>>> 2ff4b8058245d18e1a7ef93856f9677d751f1c6a:BluetoothApp/app/src/main/java/com/example/bluetoothapp/presentation/screens/MeasurementHistoryScreen.kt
                     )
                 }
             }

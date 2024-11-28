@@ -44,7 +44,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                onClick = { TODO("navcontroller to PlotScreen") },
+                onClick = { navController.navigate("plot") },
                 modifier = Modifier.fillMaxWidth(0.6f)
             ) {
                 Text("Use internal sensor")
@@ -62,14 +62,13 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { TODO("navcontroller to MeasurementHistoryScreen") },
+                onClick = { navController.navigate("history") },
                 modifier = Modifier.fillMaxWidth(0.6f)
             ) {
                 Text("Result history")
             }
         }
     } else {
-        DeviceScan(requestPermissionLauncher, measurementVM)
-        /*TODO("Ska även skicka in navcontroller för att kunna gå vidare till PlotScreen")*/
+        DeviceScan(requestPermissionLauncher, measurementVM, navController)
     }
 }
