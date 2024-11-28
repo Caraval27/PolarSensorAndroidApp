@@ -14,7 +14,7 @@ import androidx.room.PrimaryKey
 data class MeasurementEntity (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    var id: Int = -1,
+    var id: Int = 0,
 
     @ColumnInfo(name = "time_measured")
     var timeMeasured: String = "",
@@ -39,7 +39,7 @@ data class MeasurementEntity (
 
 data class SampleEntity(
     @ColumnInfo(name = "sequence_number")
-    var sequenceNumber: Int = -1,
+    var sequenceNumber: Int = 0,
 
     @ColumnInfo(name = "single_filtered_value")
     var singleFilteredValue: Float = 0f,
@@ -48,5 +48,5 @@ data class SampleEntity(
     var fusionFilteredValue: Float = 0f,
 
     @ColumnInfo(name = "measurement_id")
-    var measurementId: Int = -1,
+    var measurementId: Int = 0,
 )

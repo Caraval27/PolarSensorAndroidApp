@@ -38,14 +38,6 @@ class MeasurementDbRepository(
                 measurementId = 0
             )
         }
-        /*return linearFilteredSamples.zip(fusionFilteredSamples).mapIndexed{ index, (single, fusion) ->
-            SampleEntity(
-                sequenceNumber = index + 1,
-                singleFilteredValue = single,
-                fusionFilteredValue = fusion,
-                measurementId = 0
-            )
-        }*/
     }
 
     suspend fun getMeasurements() : List<MeasurementData> {
@@ -72,5 +64,9 @@ class MeasurementDbRepository(
                 fusionFilterValue = sampleEntity.fusionFilteredValue
             )
         }
+    }
+
+    fun clearDb() {
+        db.clearAllTables()
     }
 }
