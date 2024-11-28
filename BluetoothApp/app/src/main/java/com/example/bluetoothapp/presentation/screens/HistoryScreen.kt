@@ -16,13 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
-import java.time.LocalDateTime
 
 @Composable
-fun MeasurementHistoryScreen(
-    measurementVM: MeasurementVM
-    // en navcontroller som tar en till plotscreen
+fun HistoryScreen(
+    measurementVM: MeasurementVM,
+    navController: NavHostController
 ) {
     val measurementHistory by measurementVM.measurementHistory.collectAsState()
 
@@ -67,7 +67,10 @@ fun MeasurementHistoryScreen(
                 items(measurementHistory) { measurement ->
                     MeasurementItem(
                         measuredTime = measurement.measured.toString(),
-                        onClick = { /*TODO("navcontroller till plotscreen") PlotScreen(measurement)*/ }
+                        onClick = {
+                            measurementVM.setCurrentMeasurement(measurement)
+                            navController.navigate("plot")
+                        }
                     )
                 }
             }

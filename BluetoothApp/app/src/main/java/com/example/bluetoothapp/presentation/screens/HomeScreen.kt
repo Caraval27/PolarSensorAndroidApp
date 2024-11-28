@@ -17,13 +17,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.components.DeviceScan
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 
 @Composable
 fun HomeScreen(
     requestPermissionLauncher: ActivityResultLauncher<Array<String>>,
-    measurementVM: MeasurementVM
+    measurementVM: MeasurementVM,
+    navController: NavHostController
 ) {
     var polarSelected by remember { mutableStateOf(false) }
 
@@ -41,7 +44,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                onClick = { TODO("navcontroller to PlotScreen") },
+                onClick = { navController.navigate("plot") },
                 modifier = Modifier.fillMaxWidth(0.6f)
             ) {
                 Text("Use internal sensor")
@@ -59,14 +62,13 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { TODO("navcontroller to MeasurementHistoryScreen") },
+                onClick = { navController.navigate("history") },
                 modifier = Modifier.fillMaxWidth(0.6f)
             ) {
                 Text("Result history")
             }
         }
     } else {
-        DeviceScan(requestPermissionLauncher, measurementVM)
-        /*TODO("Ska även skicka in navcontroller för att kunna gå vidare till PlotScreen")*/
+        DeviceScan(requestPermissionLauncher, measurementVM, navController)
     }
 }

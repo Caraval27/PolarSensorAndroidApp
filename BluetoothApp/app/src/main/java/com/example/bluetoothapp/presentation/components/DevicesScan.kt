@@ -28,13 +28,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 
 @Composable
 fun DeviceScan(
     requestPermissionLauncher: ActivityResultLauncher<Array<String>>,
-    measurementVM: MeasurementVM
+    measurementVM: MeasurementVM,
+    navController: NavHostController
 ) {
     val devices by measurementVM.devices.collectAsState()
     var isScanning by remember { mutableStateOf(false) }
@@ -110,7 +112,7 @@ fun DeviceScan(
         Spacer(modifier = Modifier.height(40.dp))
 
         Button(
-            onClick = { TODO("navcontroller to homescreen") },
+            onClick = { navController.navigate("home") },
             modifier = Modifier.fillMaxWidth(0.5f)
         ) {
             Text("Back to home")
