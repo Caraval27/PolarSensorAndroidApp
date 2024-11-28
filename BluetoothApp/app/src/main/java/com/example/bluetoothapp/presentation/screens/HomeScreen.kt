@@ -17,13 +17,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.components.DeviceScan
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 
 @Composable
 fun HomeScreen(
     requestPermissionLauncher: ActivityResultLauncher<Array<String>>,
-    measurementVM: MeasurementVM
+    measurementVM: MeasurementVM,
+    navController: NavHostController
 ) {
     var polarSelected by remember { mutableStateOf(false) }
 

@@ -17,7 +17,7 @@ class MeasurementVM(
 ) : AndroidViewModel(application) {
 
     private val _currentMeasurement = MutableStateFlow(Measurement())
-    val measurement: StateFlow<Measurement>
+    val currentMeasurement: StateFlow<Measurement>
         get() = _currentMeasurement.asStateFlow()
 
     private val _measurementHistory = MutableStateFlow(mutableListOf<Measurement>())
@@ -67,5 +67,9 @@ class MeasurementVM(
         viewModelScope.launch {
             _measurementHistory.value = _measurementService.getMeasurementsHistory()
         }
+    }
+
+    fun setMeasurement(measurement: Measurement) {
+        _currentMeasurement.value = measurement
     }
 }

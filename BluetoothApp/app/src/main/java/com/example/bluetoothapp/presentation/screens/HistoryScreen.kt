@@ -13,12 +13,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 
 @Composable
-fun MeasurementHistoryScreen(
+fun HistoryScreen(
     measurementVM: MeasurementVM,
-    onItemClick: (Int) -> Unit // en navcontroller som tar en till plotscreen
+    navController: NavHostController
 ) {
     val measurementHistory by measurementVM.measurementHistory.collectAsState()
 
@@ -40,7 +42,10 @@ fun MeasurementHistoryScreen(
                 items(measurementHistory) { measurement ->
                     MeasurementItem(
                         measuredTime = measurement.measured.toString(),
-                        onClick = { onItemClick(measurement.id) }
+                        onClick = {
+                            measurementVM.setMeasurement(measurement)
+                            navController.navigate("plot")
+                        }
                     )
                 }
             }
