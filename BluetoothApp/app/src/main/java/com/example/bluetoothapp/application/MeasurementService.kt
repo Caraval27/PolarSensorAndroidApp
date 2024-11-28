@@ -15,6 +15,9 @@ import kotlin.math.PI
 import kotlin.math.atan
 import kotlin.math.pow
 import com.example.bluetoothapp.domain.Device
+import com.example.bluetoothapp.infrastructure.MeasurementData
+import com.example.bluetoothapp.infrastructure.SampleData
+import java.time.LocalDateTime
 
 class MeasurementService(
     private var _applicationContext : Context,
@@ -86,11 +89,29 @@ class MeasurementService(
         _measurement.addFusionFilteredSample(fusionFilteredSample)
     }
 
+    suspend fun insertMeasurement(measurement: Measurement) {
+        require(measurement.linearFilteredSamples.size == measurement.fusionFilteredSamples.size) {
+            "The two lists must have the same size."
+        }
+
+        val measurementData = MeasurementData(
+            measurement.id,
+            timeMeasured = measurement.measured,
+            sampleData = measurement.linearFilteredSamples.zip(measurement.fusionFilteredSamples) { linear, fusion ->
+                SampleData(
+                    singleFilterValue = linear,
+                    fusionFilterValue = fusion
+                )
+            }
+        )
+        measurementDbRepository.insertMeasurement(measurementData)
+    }
+
     suspend fun getMeasurementsHistory() : MutableList<Measurement> {
         val measurementsData = measurementDbRepository.getMeasurements()
 
-        if (measurementsData.isNotEmpty()) {
-            return measurementsData.map { measurementData ->
+        return if (measurementsData.isNotEmpty()) {
+             measurementsData.map { measurementData ->
                 measurementData.let { data ->
                     Measurement(
                         _id = data.id,
@@ -104,7 +125,7 @@ class MeasurementService(
                 }
             }.toMutableList()
         } else {
-            return mutableListOf()
+            mutableListOf()
         }
     }
 
@@ -149,5 +170,22 @@ class MeasurementService(
 
     fun disconnectFromPolarDevice(deviceId: String) {
         polarSensorRepository.disconnectFromDevice(deviceId)
+    }
+
+    fun testInsert() : Measurement {
+        val linearSamples = mutableListOf(1.0f, 2.0f, 3.0f)
+        val fusionSamples = mutableListOf(4.0f, 5.0f, 6.0f)
+
+        return Measurement(
+            _measured = LocalDateTime.now(),
+            _linearFilteredSamples = linearSamples,
+            _fusionFilteredSamples = fusionSamples,
+            _lastAngularSample = 45.5f,
+            _finished = true
+        )
+    }
+
+    fun clearDb() {
+        measurementDbRepository.clearDb()
     }
 }

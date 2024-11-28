@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.bluetoothapp.application.MeasurementService
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.domain.Measurement
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -66,6 +68,20 @@ class MeasurementVM(
     fun getMeasurementHistory() {
         viewModelScope.launch {
             _measurementHistory.value = _measurementService.getMeasurementsHistory()
+        }
+    }
+
+    /*Ska raderas sen*/
+    fun testInsert() {
+        viewModelScope.launch {
+            Log.d("HistoryScreen", "inserted")
+            _measurementService.insertMeasurement(_measurementService.testInsert())
+        }
+    }
+
+    fun clearDb() {
+        CoroutineScope(Dispatchers.IO).launch {
+            _measurementService.clearDb()
         }
     }
 }
