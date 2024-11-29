@@ -9,6 +9,7 @@ import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.domain.Measurement
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -80,8 +81,6 @@ class MeasurementVM(
     }
 
     fun startRecording() {
-        _linearFilteredSamples.value = emptyList()
-        _fusionFilteredSamples.value = emptyList()
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
                 SensorType.Polar -> _measurementService.startPolarRecording(_measurementState.value.chosenDeviceId)

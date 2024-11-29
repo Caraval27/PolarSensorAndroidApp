@@ -75,7 +75,7 @@ fun PlotScreen(
                 onClick = { },
                 modifier = Modifier.fillMaxWidth(0.6f)
             ) {
-                Text("Export")
+                Text("Export values")
             }
         }
     }

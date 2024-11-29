@@ -10,17 +10,16 @@ import com.example.bluetoothapp.infrastructure.PolarSensorRepository
 import com.example.bluetoothapp.domain.Measurement
 import io.reactivex.rxjava3.core.Single
 import android.Manifest
-import android.util.Log
 import kotlin.math.pow
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.infrastructure.MeasurementData
+import com.example.bluetoothapp.infrastructure.MeasurementFileRepository
 import com.example.bluetoothapp.infrastructure.SampleData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
@@ -32,31 +31,30 @@ class MeasurementService(
 ) {
     private val _linearFilteredSamples: MutableStateFlow<List<Float>> = MutableStateFlow(emptyList())
     val linearFilteredSamples: StateFlow<List<Float>>
-        get() = _linearFilteredSamples.asStateFlow()
+        get() = _linearFilteredSamples
 
     private val _fusionFilteredSamples : MutableStateFlow<List<Float>> = MutableStateFlow(emptyList())
     val fusionFilteredSamples: StateFlow<List<Float>>
-        get() = _fusionFilteredSamples.asStateFlow()
+        get() = _fusionFilteredSamples
 
     private var _lastAngularSample: Float? = null
 
-    private val internalSensorRepository : InternalSensorRepository = InternalSensorRepository(_applicationContext)
-    private val polarSensorRepository : PolarSensorRepository = PolarSensorRepository(_applicationContext)
-    private val measurementDbRepository : MeasurementDbRepository = MeasurementDbRepository(_applicationContext)
-
-    private val measurementJob = Job()
-
-    private val measurementScope = CoroutineScope(Dispatchers.Default + measurementJob)
+    private val _internalSensorRepository : InternalSensorRepository = InternalSensorRepository(_applicationContext)
+    private val _polarSensorRepository : PolarSensorRepository = PolarSensorRepository(_applicationContext)
+    private val _measurementDbRepository : MeasurementDbRepository = MeasurementDbRepository(_applicationContext)
+    private val _measurementFileRepository : MeasurementFileRepository = MeasurementFileRepository(_applicationContext)
 
     companion object {
         const val SENSOR_DELAY = 60000
     }
 
     init {
+        val measurementScope = CoroutineScope(Dispatchers.Default + Job())
+
         measurementScope.launch {
-            internalSensorRepository.linearAccelerationData
+            _internalSensorRepository.linearAccelerationData
                 .filter { it.isNotEmpty() }
-                .zip(internalSensorRepository.gyroscopeData
+                .zip(_internalSensorRepository.gyroscopeData
                     .filter { it.isNotEmpty() }) { linearAcceleration, angularVelocity ->
                     Pair(linearAcceleration, angularVelocity)
                 }.collect { sample ->
@@ -70,9 +68,9 @@ class MeasurementService(
         }
 
         measurementScope.launch {
-            polarSensorRepository.linearAccelerationData
+            _polarSensorRepository.linearAccelerationData
                 .filter { it.isNotEmpty() }
-                .zip(polarSensorRepository.gyroscopeData
+                .zip(_polarSensorRepository.gyroscopeData
                     .filter { it.isNotEmpty() }) { linearAcceleration, angularVelocity ->
                 Pair(linearAcceleration, angularVelocity)
             }.collect { sample ->
@@ -134,11 +132,11 @@ class MeasurementService(
                 )
             }
         )
-        measurementDbRepository.insertMeasurement(measurementData)
+        _measurementDbRepository.insertMeasurement(measurementData)
     }
 
     suspend fun getMeasurementsHistory() : MutableList<Measurement> {
-        val measurementsData = measurementDbRepository.getMeasurements()
+        val measurementsData = _measurementDbRepository.getMeasurements()
 
         return if (measurementsData.isNotEmpty()) {
              measurementsData.map { measurementData ->
@@ -159,12 +157,14 @@ class MeasurementService(
     }
 
     fun startInternalRecording() {
-        internalSensorRepository.startListening()
+        _linearFilteredSamples.value = emptyList()
+        _fusionFilteredSamples.value = emptyList()
+        _lastAngularSample = null
+        _internalSensorRepository.startListening()
     }
 
     fun stopInternalRecording() {
-        internalSensorRepository.stopListening()
-        measurementJob.cancel()
+        _internalSensorRepository.stopListening()
     }
 
     fun hasRequiredPermissions(): Boolean {
@@ -180,25 +180,35 @@ class MeasurementService(
     }
 
     fun searchForDevices() : Single<List<Device>> {
-        return polarSensorRepository.searchForDevices()
+        return _polarSensorRepository.searchForDevices()
     }
 
     fun connectToPolarDevice(deviceId: String) {
-        polarSensorRepository.connectToDevice(deviceId)
+        _polarSensorRepository.connectToDevice(deviceId)
     }
 
     fun startPolarRecording(deviceId: String) {
-        polarSensorRepository.startAccStreaming(deviceId)
-        polarSensorRepository.startGyroStreaming(deviceId)
+        _linearFilteredSamples.value = emptyList()
+        _fusionFilteredSamples.value = emptyList()
+        _lastAngularSample = null
+        _polarSensorRepository.startAccStreaming(deviceId)
+        _polarSensorRepository.startGyroStreaming(deviceId)
     }
 
     fun stopPolarRecording() {
-        polarSensorRepository.stopStreaming()
-        measurementJob.cancel()
+        _polarSensorRepository.stopStreaming()
     }
 
     fun disconnectFromPolarDevice(deviceId: String) {
-        polarSensorRepository.disconnectFromDevice(deviceId)
+        _polarSensorRepository.disconnectFromDevice(deviceId)
+    }
+
+    fun exportMeasurement(measurement: Measurement) : Boolean {
+        var csvContent = "Linear filtered sample, Fusion filtered sample\n"
+        for (i in measurement.linearFilteredSamples.indices) {
+            csvContent += measurement.linearFilteredSamples[i].toString() + ", " + measurement.fusionFilteredSamples[i].toString() + "\n"
+        }
+        return _measurementFileRepository.exportCsvToDownloads("ElevationAngle" + measurement.timeMeasured, csvContent)
     }
 
     fun testInsert() : Measurement {
@@ -213,6 +223,6 @@ class MeasurementService(
     }
 
     fun clearDb() {
-        measurementDbRepository.clearDb()
+        _measurementDbRepository.clearDb()
     }
 }
