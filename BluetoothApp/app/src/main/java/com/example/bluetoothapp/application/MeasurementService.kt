@@ -86,8 +86,8 @@ class MeasurementService(
         }*/
     }
 
-    private fun calculateElevationLinear(xValue: Float, yValue: Float, zValue: Float) : Float {
-        Log.d("MeasurementService", "X value: " + xValue + "Y value: " + yValue + " Z value: " + zValue)
+    private fun calculateElevationLinear(yValue: Float, zValue: Float) : Float {
+        Log.d("MeasurementService", "Y value: " + yValue + " Z value: " + zValue)
         val angleDegrees = Math.toDegrees(atan2(zValue, yValue).toDouble()) //osäker på om x-värdet måste tas hänsyn till också
         Log.d("MeasurementService", "angle: " + angleDegrees)
         return angleDegrees.toFloat()
@@ -170,7 +170,7 @@ class MeasurementService(
             }.collect { sample ->
                     //Log.d("MeasurementService","Linear values: " + (sample.first[0]) + " " + sample.first[1] + " " + sample.first[2])
                     //Log.d("MeasurementService","Angular values: " + (sample.second[0]) + " " + sample.second[1] + " " + sample.second[2])
-                val linearSample = calculateElevationLinear(sample.first[0], sample.first[1], sample.first[2])
+                val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
                 applyLinearFilter(linearSample, 0.1f)
                 val angularSample = calculateElevationAngular(sample.second[0])
                 applyFusionFilter(linearSample, angularSample)
@@ -209,9 +209,9 @@ class MeasurementService(
             polarSensorRepository.linearAccelerationData.zip(polarSensorRepository.gyroscopeData) { linearAcceleration, angularVelocity ->
                 Pair(linearAcceleration, angularVelocity)
             }.collect { sample ->
-                val linearSample = calculateElevationLinear(sample.first[0], sample.first[1], sample.first[2])
+                val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
                 applyLinearFilter(linearSample, 0.2f)
-                val angularSample = calculateElevationAngular(sample.second[2])
+                val angularSample = calculateElevationAngular(sample.second[0])
                 applyFusionFilter(linearSample, angularSample)
             }
         }
