@@ -87,21 +87,21 @@ class MeasurementService(
     }
 
     private fun calculateElevationLinear(yValue: Float, zValue: Float) : Float {
-        Log.d("MeasurementService", "Y value: " + yValue + " Z value: " + zValue)
+        //Log.d("MeasurementService", "Y value: " + yValue + " Z value: " + zValue)
         val angleDegrees = Math.toDegrees(atan2(zValue, yValue).toDouble()) //osäker på om x-värdet måste tas hänsyn till också
-        Log.d("MeasurementService", "angle: " + angleDegrees)
+        //Log.d("MeasurementService", "angle: " + angleDegrees)
         return angleDegrees.toFloat()
     }
 
     private fun calculateElevationAngular(xValue: Float) : Float {
         val timeDelta = SENSOR_DELAY / 10.0f.pow(6)
-        Log.d("MeasurementService", "X value: " + xValue)
+        //Log.d("MeasurementService", "X value: " + xValue)
         var angle = xValue * timeDelta
         _lastAngularSample?.let {
             angle += it
         }
         _lastAngularSample = angle
-        Log.d("MeasurementService", "Angle: " + angle)
+        //Log.d("MeasurementService", "Angle: " + angle)
         return angle
     }
 

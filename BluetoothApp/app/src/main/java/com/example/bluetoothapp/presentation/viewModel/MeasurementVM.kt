@@ -9,6 +9,7 @@ import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.domain.Measurement
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,23 +22,35 @@ class MeasurementVM(
 
     private val _currentMeasurement = MutableStateFlow(Measurement())
     val currentMeasurement: StateFlow<Measurement>
-        get() = _currentMeasurement.asStateFlow()
+        get() = _currentMeasurement
 
-    val linearFilteredSamples: StateFlow<List<Float>> = _measurementService.linearFilteredSamples
+    private val _linearFilteredSamples = MutableStateFlow(mutableListOf<Float>())
+    val linearFilteredSamples: StateFlow<MutableList<Float>>
+        get() = _linearFilteredSamples
 
-    val fusionFilteredSamples: StateFlow<List<Float>> = _measurementService.fusionFilteredSamples
+    private val _fusionFilteredSamples = MutableStateFlow(mutableListOf<Float>())
+    val fusionFilteredSamples: StateFlow<MutableList<Float>>
+        get () = _fusionFilteredSamples
 
     private val _measurementHistory = MutableStateFlow(mutableListOf<Measurement>())
     val measurementHistory: StateFlow<MutableList<Measurement>>
-        get() = _measurementHistory.asStateFlow()
+        get() = _measurementHistory
 
     private val _devices = MutableStateFlow<List<Device>>(emptyList())
     val devices: StateFlow<List<Device>>
-        get() = _devices.asStateFlow()
+        get() = _devices
 
     private val _measurementState = MutableStateFlow(MeasurementState())
     val measurementState: StateFlow<MeasurementState>
-        get() = _measurementState.asStateFlow()
+        get() = _measurementState
+
+    init {
+        viewModelScope.launch {
+            _measurementService.fusionFilteredSamples.collect { newFusionFilteredSamples ->
+                _fusionFilteredSamples.value = newFusionFilteredSamples.toMutableList()
+            }
+        }
+    }
 
     fun hasRequiredPermissions() : Boolean {
         return _measurementService.hasRequiredPermissions()
@@ -62,11 +75,14 @@ class MeasurementVM(
     }
 
     fun startRecording() {
+        linearFilteredSamples.value = linearFilteredSamples.value.clear()
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
                 SensorType.Polar -> _measurementService.startPolarRecording(_measurementState.value.chosenDeviceId)
                 SensorType.Internal -> _measurementService.startInternalRecording()
             }
+            _measurementState.value = _measurementState.value.copy(ongoing = true)
+            linearFilteredSamples =
         }
     }
 
