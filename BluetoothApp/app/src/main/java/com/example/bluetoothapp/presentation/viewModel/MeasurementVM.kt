@@ -24,12 +24,12 @@ class MeasurementVM(
     val currentMeasurement: StateFlow<Measurement>
         get() = _currentMeasurement
 
-    private val _linearFilteredSamples = MutableStateFlow(mutableListOf<Float>())
-    val linearFilteredSamples: StateFlow<MutableList<Float>>
+    private val _linearFilteredSamples = MutableStateFlow(emptyList<Float>())
+    val linearFilteredSamples: StateFlow<List<Float>>
         get() = _linearFilteredSamples
 
-    private val _fusionFilteredSamples = MutableStateFlow(mutableListOf<Float>())
-    val fusionFilteredSamples: StateFlow<MutableList<Float>>
+    private val _fusionFilteredSamples = MutableStateFlow(emptyList<Float>())
+    val fusionFilteredSamples: StateFlow<List<Float>>
         get () = _fusionFilteredSamples
 
     private val _measurementHistory = MutableStateFlow(mutableListOf<Measurement>())
@@ -46,8 +46,13 @@ class MeasurementVM(
 
     init {
         viewModelScope.launch {
+            _measurementService.linearFilteredSamples.collect { newLinearFilteredSamples ->
+                _linearFilteredSamples.value = newLinearFilteredSamples
+            }
+        }
+        viewModelScope.launch {
             _measurementService.fusionFilteredSamples.collect { newFusionFilteredSamples ->
-                _fusionFilteredSamples.value = newFusionFilteredSamples.toMutableList()
+                _fusionFilteredSamples.value = newFusionFilteredSamples
             }
         }
     }
@@ -75,14 +80,14 @@ class MeasurementVM(
     }
 
     fun startRecording() {
-        linearFilteredSamples.value = linearFilteredSamples.value.clear()
+        _linearFilteredSamples.value = emptyList()
+        _fusionFilteredSamples.value = emptyList()
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
                 SensorType.Polar -> _measurementService.startPolarRecording(_measurementState.value.chosenDeviceId)
                 SensorType.Internal -> _measurementService.startInternalRecording()
             }
             _measurementState.value = _measurementState.value.copy(ongoing = true)
-            linearFilteredSamples =
         }
     }
 

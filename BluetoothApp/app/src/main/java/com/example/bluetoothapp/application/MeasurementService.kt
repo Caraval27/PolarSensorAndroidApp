@@ -48,42 +48,40 @@ class MeasurementService(
 
     private val measurementScope = CoroutineScope(Dispatchers.Default + measurementJob)
 
-
     companion object {
         const val SENSOR_DELAY = 60000
     }
 
     init {
-        //var currentLinearSample : Float? = null
-        //var currentAngularSample : Float? = null
+        measurementScope.launch {
+            internalSensorRepository.linearAccelerationData
+                .filter { it.isNotEmpty() }
+                .zip(internalSensorRepository.gyroscopeData
+                    .filter { it.isNotEmpty() }) { linearAcceleration, angularVelocity ->
+                    Pair(linearAcceleration, angularVelocity)
+                }.collect { sample ->
+                    //Log.d("MeasurementService","Linear values: " + (sample.first[0]) + " " + sample.first[1] + " " + sample.first[2])
+                    //Log.d("MeasurementService","Angular values: " + (sample.second[0]) + " " + sample.second[1] + " " + sample.second[2])
+                    val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
+                    applyLinearFilter(linearSample, 0.1f)
+                    val angularSample = calculateElevationAngular(sample.second[0])
+                    applyFusionFilter(linearSample, angularSample)
+                }
+        }
 
-        /*val sampleMediator = MediatorLiveData<Pair<Float, Float>>()
-
-        //felhantering krävs sen ifall en sensor misslyckades att producera ett värde i följden
-        // just nu kommer det värdet bara att hoppas över
-
-        sampleMediator.addSource(internalSensorRepository.linearAccelerationData) {
-            val linearSample = calculateElevationLinear(it[1], it[2])
-            applyLinearFilter(linearSample, 0.1f)
-            currentAngularSample?.let { angularSample ->
-                sampleMediator.value = Pair(linearSample, angularSample)
-            } ?: run {
-                currentLinearSample = linearSample
+        measurementScope.launch {
+            polarSensorRepository.linearAccelerationData
+                .filter { it.isNotEmpty() }
+                .zip(polarSensorRepository.gyroscopeData
+                    .filter { it.isNotEmpty() }) { linearAcceleration, angularVelocity ->
+                Pair(linearAcceleration, angularVelocity)
+            }.collect { sample ->
+                val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
+                applyLinearFilter(linearSample, 0.2f)
+                val angularSample = calculateElevationAngular(sample.second[0])
+                applyFusionFilter(linearSample, angularSample)
             }
         }
-        sampleMediator.addSource(internalSensorRepository.gyroscopeData) {
-            val angularSample = calculateElevationAngular(it[2])
-            currentLinearSample?.let { linearSample ->
-                sampleMediator.value = Pair(linearSample, angularSample)
-            } ?: run {
-                currentAngularSample = angularSample
-            }
-        }
-        sampleMediator.observeForever {
-            applyFusionFilter(it.first, it.second)
-            currentLinearSample = null
-            currentAngularSample = null
-        }*/
     }
 
     private fun calculateElevationLinear(yValue: Float, zValue: Float) : Float {
@@ -161,21 +159,6 @@ class MeasurementService(
     }
 
     fun startInternalRecording() {
-        measurementScope.launch {
-            internalSensorRepository.linearAccelerationData
-                .filter { it.isNotEmpty() }
-                .zip(internalSensorRepository.gyroscopeData
-                    .filter { it.isNotEmpty() }) { linearAcceleration, angularVelocity ->
-                Pair(linearAcceleration, angularVelocity)
-            }.collect { sample ->
-                    //Log.d("MeasurementService","Linear values: " + (sample.first[0]) + " " + sample.first[1] + " " + sample.first[2])
-                    //Log.d("MeasurementService","Angular values: " + (sample.second[0]) + " " + sample.second[1] + " " + sample.second[2])
-                val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
-                applyLinearFilter(linearSample, 0.1f)
-                val angularSample = calculateElevationAngular(sample.second[0])
-                applyFusionFilter(linearSample, angularSample)
-            }
-        }
         internalSensorRepository.startListening()
     }
 
@@ -205,16 +188,6 @@ class MeasurementService(
     }
 
     fun startPolarRecording(deviceId: String) {
-        measurementScope.launch {
-            polarSensorRepository.linearAccelerationData.zip(polarSensorRepository.gyroscopeData) { linearAcceleration, angularVelocity ->
-                Pair(linearAcceleration, angularVelocity)
-            }.collect { sample ->
-                val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
-                applyLinearFilter(linearSample, 0.2f)
-                val angularSample = calculateElevationAngular(sample.second[0])
-                applyFusionFilter(linearSample, angularSample)
-            }
-        }
         polarSensorRepository.startAccStreaming(deviceId)
         polarSensorRepository.startGyroStreaming(deviceId)
     }
