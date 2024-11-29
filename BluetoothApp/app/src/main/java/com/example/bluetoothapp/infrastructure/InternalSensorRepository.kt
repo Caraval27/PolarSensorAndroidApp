@@ -18,7 +18,7 @@ class InternalSensorRepository(
         applicationContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
     private var gyroscopeSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-    private var linearAccelerationSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+    private var linearAccelerationSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
     private val _gyroscopeData = MutableStateFlow(floatArrayOf())
     val gyroscopeData: StateFlow<FloatArray>
@@ -48,7 +48,7 @@ class InternalSensorRepository(
                     Sensor.TYPE_GYROSCOPE -> {
                         _gyroscopeData.value = event.values.clone()
                     }
-                    Sensor.TYPE_LINEAR_ACCELERATION -> {
+                    Sensor.TYPE_ACCELEROMETER -> {
                         _linearAccelerationData.value = event.values.clone()
                     }
                 }

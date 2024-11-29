@@ -11,10 +11,6 @@ import com.example.bluetoothapp.domain.Measurement
 import io.reactivex.rxjava3.core.Single
 import android.Manifest
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.runtime.mutableStateOf
-import kotlin.math.PI
-import kotlin.math.atan
 import kotlin.math.pow
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.infrastructure.MeasurementData
@@ -90,20 +86,21 @@ class MeasurementService(
         }*/
     }
 
-    private fun calculateElevationLinear(yValue: Float, zValue: Float) : Float {
-        Log.d("MeasurementService", "Y value: " + yValue + " Z value: " + zValue)
-        val angleDegrees = atan2(zValue, yValue) / PI * 180 //kanske får ändras sen
+    private fun calculateElevationLinear(xValue: Float, yValue: Float, zValue: Float) : Float {
+        Log.d("MeasurementService", "X value: " + xValue + "Y value: " + yValue + " Z value: " + zValue)
+        val angleDegrees = Math.toDegrees(atan2(zValue, yValue).toDouble()) //osäker på om x-värdet måste tas hänsyn till också
         Log.d("MeasurementService", "angle: " + angleDegrees)
         return angleDegrees.toFloat()
     }
 
-    private fun calculateElevationAngular(zValue: Float) : Float {
+    private fun calculateElevationAngular(xValue: Float) : Float {
         val timeDelta = SENSOR_DELAY / 10.0f.pow(6)
-        Log.d("MeasurementService", "Z value: " + zValue)
-        var angle = zValue * timeDelta
+        Log.d("MeasurementService", "X value: " + xValue)
+        var angle = xValue * timeDelta
         _lastAngularSample?.let {
             angle += it
         }
+        _lastAngularSample = angle
         Log.d("MeasurementService", "Angle: " + angle)
         return angle
     }
@@ -173,9 +170,9 @@ class MeasurementService(
             }.collect { sample ->
                     //Log.d("MeasurementService","Linear values: " + (sample.first[0]) + " " + sample.first[1] + " " + sample.first[2])
                     //Log.d("MeasurementService","Angular values: " + (sample.second[0]) + " " + sample.second[1] + " " + sample.second[2])
-                val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
+                val linearSample = calculateElevationLinear(sample.first[0], sample.first[1], sample.first[2])
                 applyLinearFilter(linearSample, 0.1f)
-                val angularSample = calculateElevationAngular(sample.second[2])
+                val angularSample = calculateElevationAngular(sample.second[0])
                 applyFusionFilter(linearSample, angularSample)
             }
         }
@@ -212,8 +209,8 @@ class MeasurementService(
             polarSensorRepository.linearAccelerationData.zip(polarSensorRepository.gyroscopeData) { linearAcceleration, angularVelocity ->
                 Pair(linearAcceleration, angularVelocity)
             }.collect { sample ->
-                val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
-                applyLinearFilter(linearSample, 0.1f)
+                val linearSample = calculateElevationLinear(sample.first[0], sample.first[1], sample.first[2])
+                applyLinearFilter(linearSample, 0.2f)
                 val angularSample = calculateElevationAngular(sample.second[2])
                 applyFusionFilter(linearSample, angularSample)
             }
