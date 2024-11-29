@@ -17,10 +17,4 @@ class Measurement (
 
     val timeMeasured: LocalDateTime
         get() = _timeMeasured
-
-    var lastAngularSample: Float
-        get() = _lastAngularSample
-        set(value) {
-            _lastAngularSample = value
-        }
 }

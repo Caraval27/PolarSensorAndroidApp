@@ -10,6 +10,7 @@ import com.example.bluetoothapp.infrastructure.PolarSensorRepository
 import com.example.bluetoothapp.domain.Measurement
 import io.reactivex.rxjava3.core.Single
 import android.Manifest
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.runtime.mutableStateOf
 import kotlin.math.PI
@@ -24,6 +25,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -39,7 +42,7 @@ class MeasurementService(
     val fusionFilteredSamples: StateFlow<List<Float>>
         get() = _fusionFilteredSamples.asStateFlow()
 
-    private var _lastAngularSample: Float = -1f
+    private var _lastAngularSample: Float? = null
 
     private val internalSensorRepository : InternalSensorRepository = InternalSensorRepository(_applicationContext)
     private val polarSensorRepository : PolarSensorRepository = PolarSensorRepository(_applicationContext)
@@ -95,13 +98,18 @@ class MeasurementService(
 
     private fun calculateElevationAngular(zValue: Float) : Float {
         val timeDelta = SENSOR_DELAY / 10.0f.pow(6)
-        val angle = _lastAngularSample + zValue * timeDelta
-        _lastAngularSample = angle
+        var angle = zValue * timeDelta
+        _lastAngularSample?.let {
+            angle += it
+        }
         return angle
     }
 
     private fun applyLinearFilter(linearSample : Float, filterFactor: Float) {
-        val linearFilteredSample = filterFactor * linearSample + (1 - filterFactor) * _linearFilteredSamples.value.last()
+        var linearFilteredSample = linearSample
+        if (_linearFilteredSamples.value.isNotEmpty()) {
+            linearFilteredSample = filterFactor * linearSample + (1 - filterFactor) * _linearFilteredSamples.value.last()
+        }
         _linearFilteredSamples.value += linearFilteredSample
     }
 
@@ -152,9 +160,14 @@ class MeasurementService(
 
     fun startInternalRecording() {
         measurementScope.launch {
-            internalSensorRepository.linearAccelerationData.zip(internalSensorRepository.gyroscopeData) { linearAcceleration, angularVelocity ->
+            internalSensorRepository.linearAccelerationData
+                .filter { it.isNotEmpty() }
+                .zip(internalSensorRepository.gyroscopeData
+                    .filter { it.isNotEmpty() }) { linearAcceleration, angularVelocity ->
                 Pair(linearAcceleration, angularVelocity)
             }.collect { sample ->
+                    //Log.d("MeasurementService","Linear values: " + (sample.first[0]) + " " + sample.first[1] + " " + sample.first[2])
+                    //Log.d("MeasurementService","Angular values: " + (sample.second[0]) + " " + sample.second[1] + " " + sample.second[2])
                 val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
                 applyLinearFilter(linearSample, 0.1f)
                 val angularSample = calculateElevationAngular(sample.second[2])

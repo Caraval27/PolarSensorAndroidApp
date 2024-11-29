@@ -45,11 +45,11 @@ fun PlotScreen(
         // Här kan man ploten vara
 
         Text(
-            text = "Algo 1: " + linearFilteredSamples.value.last() //Ska tas bort sen, för test
+            text = "Algo 1: " + linearFilteredSamples.value.lastOrNull() //Ska tas bort sen, för test
         )
 
         Text(
-            text = "Algo 2: " + fusionFilteredSamples.value.last() //Ska också tas bort sen
+            text = "Algo 2: " + fusionFilteredSamples.value.lastOrNull() //Ska också tas bort sen
         )
 
         Spacer(modifier = Modifier.height(16.dp))

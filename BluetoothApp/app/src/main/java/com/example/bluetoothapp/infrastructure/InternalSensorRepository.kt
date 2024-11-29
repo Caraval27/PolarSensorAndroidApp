@@ -5,8 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import com.example.bluetoothapp.application.MeasurementService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +18,7 @@ class InternalSensorRepository(
     private val sensorManager: SensorManager =
         applicationContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
-    private var gyroscopeSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+    private var gyroscopeSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
     private var linearAccelerationSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
 
     private val _gyroscopeData = MutableStateFlow(floatArrayOf())
@@ -48,17 +47,17 @@ class InternalSensorRepository(
             if (event != null) {
                 when (event.sensor.type) {
                     Sensor.TYPE_GYROSCOPE -> {
-                        _gyroscopeData.value = event.values
+                        _gyroscopeData.value = event.values.clone()
                     }
                     Sensor.TYPE_LINEAR_ACCELERATION -> {
-                        _linearAccelerationData.value = event.values
+                        _linearAccelerationData.value = event.values.clone()
                     }
                 }
             }
         }
 
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-            TODO("Not yet implemented")
+            //kanske fixa sen
         }
     }
 
