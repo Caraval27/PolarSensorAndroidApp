@@ -65,6 +65,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
     implementation("com.github.polarofficial:polar-ble-sdk:5.5.0")
     implementation(libs.rxjava)
     implementation(libs.reactivex.rxandroid)
