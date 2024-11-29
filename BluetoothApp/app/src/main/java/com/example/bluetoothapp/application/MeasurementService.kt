@@ -26,10 +26,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import kotlin.math.atan2
 
 class MeasurementService(
     private var _applicationContext : Context,
@@ -91,17 +91,20 @@ class MeasurementService(
     }
 
     private fun calculateElevationLinear(yValue: Float, zValue: Float) : Float {
-        val quota = zValue / yValue
-        val angleDegrees = atan(quota) / PI * 180 //kanske får ändras sen
+        Log.d("MeasurementService", "Y value: " + yValue + " Z value: " + zValue)
+        val angleDegrees = atan2(zValue, yValue) / PI * 180 //kanske får ändras sen
+        Log.d("MeasurementService", "angle: " + angleDegrees)
         return angleDegrees.toFloat()
     }
 
     private fun calculateElevationAngular(zValue: Float) : Float {
         val timeDelta = SENSOR_DELAY / 10.0f.pow(6)
+        Log.d("MeasurementService", "Z value: " + zValue)
         var angle = zValue * timeDelta
         _lastAngularSample?.let {
             angle += it
         }
+        Log.d("MeasurementService", "Angle: " + angle)
         return angle
     }
 
@@ -109,6 +112,7 @@ class MeasurementService(
         var linearFilteredSample = linearSample
         if (_linearFilteredSamples.value.isNotEmpty()) {
             linearFilteredSample = filterFactor * linearSample + (1 - filterFactor) * _linearFilteredSamples.value.last()
+            //Log.d("MeasurementService", "linear sample: " + linearSample + " last linear sample: " + _linearFilteredSamples.value.last() + " filtered sample: " + linearFilteredSample)
         }
         _linearFilteredSamples.value += linearFilteredSample
     }
@@ -116,6 +120,7 @@ class MeasurementService(
     private fun applyFusionFilter(linearSample: Float, angularSample: Float) {
         val filterFactor = 0.98f
         val fusionFilteredSample = filterFactor * linearSample + (1 - filterFactor) * angularSample
+        //Log.d("MeasurementService", "linear sample: " + linearSample + " angular sample: " + angularSample + " result: " + fusionFilteredSample)
         _fusionFilteredSamples.value += fusionFilteredSample
     }
 
