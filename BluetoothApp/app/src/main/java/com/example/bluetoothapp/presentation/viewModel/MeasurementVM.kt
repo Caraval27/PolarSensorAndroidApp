@@ -23,14 +23,6 @@ class MeasurementVM(
     val measurement: StateFlow<Measurement>
         get() = _measurement
 
-    /*private val _linearFilteredSamples = MutableStateFlow(emptyList<Float>())
-    val linearFilteredSamples: StateFlow<List<Float>>
-        get() = _linearFilteredSamples
-
-    private val _fusionFilteredSamples = MutableStateFlow(emptyList<Float>())
-    val fusionFilteredSamples: StateFlow<List<Float>>
-        get () = _fusionFilteredSamples*/
-
     private val _measurementHistory = MutableStateFlow(mutableListOf<Measurement>())
     val measurementHistory: StateFlow<MutableList<Measurement>>
         get() = _measurementHistory

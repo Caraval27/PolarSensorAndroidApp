@@ -34,14 +34,6 @@ class MeasurementService(
     val measurement: StateFlow<Measurement>
         get() = _measurement
 
-    /*private val _linearFilteredSamples: MutableStateFlow<List<Float>> = MutableStateFlow(emptyList())
-    val linearFilteredSamples: StateFlow<List<Float>>
-        get() = _linearFilteredSamples
-
-    private val _fusionFilteredSamples : MutableStateFlow<List<Float>> = MutableStateFlow(emptyList())
-    val fusionFilteredSamples: StateFlow<List<Float>>
-        get() = _fusionFilteredSamples*/
-
     private var _lastAngularSample: Float? = null
 
     private val _internalSensorRepository : InternalSensorRepository = InternalSensorRepository(_applicationContext)
