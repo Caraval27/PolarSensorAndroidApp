@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.atan2
 
 class MeasurementService(
@@ -167,8 +168,9 @@ class MeasurementService(
         _internalSensorRepository.startListening()
     }
 
-    fun stopInternalRecording() {
+    suspend fun stopInternalRecording(measurement: Measurement) {
         _internalSensorRepository.stopListening()
+        insertMeasurement(measurement)
     }
 
     fun hasRequiredPermissions(): Boolean {
@@ -198,8 +200,9 @@ class MeasurementService(
         _polarSensorRepository.startGyroStreaming(deviceId)
     }
 
-    fun stopPolarRecording() {
+    suspend fun stopPolarRecording(measurement: Measurement) {
         _polarSensorRepository.stopStreaming()
+        insertMeasurement(measurement)
     }
 
     fun disconnectFromPolarDevice(deviceId: String) {
@@ -211,7 +214,8 @@ class MeasurementService(
         for (i in measurement.linearFilteredSamples.indices) {
             csvContent += measurement.linearFilteredSamples[i].toString() + ", " + measurement.fusionFilteredSamples[i].toString() + "\n"
         }
-        return _measurementFileRepository.exportCsvToDownloads("ElevationAngle" + measurement.timeMeasured, csvContent)
+        return _measurementFileRepository.exportCsvToDownloads("ElevationAngle" +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")), csvContent)
     }
 
     fun testInsert() : Measurement {

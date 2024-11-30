@@ -82,18 +82,23 @@ class MeasurementVM(
                 SensorType.Polar -> _measurementService.startPolarRecording(_measurementState.value.chosenDeviceId)
                 SensorType.Internal -> _measurementService.startInternalRecording()
             }
-            _measurementState.value = _measurementState.value.copy(ongoing = true)
+            _measurement.value = _measurement.value.copy(_timeMeasured = LocalDateTime.now())
         }
     }
 
     fun stopRecording() {
-        _measurement.value = _measurement.value.copy(_timeMeasured = LocalDateTime.now())
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
-                SensorType.Polar -> _measurementService.stopPolarRecording()
-                SensorType.Internal -> _measurementService.stopInternalRecording()
+                SensorType.Polar -> _measurementService.stopPolarRecording(_measurement.value)
+                SensorType.Internal -> _measurementService.stopInternalRecording(_measurement.value)
             }
             _measurementState.value = _measurementState.value.copy(ongoing = false)
+        }
+    }
+
+    fun exportMeasurement() {
+        viewModelScope.launch {
+            _measurementService.exportMeasurement(_measurement.value)
         }
     }
 
@@ -103,12 +108,16 @@ class MeasurementVM(
         }
     }
 
-    fun setCurrentMeasurement(measurement: Measurement) {
+    fun setMeasurement(measurement: Measurement) {
         _measurement.value = measurement
     }
 
     fun setSensorType(sensorType: SensorType) {
         _measurementState.value = _measurementState.value.copy(sensorType = sensorType)
+    }
+
+    fun setOngoing(ongoing: Boolean) {
+        _measurementState.value = _measurementState.value.copy(ongoing = ongoing)
     }
 
     /*Ska raderas sen*/

@@ -1,5 +1,6 @@
 package com.example.bluetoothapp.presentation.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,10 +15,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.components.LineChart
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun PlotScreen(
@@ -28,7 +31,14 @@ fun PlotScreen(
     val measurement = measurementVM.measurement.collectAsState()
 
     LaunchedEffect(Unit) {
-        measurementVM.startRecording()
+        if(measurementState.value.ongoing) {
+            measurementVM.startRecording()
+        }
+    }
+
+    BackHandler {
+        measurementVM.stopRecording()
+        navController.navigate("home")
     }
 
     Column(
@@ -38,10 +48,18 @@ fun PlotScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        var headerText = ""
+        if (measurementState.value.ongoing) {
+            headerText = "Measuring..."
+        }
+        else {
+            headerText = measurement.value.timeMeasured.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+        }
         Text(
-            text = "Live sensor data",
+            text = headerText,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
+            fontFamily = FontFamily.Monospace
         )
 
         if (measurement.value.linearFilteredSamples.isNotEmpty() && measurement.value.fusionFilteredSamples.isNotEmpty()) {
@@ -51,13 +69,6 @@ fun PlotScreen(
             )
         }
 
-        Text(
-            text = "Algo 1: " + measurement.value.linearFilteredSamples.lastOrNull() //Ska tas bort sen, för test
-        )
-
-        Text(
-            text = "Algo 2: " + measurement.value.fusionFilteredSamples.lastOrNull() //Ska också tas bort sen
-        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -71,11 +82,20 @@ fun PlotScreen(
         }
         else {
             Button(
-                onClick = { },
+                onClick = { measurementVM.exportMeasurement() },
                 modifier = Modifier.fillMaxWidth(0.6f)
             ) {
                 Text("Export values")
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { navController.navigate("home") },
+            modifier = Modifier.fillMaxWidth(0.6f)
+        ) {
+            Text("Home")
         }
     }
 }
