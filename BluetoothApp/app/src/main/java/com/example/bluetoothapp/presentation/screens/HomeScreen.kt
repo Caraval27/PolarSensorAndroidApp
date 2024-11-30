@@ -17,7 +17,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.components.DeviceScan
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
@@ -48,7 +47,7 @@ fun HomeScreen(
                 onClick = {
                     measurementVM.setSensorType(SensorType.Internal)
                     navController.navigate("plot")
-                          },
+                },
                 modifier = Modifier.fillMaxWidth(0.6f)
             ) {
                 Text("Use internal sensor")
@@ -57,7 +56,10 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { polarSelected = true },
+                onClick = {
+                    measurementVM.setSensorType(SensorType.Polar)
+                    polarSelected = true
+                },
                 modifier = Modifier.fillMaxWidth(0.6f)
             ) {
                 Text("Use polar sensors")

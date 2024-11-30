@@ -35,6 +35,9 @@ class MeasurementVM(
     val devices: StateFlow<List<Device>>
         get() = _devices.asStateFlow()
 
+    private val _isDeviceConnected = MutableStateFlow(false)
+    val isDeviceConnected: StateFlow<Boolean> = _isDeviceConnected.asStateFlow()
+
     private val _measurementState = MutableStateFlow(MeasurementState())
     val measurementState: StateFlow<MeasurementState>
         get() = _measurementState.asStateFlow()
@@ -45,19 +48,26 @@ class MeasurementVM(
 
     fun searchForDevices() {
         viewModelScope.launch {
-            _measurementService.searchForDevices()
-                .subscribe ({ deviceList ->
-                    _devices.value = deviceList
-                }, { error ->
-                    Log.e("MeasurementVM", "Error searching devices: ${error.message}")
-                })
+            _devices.value = _measurementService.searchForDevices()
+        }
+    }
+
+    fun isDeviceConnected() {
+        viewModelScope.launch {
+            _isDeviceConnected.value = _measurementService.isDeviceConnected(_measurementState.value.chosenDeviceId)
         }
     }
 
     fun connectToDevice(deviceId: String) {
         viewModelScope.launch {
-            _measurementService.connectToPolarDevice(deviceId)
-            _measurementState.value = _measurementState.value.copy(chosenDeviceId = deviceId)
+            try {
+                _measurementService.connectToPolarDevice(deviceId)
+                _measurementState.value = _measurementState.value.copy(chosenDeviceId = deviceId)
+            } catch (e: Exception) {
+                Log.e("MeasurementVM", "Error connecting to device: ${e.message}")
+            }
+            Log.d("MeasurementVM", "After connecting is done")
+            _isDeviceConnected.value = _measurementService.isDeviceConnected(_measurementState.value.chosenDeviceId)
         }
     }
 

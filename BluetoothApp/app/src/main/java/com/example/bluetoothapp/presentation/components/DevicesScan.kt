@@ -1,5 +1,10 @@
 package com.example.bluetoothapp.presentation.components
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.bluetooth.BluetoothAdapter
+import android.content.Intent
 import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.clickable
@@ -25,13 +30,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
+import kotlinx.coroutines.delay
 
+@SuppressLint("MissingPermission")
 @Composable
 fun DeviceScan(
     requestPermissionLauncher: ActivityResultLauncher<Array<String>>,
@@ -40,7 +48,10 @@ fun DeviceScan(
 ) {
     val devices by measurementVM.devices.collectAsState()
     var isScanning by remember { mutableStateOf(false) }
-    var permissionDenied by remember { mutableStateOf(false) } // kanske ej behövs
+    val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+    val activity = LocalContext.current as? Activity
+
+    //bug: kommer inte upp direkt
 
     Column(
         modifier = Modifier
@@ -49,30 +60,31 @@ fun DeviceScan(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (permissionDenied) {
-            Text("Permissions are required to scan for devices.")
-        }
-
         Button(
             onClick = {
                 if (isScanning) {
                     isScanning = false
-                } else if (measurementVM.hasRequiredPermissions()) {
+                } else if ((bluetoothAdapter != null && bluetoothAdapter.isEnabled) && measurementVM.hasRequiredPermissions()) {
                     isScanning = true
                     measurementVM.searchForDevices()
                 } else {
-                    requestPermissionLauncher.launch(
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            arrayOf(
-                                android.Manifest.permission.BLUETOOTH_SCAN,
-                                android.Manifest.permission.BLUETOOTH_CONNECT
-                            )
-                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION)
-                        } else {
-                            arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                        }
-                    )
+                    if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
+                        val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                        activity?.startActivityForResult(enableBtIntent, 1)
+                    } else {
+                        requestPermissionLauncher.launch(
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                arrayOf(
+                                    Manifest.permission.BLUETOOTH_SCAN,
+                                    Manifest.permission.BLUETOOTH_CONNECT
+                                )
+                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+                            } else {
+                                arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION)
+                            }
+                        )
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth(0.6f)
@@ -97,6 +109,7 @@ fun DeviceScan(
                 items(devices) { device ->
                     DeviceItem(device = device, onSelect = { selectedDevice ->
                         measurementVM.connectToDevice(selectedDevice.deviceId)
+                        navController.navigate("plot")
                     })
                 }
             }
@@ -139,25 +152,3 @@ fun DeviceItem(device: Device, onSelect: (Device) -> Unit) {
         }
     }
 }
-
-/*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            activity.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-                onPermissionsResult(
-                    permissions[Manifest.permission.BLUETOOTH_SCAN] == true &&
-                            permissions[Manifest.permission.BLUETOOTH_CONNECT] == true
-                )
-            }.launch(
-                arrayOf(
-                    Manifest.permission.BLUETOOTH_SCAN,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                )
-            )
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                onPermissionsResult(isGranted)
-            }.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-        } else {
-            activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                onPermissionsResult(isGranted)
-            }.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-        }*/

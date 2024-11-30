@@ -199,8 +199,20 @@ class MeasurementService(
         }
     }
 
-    fun searchForDevices() : Single<List<Device>> {
-        return polarSensorRepository.searchForDevices()
+    fun searchForDevices() : List<Device> {
+        polarSensorRepository.searchForDevices()
+        return polarSensorRepository.devices.value.map {
+            polarDeviceInfo ->
+            Device(
+                deviceId = polarDeviceInfo.deviceId,
+                name = polarDeviceInfo.name ?: "Unknown",
+                isConnectable = polarDeviceInfo.isConnectable
+            )
+        }
+    }
+
+    fun isDeviceConnected(deviceId: String) : Boolean {
+        return polarSensorRepository.connectedDevices.value.contains(deviceId)
     }
 
     fun connectToPolarDevice(deviceId: String) {
@@ -208,6 +220,7 @@ class MeasurementService(
     }
 
     fun startPolarRecording(deviceId: String) {
+        Log.d("MeasurementService", "1")
         measurementScope.launch {
             polarSensorRepository.linearAccelerationData.zip(polarSensorRepository.gyroscopeData) { linearAcceleration, angularVelocity ->
                 Pair(linearAcceleration, angularVelocity)
@@ -218,6 +231,7 @@ class MeasurementService(
                 applyFusionFilter(linearSample, angularSample)
             }
         }
+        Log.d("MeasurementService", "2")
         polarSensorRepository.startAccStreaming(deviceId)
         polarSensorRepository.startGyroStreaming(deviceId)
     }
