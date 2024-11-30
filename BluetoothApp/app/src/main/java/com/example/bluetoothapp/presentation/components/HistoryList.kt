@@ -10,7 +10,7 @@ import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 fun HistoryList(
     measurementVM: MeasurementVM
 ) {
-    val measurement by measurementVM.currentMeasurement.collectAsState()
+    val measurement by measurementVM.measurement.collectAsState()
     val listState = rememberLazyListState()
 
 }

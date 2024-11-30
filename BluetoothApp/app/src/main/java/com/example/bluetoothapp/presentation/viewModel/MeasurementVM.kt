@@ -11,36 +11,43 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 class MeasurementVM(
     application: Application
 ) : AndroidViewModel(application) {
     private val _measurementService = MeasurementService(_applicationContext = application.applicationContext)
 
-    private val _currentMeasurement = MutableStateFlow(Measurement())
-    val currentMeasurement: StateFlow<Measurement>
-        get() = _currentMeasurement.asStateFlow()
-
-    val linearFilteredSamples: StateFlow<List<Float>> = _measurementService.linearFilteredSamples
-
-    val fusionFilteredSamples: StateFlow<List<Float>> = _measurementService.fusionFilteredSamples
+    private val _measurement = MutableStateFlow(Measurement())
+    val measurement: StateFlow<Measurement>
+        get() = _measurement
 
     private val _measurementHistory = MutableStateFlow(mutableListOf<Measurement>())
     val measurementHistory: StateFlow<MutableList<Measurement>>
-        get() = _measurementHistory.asStateFlow()
+        get() = _measurementHistory
 
     private val _devices = MutableStateFlow<List<Device>>(emptyList())
     val devices: StateFlow<List<Device>>
-        get() = _devices.asStateFlow()
+        get() = _devices
 
     private val _isDeviceConnected = MutableStateFlow(false)
     val isDeviceConnected: StateFlow<Boolean> = _isDeviceConnected.asStateFlow()
 
     private val _measurementState = MutableStateFlow(MeasurementState())
     val measurementState: StateFlow<MeasurementState>
-        get() = _measurementState.asStateFlow()
+        get() = _measurementState
+
+    init {
+        viewModelScope.launch {
+            _measurementService.measurement.collect { newMeasurement ->
+                _measurement.value = _measurement.value.copy(
+                    linearFilteredSamples = newMeasurement.linearFilteredSamples,
+                    fusionFilteredSamples = newMeasurement.fusionFilteredSamples
+                )
+            }
+        }
+    }
 
     fun hasRequiredPermissions() : Boolean {
         return _measurementService.hasRequiredPermissions()
@@ -77,16 +84,24 @@ class MeasurementVM(
                 SensorType.Polar -> _measurementService.startPolarRecording(_measurementState.value.chosenDeviceId)
                 SensorType.Internal -> _measurementService.startInternalRecording()
             }
+            _measurement.value = _measurement.value.copy(_timeMeasured = LocalDateTime.now())
         }
     }
 
     fun stopRecording() {
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
-                SensorType.Polar -> _measurementService.stopPolarRecording()
-                SensorType.Internal -> _measurementService.stopInternalRecording()
+                SensorType.Polar -> _measurementService.stopPolarRecording(_measurement.value)
+                SensorType.Internal -> _measurementService.stopInternalRecording(_measurement.value)
             }
             _measurementState.value = _measurementState.value.copy(ongoing = false)
+        }
+    }
+
+    fun exportMeasurement() {
+        viewModelScope.launch {
+            val exported = _measurementService.exportMeasurement(_measurement.value)
+            _measurementState.value = _measurementState.value.copy(exported = exported)
         }
     }
 
@@ -96,12 +111,20 @@ class MeasurementVM(
         }
     }
 
-    fun setCurrentMeasurement(measurement: Measurement) {
-        _currentMeasurement.value = measurement
+    fun setMeasurement(measurement: Measurement) {
+        _measurement.value = measurement
     }
 
     fun setSensorType(sensorType: SensorType) {
         _measurementState.value = _measurementState.value.copy(sensorType = sensorType)
+    }
+
+    fun setOngoing(ongoing: Boolean) {
+        _measurementState.value = _measurementState.value.copy(ongoing = ongoing)
+    }
+
+    fun setExported(exported: Boolean?) {
+        _measurementState.value = _measurementState.value.copy(exported = exported)
     }
 
     /*Ska raderas sen*/
@@ -127,5 +150,6 @@ enum class SensorType {
 data class MeasurementState(
     val sensorType: SensorType = SensorType.Internal,
     val chosenDeviceId: String = "",
-    val ongoing: Boolean = true
+    val ongoing: Boolean = false,
+    val exported: Boolean? = null
 )

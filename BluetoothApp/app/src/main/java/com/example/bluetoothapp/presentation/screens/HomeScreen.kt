@@ -46,6 +46,7 @@ fun HomeScreen(
             Button(
                 onClick = {
                     measurementVM.setSensorType(SensorType.Internal)
+                    measurementVM.setOngoing(true)
                     navController.navigate("plot")
                 },
                 modifier = Modifier.fillMaxWidth(0.6f)

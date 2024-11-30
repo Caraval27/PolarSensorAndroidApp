@@ -67,7 +67,7 @@ fun HistoryScreen(
                     MeasurementItem(
                         measuredTime = measurement.timeMeasured.toString(),
                         onClick = {
-                            measurementVM.setCurrentMeasurement(measurement)
+                            measurementVM.setMeasurement(measurement)
                             navController.navigate("plot")
                         }
                     )
