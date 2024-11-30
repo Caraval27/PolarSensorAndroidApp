@@ -202,7 +202,7 @@ class MeasurementService(
     }
 
     fun exportMeasurement(measurement: Measurement) : Boolean {
-        var csvContent = "Linear filtered sample, Fusion filtered sample\n"
+        var csvContent = "Linear, Fusion\n"
         for (i in measurement.linearFilteredSamples.indices) {
             csvContent += measurement.linearFilteredSamples[i].toString() + ", " + measurement.fusionFilteredSamples[i].toString() + "\n"
         }

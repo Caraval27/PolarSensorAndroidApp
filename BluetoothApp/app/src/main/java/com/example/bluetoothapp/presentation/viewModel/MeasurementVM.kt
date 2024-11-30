@@ -90,7 +90,8 @@ class MeasurementVM(
 
     fun exportMeasurement() {
         viewModelScope.launch {
-            _measurementService.exportMeasurement(_measurement.value)
+            val exported = _measurementService.exportMeasurement(_measurement.value)
+            _measurementState.value = _measurementState.value.copy(exported = exported)
         }
     }
 
@@ -110,6 +111,10 @@ class MeasurementVM(
 
     fun setOngoing(ongoing: Boolean) {
         _measurementState.value = _measurementState.value.copy(ongoing = ongoing)
+    }
+
+    fun setExported(exported: Boolean?) {
+        _measurementState.value = _measurementState.value.copy(exported = exported)
     }
 
     /*Ska raderas sen*/
@@ -135,5 +140,6 @@ enum class SensorType {
 data class MeasurementState(
     val sensorType: SensorType = SensorType.Internal,
     val chosenDeviceId: String = "",
-    val ongoing: Boolean = true
+    val ongoing: Boolean = false,
+    val exported: Boolean? = null
 )

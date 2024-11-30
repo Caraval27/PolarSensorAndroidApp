@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import java.io.BufferedWriter
 import java.io.File
 import java.io.OutputStreamWriter
@@ -24,10 +25,15 @@ class MeasurementFileRepository(
             }
 
             val contentResolver = applicationContext.contentResolver
+
+            Log.d("MeasurementFileRepository", "ContentValues: " + contentValues.toString())
+            
             try {
                 val uri =
                     contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
                         ?: return false
+
+                Log.d("MeasurementFileRepository", "Uri: " + uri)
 
                 val outputStream = contentResolver.openOutputStream(uri) ?: return false
 
@@ -36,6 +42,7 @@ class MeasurementFileRepository(
                         writer.write(csvContent)
                         writer.flush()
                     }
+                    Log.d("MeasurementFileRepository", "Succeeded exporting")
                 }
             }
             catch(exception : Exception) {
