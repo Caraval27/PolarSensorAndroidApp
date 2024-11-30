@@ -45,6 +45,7 @@ interface MeasurementDao {
     @Query("""
         SELECT *
         FROM measurement
+        ORDER BY time_measured DESC
     """)
     suspend fun getAllMeasurements(): List<MeasurementEntity>?
 

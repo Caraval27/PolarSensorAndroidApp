@@ -32,7 +32,7 @@ class MeasurementVM(
         get() = _devices
 
     private val _isDeviceConnected = MutableStateFlow(false)
-    val isDeviceConnected: StateFlow<Boolean> = _isDeviceConnected.asStateFlow()
+    val isDeviceConnected: StateFlow<Boolean> = _isDeviceConnected
 
     private val _measurementState = MutableStateFlow(MeasurementState())
     val measurementState: StateFlow<MeasurementState>

@@ -1,6 +1,5 @@
 package com.example.bluetoothapp.presentation.screens
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -73,7 +71,9 @@ fun PlotScreen(
     }*/
 
     BackHandler {
-        measurementVM.stopRecording()
+        if (measurementState.value.ongoing) {
+            measurementVM.stopRecording()
+        }
         measurementVM.setExported(null)
         navController.navigate("home")
     }
@@ -84,15 +84,15 @@ fun PlotScreen(
         content = { padding ->
             Column(
                 modifier = Modifier
-                    .fillMaxSize().padding(padding),
+                    .fillMaxSize()
+                    .padding(padding),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 var headerText = ""
                 if (measurementState.value.ongoing) {
                     headerText = "Measuring..."
-                }
-                else {
+                } else {
                     headerText = measurement.value.timeMeasured.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
                 }
                 Text(
@@ -109,7 +109,6 @@ fun PlotScreen(
                     )
                 }
 
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 if (measurementState.value.ongoing) {
@@ -119,8 +118,7 @@ fun PlotScreen(
                     ) {
                         Text("Stop")
                     }
-                }
-                else {
+                } else {
                     Button(
                         onClick = { measurementVM.exportMeasurement() },
                         modifier = Modifier.fillMaxWidth(0.6f)
@@ -133,10 +131,12 @@ fun PlotScreen(
 
                 Button(
                     onClick = {
-                        measurementVM.stopRecording()
+                        if (measurementState.value.ongoing) {
+                            measurementVM.stopRecording()
+                        }
                         measurementVM.setExported(null)
                         navController.navigate("home")
-                              },
+                    },
                     modifier = Modifier.fillMaxWidth(0.6f)
                 ) {
                     Text("Home")

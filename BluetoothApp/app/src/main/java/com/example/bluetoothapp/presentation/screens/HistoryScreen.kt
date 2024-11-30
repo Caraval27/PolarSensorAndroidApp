@@ -17,6 +17,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HistoryScreen(
@@ -28,21 +30,6 @@ fun HistoryScreen(
     LaunchedEffect(Unit) {
         measurementVM.getMeasurementHistory()
     }
-
-    /* testdata för endast tid
-    val measurementHistory = mutableListOf<LocalDateTime>()
-
-    measurementHistory.add(LocalDateTime.of(2024, 11, 28, 16, 20, 2, 872739))
-    measurementHistory.add(LocalDateTime.of(2024, 11, 27, 16, 20, 2, 872739))
-    measurementHistory.add(LocalDateTime.of(2024, 11, 26, 16, 20, 2, 872739))
-    measurementHistory.add(LocalDateTime.of(2024, 11, 25, 16, 20, 2, 872739))
-    measurementHistory.add(LocalDateTime.of(2024, 11, 24, 16, 20, 2, 872739))
-    measurementHistory.add(LocalDateTime.of(2024, 11, 23, 16, 20, 2, 872739))
-    measurementHistory.add(LocalDateTime.of(2024, 11, 22, 16, 20, 2, 872739))
-    measurementHistory.add(LocalDateTime.of(2024, 11, 21, 16, 20, 2, 872739))
-    measurementHistory.add(LocalDateTime.of(2024, 11, 20, 16, 20, 2, 872739))
-    measurementHistory.add(LocalDateTime.of(2024, 11, 19, 16, 20, 2, 872739))
-     */
 
     Column(
         modifier = Modifier
@@ -61,11 +48,12 @@ fun HistoryScreen(
         if (measurementHistory.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(measurementHistory) { measurement ->
                     MeasurementItem(
-                        measuredTime = measurement.timeMeasured.toString(),
+                        measuredTime = measurement.timeMeasured,
                         onClick = {
                             measurementVM.setMeasurement(measurement)
                             navController.navigate("plot")
@@ -90,21 +78,21 @@ fun HistoryScreen(
 
 @Composable
 fun MeasurementItem(
-    measuredTime: String,
+    measuredTime: LocalDateTime,
     onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(0.8f)
             .padding(vertical = 8.dp)
             .clickable { onClick() },
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = measuredTime,
+                text = measuredTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
