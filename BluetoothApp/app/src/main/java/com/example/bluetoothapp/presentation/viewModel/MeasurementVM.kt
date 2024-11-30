@@ -55,7 +55,10 @@ class MeasurementVM(
 
     fun searchForDevices() {
         viewModelScope.launch {
-            _devices.value = _measurementService.searchForDevices()
+            _measurementService.searchForDevices()
+                .collect { device ->
+                    _devices.value = _devices.value + device
+                }
         }
     }
 
@@ -75,6 +78,17 @@ class MeasurementVM(
             }
             Log.d("MeasurementVM", "After connecting is done")
             _isDeviceConnected.value = _measurementService.isDeviceConnected(_measurementState.value.chosenDeviceId)
+        }
+    }
+
+    fun disconnectFromDevice(deviceId: String) {
+        viewModelScope.launch {
+            try {
+                _measurementService.disconnectFromPolarDevice(deviceId)
+                _measurementState.value = _measurementState.value.copy(chosenDeviceId = "")
+            } catch (e: Exception) {
+                Log.e("MeasurementVM", "Error disconnecting from device: ${e.message}")
+            }
         }
     }
 

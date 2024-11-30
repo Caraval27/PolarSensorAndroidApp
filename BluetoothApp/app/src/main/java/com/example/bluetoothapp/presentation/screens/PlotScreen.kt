@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.components.LineChart
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
+import com.example.bluetoothapp.presentation.viewModel.SensorType
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -36,7 +36,6 @@ fun PlotScreen(
     val measurementState = measurementVM.measurementState.collectAsState()
     val measurement = measurementVM.measurement.collectAsState()
     val snackbarHostState = SnackbarHostState()
-    val isDeviceConnected by measurementVM.isDeviceConnected.collectAsState()
 
     LaunchedEffect(Unit) {
         if(measurementState.value.ongoing) {
@@ -55,20 +54,6 @@ fun PlotScreen(
             measurementVM.setExported(null)
         }
     }
-
-    /*LaunchedEffect(isDeviceConnected) {
-        Log.d("PlotScreen", "Effect launched")
-        if (isDeviceConnected) {
-            Log.d("PlotScreen", "Recording started")
-            measurementVM.startRecording()
-        }
-
-    }
-
-    if (!isDeviceConnected) {
-        Log.d("PlotScreen", "If")
-        measurementVM.isDeviceConnected
-    }*/
 
     BackHandler {
         if (measurementState.value.ongoing) {

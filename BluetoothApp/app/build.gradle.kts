@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.storage)
+    implementation(libs.androidx.espresso.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,6 +67,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
 
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.7.3")
 
     implementation("com.github.polarofficial:polar-ble-sdk:5.5.0")
     implementation(libs.rxjava)

@@ -8,7 +8,6 @@ import com.example.bluetoothapp.infrastructure.InternalSensorRepository
 import com.example.bluetoothapp.infrastructure.MeasurementDbRepository
 import com.example.bluetoothapp.infrastructure.PolarSensorRepository
 import com.example.bluetoothapp.domain.Measurement
-import io.reactivex.rxjava3.core.Single
 import android.Manifest
 import kotlin.math.pow
 import com.example.bluetoothapp.domain.Device
@@ -18,6 +17,7 @@ import com.example.bluetoothapp.infrastructure.SampleData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
@@ -177,16 +177,8 @@ class MeasurementService(
         }
     }
 
-    fun searchForDevices() : List<Device> {
-        _polarSensorRepository.searchForDevices()
-        return _polarSensorRepository.devices.value.map {
-            polarDeviceInfo ->
-            Device(
-                deviceId = polarDeviceInfo.deviceId,
-                name = polarDeviceInfo.name ?: "Unknown",
-                isConnectable = polarDeviceInfo.isConnectable
-            )
-        }
+    fun searchForDevices() : Flow<Device> {
+        return _polarSensorRepository.searchForDevices()
     }
 
     fun isDeviceConnected(deviceId: String) : Boolean {

@@ -16,6 +16,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.bluetoothapp.presentation.screens.ConnectToDeviceScreen
 import com.example.bluetoothapp.presentation.theme.BluetoothAppTheme
 import com.example.bluetoothapp.presentation.screens.HomeScreen
 import com.example.bluetoothapp.presentation.screens.HistoryScreen
@@ -42,7 +43,10 @@ class MainActivity : ComponentActivity() {
                     val navController : NavHostController = rememberNavController();
                     NavHost(navController = navController, startDestination = "home") {
                         composable("home") {
-                            HomeScreen(requestPermissionLauncher = requestPermissionLauncher, measurementVM = measurementVM, navController = navController)
+                            HomeScreen(measurementVM = measurementVM, navController = navController)
+                        }
+                        composable("connect") {
+                            ConnectToDeviceScreen(requestPermissionLauncher = requestPermissionLauncher, measurementVM = measurementVM, navController = navController)
                         }
                         composable("plot") {
                             PlotScreen(measurementVM = measurementVM, navController = navController)
