@@ -29,13 +29,17 @@ import kotlin.math.atan2
 class MeasurementService(
     private var _applicationContext : Context,
 ) {
-    private val _linearFilteredSamples: MutableStateFlow<List<Float>> = MutableStateFlow(emptyList())
+    private val _measurement : MutableStateFlow<Measurement> = MutableStateFlow(Measurement())
+    val measurement: StateFlow<Measurement>
+        get() = _measurement
+
+    /*private val _linearFilteredSamples: MutableStateFlow<List<Float>> = MutableStateFlow(emptyList())
     val linearFilteredSamples: StateFlow<List<Float>>
         get() = _linearFilteredSamples
 
     private val _fusionFilteredSamples : MutableStateFlow<List<Float>> = MutableStateFlow(emptyList())
     val fusionFilteredSamples: StateFlow<List<Float>>
-        get() = _fusionFilteredSamples
+        get() = _fusionFilteredSamples*/
 
     private var _lastAngularSample: Float? = null
 
@@ -103,18 +107,19 @@ class MeasurementService(
 
     private fun applyLinearFilter(linearSample : Float, filterFactor: Float) {
         var linearFilteredSample = linearSample
-        if (_linearFilteredSamples.value.isNotEmpty()) {
-            linearFilteredSample = filterFactor * linearSample + (1 - filterFactor) * _linearFilteredSamples.value.last()
+        if (_measurement.value.linearFilteredSamples.isNotEmpty()) {
+            linearFilteredSample = filterFactor * linearSample + (1 - filterFactor) * _measurement.value.linearFilteredSamples.last()
             //Log.d("MeasurementService", "linear sample: " + linearSample + " last linear sample: " + _linearFilteredSamples.value.last() + " filtered sample: " + linearFilteredSample)
         }
-        _linearFilteredSamples.value += linearFilteredSample
+
+        _measurement.value = _measurement.value.copy(linearFilteredSamples = _measurement.value.linearFilteredSamples + linearFilteredSample)
     }
 
     private fun applyFusionFilter(linearSample: Float, angularSample: Float) {
         val filterFactor = 0.98f
         val fusionFilteredSample = filterFactor * linearSample + (1 - filterFactor) * angularSample
         //Log.d("MeasurementService", "linear sample: " + linearSample + " angular sample: " + angularSample + " result: " + fusionFilteredSample)
-        _fusionFilteredSamples.value += fusionFilteredSample
+        _measurement.value = _measurement.value.copy(fusionFilteredSamples = _measurement.value.fusionFilteredSamples + fusionFilteredSample)
     }
 
     suspend fun insertMeasurement(measurement: Measurement) {
@@ -157,8 +162,7 @@ class MeasurementService(
     }
 
     fun startInternalRecording() {
-        _linearFilteredSamples.value = emptyList()
-        _fusionFilteredSamples.value = emptyList()
+        _measurement.value = Measurement()
         _lastAngularSample = null
         _internalSensorRepository.startListening()
     }
@@ -188,8 +192,7 @@ class MeasurementService(
     }
 
     fun startPolarRecording(deviceId: String) {
-        _linearFilteredSamples.value = emptyList()
-        _fusionFilteredSamples.value = emptyList()
+        _measurement.value = Measurement()
         _lastAngularSample = null
         _polarSensorRepository.startAccStreaming(deviceId)
         _polarSensorRepository.startGyroStreaming(deviceId)

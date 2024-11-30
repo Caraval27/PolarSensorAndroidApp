@@ -25,8 +25,7 @@ fun PlotScreen(
     navController: NavHostController
 ) {
     val measurementState = measurementVM.measurementState.collectAsState()
-    val linearFilteredSamples = measurementVM.linearFilteredSamples.collectAsState()
-    val fusionFilteredSamples = measurementVM.fusionFilteredSamples.collectAsState()
+    val measurement = measurementVM.measurement.collectAsState()
 
     LaunchedEffect(Unit) {
         measurementVM.startRecording()
@@ -45,19 +44,19 @@ fun PlotScreen(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        if (linearFilteredSamples.value.isNotEmpty() && fusionFilteredSamples.value.isNotEmpty()) {
+        if (measurement.value.linearFilteredSamples.isNotEmpty() && measurement.value.fusionFilteredSamples.isNotEmpty()) {
             LineChart(
-                linearValues = linearFilteredSamples.value,
-                fusionValues = fusionFilteredSamples.value
+                linearValues = measurement.value.linearFilteredSamples,
+                fusionValues = measurement.value.fusionFilteredSamples
             )
         }
 
         Text(
-            text = "Algo 1: " + linearFilteredSamples.value.lastOrNull() //Ska tas bort sen, för test
+            text = "Algo 1: " + measurement.value.linearFilteredSamples.lastOrNull() //Ska tas bort sen, för test
         )
 
         Text(
-            text = "Algo 2: " + fusionFilteredSamples.value.lastOrNull() //Ska också tas bort sen
+            text = "Algo 2: " + measurement.value.fusionFilteredSamples.lastOrNull() //Ska också tas bort sen
         )
 
         Spacer(modifier = Modifier.height(16.dp))

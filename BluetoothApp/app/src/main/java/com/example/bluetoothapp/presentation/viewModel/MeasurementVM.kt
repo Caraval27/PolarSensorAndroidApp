@@ -9,29 +9,27 @@ import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.domain.Measurement
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 class MeasurementVM(
     application: Application
 ) : AndroidViewModel(application) {
     private val _measurementService = MeasurementService(_applicationContext = application.applicationContext)
 
-    private val _currentMeasurement = MutableStateFlow(Measurement())
-    val currentMeasurement: StateFlow<Measurement>
-        get() = _currentMeasurement
+    private val _measurement = MutableStateFlow(Measurement())
+    val measurement: StateFlow<Measurement>
+        get() = _measurement
 
-    private val _linearFilteredSamples = MutableStateFlow(emptyList<Float>())
+    /*private val _linearFilteredSamples = MutableStateFlow(emptyList<Float>())
     val linearFilteredSamples: StateFlow<List<Float>>
         get() = _linearFilteredSamples
 
     private val _fusionFilteredSamples = MutableStateFlow(emptyList<Float>())
     val fusionFilteredSamples: StateFlow<List<Float>>
-        get () = _fusionFilteredSamples
+        get () = _fusionFilteredSamples*/
 
     private val _measurementHistory = MutableStateFlow(mutableListOf<Measurement>())
     val measurementHistory: StateFlow<MutableList<Measurement>>
@@ -47,13 +45,11 @@ class MeasurementVM(
 
     init {
         viewModelScope.launch {
-            _measurementService.linearFilteredSamples.collect { newLinearFilteredSamples ->
-                _linearFilteredSamples.value = newLinearFilteredSamples
-            }
-        }
-        viewModelScope.launch {
-            _measurementService.fusionFilteredSamples.collect { newFusionFilteredSamples ->
-                _fusionFilteredSamples.value = newFusionFilteredSamples
+            _measurementService.measurement.collect { newMeasurement ->
+                _measurement.value = _measurement.value.copy(
+                    linearFilteredSamples = newMeasurement.linearFilteredSamples,
+                    fusionFilteredSamples = newMeasurement.fusionFilteredSamples
+                )
             }
         }
     }
@@ -91,6 +87,7 @@ class MeasurementVM(
     }
 
     fun stopRecording() {
+        _measurement.value = _measurement.value.copy(_timeMeasured = LocalDateTime.now())
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
                 SensorType.Polar -> _measurementService.stopPolarRecording()
@@ -107,7 +104,7 @@ class MeasurementVM(
     }
 
     fun setCurrentMeasurement(measurement: Measurement) {
-        _currentMeasurement.value = measurement
+        _measurement.value = measurement
     }
 
     fun setSensorType(sensorType: SensorType) {
