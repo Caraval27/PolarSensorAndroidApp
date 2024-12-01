@@ -1,5 +1,6 @@
 package com.example.bluetoothapp.infrastructure
 
+import android.bluetooth.BluetoothGatt
 import android.content.Context
 import android.util.Log
 import com.example.bluetoothapp.domain.Device
@@ -10,8 +11,10 @@ import com.polar.sdk.api.errors.PolarInvalidArgument
 import com.polar.sdk.api.model.PolarAccelerometerData
 import com.polar.sdk.api.model.PolarDeviceInfo
 import com.polar.sdk.api.model.PolarGyroData
+import com.polar.sdk.api.model.PolarSensorSetting
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -156,6 +159,7 @@ class PolarSensorRepository(applicationContext: Context) {
     fun connectToDevice(deviceId: String) {
         try {
             api.connectToDevice(deviceId)
+            //val gatt = gatt?.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
         } catch (polarInvalidArgument: PolarInvalidArgument) {
             Log.e("PolarSensorRepository", "Failed to connect. Reason $polarInvalidArgument ")
         }
@@ -336,12 +340,26 @@ class PolarSensorRepository(applicationContext: Context) {
 
         return api.requestStreamSettings(deviceId, dataType)
             .doOnSubscribe { Log.d("PolarSensorRepository", "Settings requested at: ${System.currentTimeMillis() - startTime}ms") }
-            .flatMapPublisher { settings ->
+            .flatMapPublisher { availableSettings ->
                 Log.d("PolarSensorRepository", "Settings received at: ${System.currentTimeMillis() - startTime}ms")
+                Log.d("PolarSensorRepository", "Available settings: ${availableSettings.settings}")
 
-                val desiredSettings = settings.maxSettings()
+                val supportedSampleRates = availableSettings.settings[PolarSensorSetting.SettingType.SAMPLE_RATE]
+                val supportedRanges = availableSettings.settings[PolarSensorSetting.SettingType.RANGE]
 
-                Log.d("PolarSensorRepository", "Using settings: ${desiredSettings.settings}")
+                val maxSampleRate = supportedSampleRates?.maxOrNull() ?: 100
+                val selectedRange = supportedRanges?.firstOrNull() ?: 8
+
+                val desiredSettingsMap = hashMapOf<PolarSensorSetting.SettingType, Int>(
+                    PolarSensorSetting.SettingType.SAMPLE_RATE to maxSampleRate,
+                    PolarSensorSetting.SettingType.RANGE to selectedRange
+                )
+
+                val desiredSettings = PolarSensorSetting(desiredSettingsMap)
+
+                //val desiredSettings = settings.maxSettings()
+
+                Log.d("PolarSensorRepository", "Desired settings: ${desiredSettings.settings}")
 
                 when (dataType) {
                     PolarBleApi.PolarDeviceDataType.ACC -> api.startAccStreaming(deviceId, desiredSettings)
@@ -351,7 +369,8 @@ class PolarSensorRepository(applicationContext: Context) {
             }
             .doOnSubscribe { Log.d("PolarSensorRepository", "Streaming started for $dataType") }
             .doOnNext { Log.d("PolarSensorRepository", "Received data for $dataType") }
-            .observeOn(AndroidSchedulers.mainThread())
+            //.observeOn(AndroidSchedulers.mainThread())
+            .observeOn(Schedulers.computation())
             .doOnNext { data -> Log.d("PolarSensorRepository", "First data received at: ${System.currentTimeMillis() - startTime}ms") }
             .subscribe(
                 { data -> dataCallback(data as T) },
