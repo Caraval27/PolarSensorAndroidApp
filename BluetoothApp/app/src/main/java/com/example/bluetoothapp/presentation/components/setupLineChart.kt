@@ -7,11 +7,14 @@ import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 
 fun setupLineChart(
     lineChart: LineChart,
     linearValues: List<Float>,
     fusionValues: List<Float>,
+    ongoing: Boolean,
     visibleRange: Int = 50
 ) {
     val linearEntries = linearValues.mapIndexed { index, value ->
@@ -28,7 +31,7 @@ fun setupLineChart(
         lineWidth = 2f
         setCircleColor(Color.BLUE)
         circleRadius = 3f
-        setDrawValues(true) // så jag kan se värden, false sen
+        setDrawValues(false)
     }
 
     val fusionDataSet = LineDataSet(fusionEntries, "Fusion sensor data").apply {
@@ -37,15 +40,21 @@ fun setupLineChart(
         lineWidth = 2f
         setCircleColor(Color.RED)
         circleRadius = 3f
-        setDrawValues(true) // så jag kan se värden, false sen
+        setDrawValues(false)
     }
 
     lineChart.apply {
         data = LineData(linearDataSet, fusionDataSet)
         description.isEnabled = false
         setTouchEnabled(true)
-        setPinchZoom(true)
-        setBackgroundColor(Color.BLACK) // ändrar färger sen
+        if (ongoing) {
+            setPinchZoom(false)
+            setScaleEnabled(false)
+        } else {
+            setPinchZoom(true)
+            setScaleEnabled(true)
+        }
+        setBackgroundColor(Color.BLACK)
         setNoDataText("No data available")
         setNoDataTextColor(Color.RED)
 
@@ -74,6 +83,22 @@ fun setupLineChart(
         }
 
         setVisibleXRangeMaximum(visibleRange.toFloat())
+
+        if (!ongoing) {
+            setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
+                override fun onValueSelected(e: Entry?, h: Highlight?) {
+                    e?.let {
+                        lineChart.centerViewToAnimated(
+                            e.x,
+                            e.y,
+                            lineChart.data.getDataSetForEntry(e).axisDependency,
+                            500
+                        )
+                    }
+                }
+                override fun onNothingSelected() {}
+            })
+        }
 
         if (fusionEntries.isNotEmpty()) {
             moveViewToX(fusionEntries.last().x - visibleRange)

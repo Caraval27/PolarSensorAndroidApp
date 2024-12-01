@@ -12,6 +12,7 @@ import com.github.mikephil.charting.charts.LineChart
 fun LineChart(
     linearValues: List<Float>,
     fusionValues: List<Float>,
+    ongoing: Boolean
 ) {
     AndroidView(
         modifier = Modifier
@@ -19,13 +20,13 @@ fun LineChart(
             .height(300.dp),
         factory = { context ->
             LineChart(context).apply {
-                setupLineChart(this, linearValues, fusionValues)
+                setupLineChart(this, linearValues, fusionValues, ongoing)
             }
         },
         update = { chart ->
             if (linearValues.isNotEmpty() && fusionValues.isNotEmpty()) {
                 chart.clear()
-                setupLineChart(chart, linearValues, fusionValues)
+                setupLineChart(chart, linearValues, fusionValues, ongoing)
             }
         }
     )

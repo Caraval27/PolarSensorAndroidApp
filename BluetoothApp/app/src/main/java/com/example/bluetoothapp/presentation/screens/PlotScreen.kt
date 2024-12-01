@@ -90,7 +90,8 @@ fun PlotScreen(
                 if (measurement.value.linearFilteredSamples.isNotEmpty() && measurement.value.fusionFilteredSamples.isNotEmpty()) {
                     LineChart(
                         linearValues = measurement.value.linearFilteredSamples,
-                        fusionValues = measurement.value.fusionFilteredSamples
+                        fusionValues = measurement.value.fusionFilteredSamples,
+                        ongoing = measurementState.value.ongoing
                     )
                 }
 
