@@ -38,7 +38,7 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(isDeviceConnected) {
-        if (isDeviceConnected.isEmpty()) {
+        if (isDeviceConnected.isEmpty() && measurementState.value.chosenDeviceId.isNotEmpty()) {
             snackbarHostState.showSnackbar("Polar device disconnected unexpectedly!")
         }
     }
@@ -99,7 +99,7 @@ fun HomeScreen(
                     onClick = { navController.navigate("history") },
                     modifier = Modifier.fillMaxWidth(0.7f)
                 ) {
-                    Text("Result history")
+                    Text("Measurement history")
                 }
             }
         }

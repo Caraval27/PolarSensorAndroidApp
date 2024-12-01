@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -83,16 +85,22 @@ fun MeasurementItem(
 ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth(0.8f)
+            .fillMaxWidth(0.9f)
             .padding(vertical = 8.dp)
             .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = Color(46, 52, 64),
+            contentColor = Color.White
+        )
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
         ) {
             Text(
-                text = measuredTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                text = "Created: " + measuredTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
