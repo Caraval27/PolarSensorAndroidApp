@@ -26,19 +26,19 @@ fun setupLineChart(
     }
 
     val linearDataSet = LineDataSet(linearEntries, "Linear sensor data").apply {
-        color = Color.BLUE
-        valueTextColor = Color.BLUE
+        color = Color.rgb(255, 152, 0)
+        valueTextColor = Color.rgb(255, 152, 0)
         lineWidth = 2f
-        setCircleColor(Color.BLUE)
+        setCircleColor(Color.rgb(255, 152, 0))
         circleRadius = 3f
         setDrawValues(false)
     }
 
     val fusionDataSet = LineDataSet(fusionEntries, "Fusion sensor data").apply {
-        color = Color.RED
-        valueTextColor = Color.RED
+        color = Color.rgb(118, 199, 192)
+        valueTextColor = Color.rgb(118, 199, 192)
         lineWidth = 2f
-        setCircleColor(Color.RED)
+        setCircleColor(Color.rgb(118, 199, 192))
         circleRadius = 3f
         setDrawValues(false)
     }
@@ -54,7 +54,7 @@ fun setupLineChart(
             setPinchZoom(true)
             setScaleEnabled(true)
         }
-        setBackgroundColor(Color.BLACK)
+        setBackgroundColor(Color.rgb(46, 52, 64))
         setNoDataText("No data available")
         setNoDataTextColor(Color.RED)
 
