@@ -1,6 +1,5 @@
 package com.example.bluetoothapp.infrastructure
 
-import android.bluetooth.BluetoothGatt
 import android.content.Context
 import android.util.Log
 import com.example.bluetoothapp.domain.Device
@@ -36,9 +35,12 @@ class PolarSensorRepository(applicationContext: Context) {
     private var accDisposable: Disposable? = null
     private var gyrDisposable: Disposable? = null
 
-    private val _connectedDevices = MutableStateFlow(mutableSetOf<String>())
+    /*private val _connectedDevices = MutableStateFlow(mutableSetOf<String>())
     val connectedDevices: StateFlow<Set<String>>
-        get() = _connectedDevices.asStateFlow()
+        get() = _connectedDevices.asStateFlow()*/
+
+    private val _connectedDevice = MutableStateFlow("")
+    val connectedDevice: StateFlow<String> = _connectedDevice.asStateFlow()
 
     private val _gyroscopeData = MutableStateFlow(floatArrayOf())
     val gyroscopeData: StateFlow<FloatArray>
@@ -52,9 +54,10 @@ class PolarSensorRepository(applicationContext: Context) {
         api.setApiCallback(object : PolarBleApiCallback() {
             override fun deviceConnected(polarDeviceInfo: PolarDeviceInfo) {
                 Log.d("PolarSensorRepository", "Device connected: ${polarDeviceInfo.deviceId}")
-                _connectedDevices.value = _connectedDevices.value.toMutableSet().apply {
+                /*_connectedDevices.value = _connectedDevices.value.toMutableSet().apply {
                     add(polarDeviceInfo.deviceId)
-                }
+                }*/
+                _connectedDevice.value = polarDeviceInfo.deviceId
             }
 
             override fun deviceConnecting(polarDeviceInfo: PolarDeviceInfo) {
@@ -63,9 +66,10 @@ class PolarSensorRepository(applicationContext: Context) {
 
             override fun deviceDisconnected(polarDeviceInfo: PolarDeviceInfo) {
                 Log.d("PolarSensorRepository", "Device disconnected: ${polarDeviceInfo.deviceId}")
-                _connectedDevices.value = _connectedDevices.value.toMutableSet().apply {
+                /*_connectedDevices.value = _connectedDevices.value.toMutableSet().apply {
                     remove(polarDeviceInfo.deviceId)
-                }
+                }*/
+                _connectedDevice.value = ""
             }
         })
     }
@@ -151,10 +155,10 @@ class PolarSensorRepository(applicationContext: Context) {
            )
    }.toList()*/
 
-    fun isDeviceConnected(deviceId: String) : Boolean {
+    /*fun isDeviceConnected(deviceId: String) : Boolean {
         Log.d("PolarSensorRepository", "Device in list: ${_connectedDevices.value.contains(deviceId)}")
         return _connectedDevices.value.contains(deviceId)
-    }
+    }*/
 
     fun connectToDevice(deviceId: String) {
         try {
@@ -166,7 +170,7 @@ class PolarSensorRepository(applicationContext: Context) {
     }
 
     fun startAccStreaming(deviceId: String) {
-        if (!isDeviceConnected(deviceId)) {
+        if (_connectedDevice.value != deviceId) {
             Log.e("PolarSensorRepository", "Device is not connected: $deviceId")
             return
         }
@@ -324,7 +328,7 @@ class PolarSensorRepository(applicationContext: Context) {
         )
     }
 
-    fun <T> startStreaming(
+    private fun <T> startStreaming(
         deviceId: String,
         dataType: PolarBleApi.PolarDeviceDataType,
         dataCallback: (T) -> Unit,
@@ -333,7 +337,7 @@ class PolarSensorRepository(applicationContext: Context) {
         val startTime = System.currentTimeMillis()
         Log.d("PolarSensorRepository", "Streaming started at: $startTime")
 
-        if (!isDeviceConnected(deviceId)) {
+        if (_connectedDevice.value != deviceId) {
             Log.e("PolarSensorRepository", "Device is not connected: $deviceId")
             return null
         }
@@ -385,7 +389,7 @@ class PolarSensorRepository(applicationContext: Context) {
 
     fun disconnectFromDevice(deviceId: String) {
         try {
-            if (_connectedDevices.value.contains(deviceId)) {
+            if (_connectedDevice.value == deviceId) {
                 api.disconnectFromDevice(deviceId)
                 Log.d("PolarSensorRepository", "Disconnected from device: $deviceId")
             }

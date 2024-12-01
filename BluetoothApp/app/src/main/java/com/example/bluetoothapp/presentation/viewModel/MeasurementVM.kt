@@ -31,8 +31,10 @@ class MeasurementVM(
     val devices: StateFlow<List<Device>>
         get() = _devices
 
-    private val _isDeviceConnected = MutableStateFlow(false)
-    val isDeviceConnected: StateFlow<Boolean> = _isDeviceConnected
+    /*private val _isDeviceConnected = MutableStateFlow(false)
+    val isDeviceConnected: StateFlow<Boolean> = _isDeviceConnected*/
+
+    val connectedDevice: StateFlow<String> = _measurementService.connectedDevice
 
     private val _measurementState = MutableStateFlow(MeasurementState())
     val measurementState: StateFlow<MeasurementState>
@@ -57,16 +59,16 @@ class MeasurementVM(
         viewModelScope.launch {
             _measurementService.searchForDevices()
                 .collect { device ->
-                    _devices.value = _devices.value + device
+                    _devices.value += device
                 }
         }
     }
 
-    fun isDeviceConnected() {
+    /*fun isDeviceConnected() {
         viewModelScope.launch {
             _isDeviceConnected.value = _measurementService.isDeviceConnected(_measurementState.value.chosenDeviceId)
         }
-    }
+    }*/
 
     fun connectToDevice(deviceId: String) {
         viewModelScope.launch {
@@ -77,7 +79,7 @@ class MeasurementVM(
                 Log.e("MeasurementVM", "Error connecting to device: ${e.message}")
             }
             Log.d("MeasurementVM", "After connecting is done")
-            _isDeviceConnected.value = _measurementService.isDeviceConnected(_measurementState.value.chosenDeviceId)
+            //_isDeviceConnected.value = _measurementService.isDeviceConnected(_measurementState.value.chosenDeviceId)
         }
     }
 
@@ -139,14 +141,6 @@ class MeasurementVM(
 
     fun setExported(exported: Boolean?) {
         _measurementState.value = _measurementState.value.copy(exported = exported)
-    }
-
-    /*Ska raderas sen*/
-    fun testInsert() {
-        viewModelScope.launch {
-            Log.d("HistoryScreen", "inserted")
-            _measurementService.insertMeasurement(_measurementService.testInsert())
-        }
     }
 
     fun clearDb() {

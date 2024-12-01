@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +36,7 @@ fun PlotScreen(
 ) {
     val measurementState = measurementVM.measurementState.collectAsState()
     val measurement = measurementVM.measurement.collectAsState()
+    val isDeviceConnected by measurementVM.connectedDevice.collectAsState()
     val snackbarHostState = SnackbarHostState()
 
     LaunchedEffect(Unit) {
@@ -52,6 +54,12 @@ fun PlotScreen(
         if (message != null) {
             snackbarHostState.showSnackbar(message = message)
             measurementVM.setExported(null)
+        }
+    }
+
+    LaunchedEffect(isDeviceConnected) {
+        if (measurementState.value.sensorType == SensorType.Polar && isDeviceConnected.isEmpty()) {
+            snackbarHostState.showSnackbar("Polar device disconnected unexpectedly!")
         }
     }
 

@@ -41,6 +41,8 @@ class MeasurementService(
     private val _measurementDbRepository : MeasurementDbRepository = MeasurementDbRepository(_applicationContext)
     private val _measurementFileRepository : MeasurementFileRepository = MeasurementFileRepository(_applicationContext)
 
+    val connectedDevice: StateFlow<String> = _polarSensorRepository.connectedDevice
+
     companion object {
         const val SENSOR_DELAY = 60000
     }
@@ -181,10 +183,6 @@ class MeasurementService(
         return _polarSensorRepository.searchForDevices()
     }
 
-    fun isDeviceConnected(deviceId: String) : Boolean {
-        return _polarSensorRepository.connectedDevices.value.contains(deviceId)
-    }
-
     fun connectToPolarDevice(deviceId: String) {
         _polarSensorRepository.connectToDevice(deviceId)
     }
@@ -212,17 +210,6 @@ class MeasurementService(
         }
         return _measurementFileRepository.exportCsvToDownloads("ElevationAngle" +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")), csvContent)
-    }
-
-    fun testInsert() : Measurement {
-        val linearSamples = mutableListOf(1.0f, 2.0f, 3.0f)
-        val fusionSamples = mutableListOf(4.0f, 5.0f, 6.0f)
-
-        return Measurement(
-            _timeMeasured = LocalDateTime.now(),
-            linearFilteredSamples = linearSamples,
-            fusionFilteredSamples = fusionSamples,
-        )
     }
 
     fun clearDb() {
