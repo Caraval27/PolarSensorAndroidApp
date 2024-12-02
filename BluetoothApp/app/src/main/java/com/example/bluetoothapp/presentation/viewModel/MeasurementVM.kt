@@ -52,8 +52,8 @@ class MeasurementVM(
         }
     }
 
-    fun hasRequiredPermissions() : Boolean {
-        return _measurementService.hasRequiredPermissions()
+    fun hasRequiredBluetoothPermissions() : Boolean {
+        return _measurementService.hasRequiredBluetoothPermissions()
     }
 
     fun requestPermissions(requestPermissionLauncher: ActivityResultLauncher<Array<String>>) {

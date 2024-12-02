@@ -1,5 +1,12 @@
 package com.example.bluetoothapp.presentation.screens
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Environment
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,8 +28,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.components.LineChart
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
@@ -115,7 +127,9 @@ fun PlotScreen(
                     }
                 } else {
                     Button(
-                        onClick = { measurementVM.exportMeasurement() },
+                        onClick = {
+                                measurementVM.exportMeasurement()
+                             },
                         modifier = Modifier.fillMaxWidth(0.6f)
                     ) {
                         Text("Export values")

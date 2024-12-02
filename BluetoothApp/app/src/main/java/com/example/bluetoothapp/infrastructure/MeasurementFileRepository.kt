@@ -16,10 +16,10 @@ class MeasurementFileRepository(
     fun exportCsvToDownloads(fileName: String, csvContent: String) : Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val contentValues = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
+                put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                put(MediaStore.Downloads.MIME_TYPE, "text/csv")
                 put(
-                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    MediaStore.Downloads.RELATIVE_PATH,
                     Environment.DIRECTORY_DOWNLOADS
                 )
             }
@@ -35,7 +35,11 @@ class MeasurementFileRepository(
 
                 Log.d("MeasurementFileRepository", "Uri: " + uri)
 
+                Log.d("Debug", "External storage state: " + Environment.getExternalStorageState())
+
                 val outputStream = contentResolver.openOutputStream(uri) ?: return false
+
+                Log.d("MeasurementFileRepository", "Output stream: " + outputStream)
 
                 outputStream.use { output ->
                     BufferedWriter(OutputStreamWriter(output)).use { writer ->
@@ -46,12 +50,13 @@ class MeasurementFileRepository(
                 }
             }
             catch(exception : Exception) {
+                Log.e("MeasurementFileRepository", "Exception occurred", exception)
                 return false
             }
         } else {
             val downloadsDirectory =
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val file = File(downloadsDirectory, fileName)
+            val file = File(downloadsDirectory, "$fileName.csv")
             file.writeText(csvContent)
         }
         return true
