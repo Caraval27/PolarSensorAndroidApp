@@ -71,7 +71,7 @@ fun DeviceScan(
                             isScanning = false
                         }
 
-                        if (!measurementVM.hasRequiredPermissions()) {
+                        if (!measurementVM.hasRequiredBluetoothPermissions()) {
                             measurementVM.requestPermissions(requestPermissionLauncher)
                             return@Button
                         }
