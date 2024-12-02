@@ -1,6 +1,7 @@
 package com.example.bluetoothapp.presentation.components
 
 import android.graphics.Color
+import com.example.bluetoothapp.presentation.viewModel.RecordingState
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
@@ -14,7 +15,7 @@ fun setupLineChart(
     lineChart: LineChart,
     linearValues: List<Float>,
     fusionValues: List<Float>,
-    ongoing: Boolean,
+    recordingState: RecordingState,
     visibleRange: Int = 50
 ) {
     val linearEntries = linearValues.mapIndexed { index, value ->
@@ -47,7 +48,7 @@ fun setupLineChart(
         data = LineData(linearDataSet, fusionDataSet)
         description.isEnabled = false
         setTouchEnabled(true)
-        if (ongoing) {
+        if (recordingState == RecordingState.Ongoing) {
             setPinchZoom(false)
             setScaleEnabled(false)
         } else {
@@ -86,7 +87,7 @@ fun setupLineChart(
 
         setVisibleXRangeMaximum(visibleRange.toFloat())
 
-        if (!ongoing) {
+        if (recordingState != RecordingState.Ongoing) {
             setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
                 override fun onValueSelected(e: Entry?, h: Highlight?) {
                     e?.let {

@@ -6,13 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.bluetoothapp.presentation.viewModel.RecordingState
 import com.github.mikephil.charting.charts.LineChart
 
 @Composable
 fun LineChart(
     linearValues: List<Float>,
     fusionValues: List<Float>,
-    ongoing: Boolean
+    recordingState: RecordingState
 ) {
     AndroidView(
         modifier = Modifier
@@ -20,13 +21,13 @@ fun LineChart(
             .height(300.dp),
         factory = { context ->
             LineChart(context).apply {
-                setupLineChart(this, linearValues, fusionValues, ongoing)
+                setupLineChart(this, linearValues, fusionValues, recordingState)
             }
         },
         update = { chart ->
             if (linearValues.isNotEmpty() && fusionValues.isNotEmpty()) {
                 chart.clear()
-                setupLineChart(chart, linearValues, fusionValues, ongoing)
+                setupLineChart(chart, linearValues, fusionValues, recordingState)
             }
         }
     )

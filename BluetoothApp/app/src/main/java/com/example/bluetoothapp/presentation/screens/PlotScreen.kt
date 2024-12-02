@@ -1,12 +1,5 @@
 package com.example.bluetoothapp.presentation.screens
 
-import android.Manifest
-import android.app.Activity
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.os.Environment
-import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,16 +21,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.components.LineChart
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
+import com.example.bluetoothapp.presentation.viewModel.RecordingState
 import com.example.bluetoothapp.presentation.viewModel.SensorType
 import java.time.format.DateTimeFormatter
 
@@ -52,7 +41,7 @@ fun PlotScreen(
     val snackbarHostState = SnackbarHostState()
 
     LaunchedEffect(Unit) {
-        if(measurementState.value.ongoing) {
+        if(measurementState.value.recordingState == RecordingState.Requested) {
             measurementVM.startRecording()
         }
     }
@@ -71,13 +60,14 @@ fun PlotScreen(
 
     LaunchedEffect(connectedDevice) {
         if (measurementState.value.sensorType == SensorType.Polar && connectedDevice.isEmpty()) {
-            snackbarHostState.showSnackbar("Polar device disconnected unexpectedly!")
-            measurementVM.setOngoing(false)
+            snackbarHostState.showSnackbar("Polar sensor disconnected")
+            measurementVM.stopRecording()
+            measurementVM.saveRecording()
         }
     }
 
     BackHandler {
-        if (measurementState.value.ongoing) {
+        if (measurementState.value.recordingState == RecordingState.Ongoing) {
             measurementVM.stopRecording()
         }
         measurementVM.setExported(null)
@@ -95,11 +85,10 @@ fun PlotScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                var headerText = ""
-                if (measurementState.value.ongoing) {
-                    headerText = "Measuring..."
-                } else {
-                    headerText = measurement.value.timeMeasured.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                var headerText = when (measurementState.value.recordingState) {
+                    RecordingState.Requested -> "Loading..."
+                    RecordingState.Ongoing -> "Measuring..."
+                    RecordingState.Done -> measurement.value.timeMeasured.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
                 }
                 Text(
                     text = headerText,
@@ -112,20 +101,23 @@ fun PlotScreen(
                     LineChart(
                         linearValues = measurement.value.linearFilteredSamples,
                         fusionValues = measurement.value.fusionFilteredSamples,
-                        ongoing = measurementState.value.ongoing
+                        recordingState = measurementState.value.recordingState
                     )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                if (measurementState.value.ongoing) {
+                if (measurementState.value.recordingState == RecordingState.Ongoing) {
                     Button(
-                        onClick = { measurementVM.stopRecording() },
+                        onClick = {
+                            measurementVM.stopRecording()
+                            measurementVM.saveRecording()
+                                  },
                         modifier = Modifier.fillMaxWidth(0.6f)
                     ) {
                         Text("Stop")
                     }
-                } else {
+                } else if (measurementState.value.recordingState == RecordingState.Done){
                     Button(
                         onClick = {
                                 measurementVM.exportMeasurement()

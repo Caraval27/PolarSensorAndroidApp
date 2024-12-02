@@ -141,7 +141,7 @@ class MeasurementService(
         _measurement.value = _measurement.value.copy(fusionFilteredSamples = _measurement.value.fusionFilteredSamples + fusionFilteredSample)
     }
 
-    suspend fun insertMeasurement(measurement: Measurement) {
+    suspend fun saveRecording(measurement: Measurement) {
         require(measurement.linearFilteredSamples.size == measurement.fusionFilteredSamples.size) {
             "The two lists must have the same size."
         }
@@ -188,7 +188,6 @@ class MeasurementService(
 
     suspend fun stopInternalRecording(measurement: Measurement) {
         _internalSensorRepository.stopListening()
-        insertMeasurement(measurement)
     }
 
     fun hasRequiredBluetoothPermissions(): Boolean {
@@ -273,7 +272,6 @@ class MeasurementService(
 
     suspend fun stopPolarRecording(measurement: Measurement) {
         _polarSensorRepository.stopStreaming()
-        insertMeasurement(measurement)
     }
 
     fun disconnectFromPolarDevice(deviceId: String) {

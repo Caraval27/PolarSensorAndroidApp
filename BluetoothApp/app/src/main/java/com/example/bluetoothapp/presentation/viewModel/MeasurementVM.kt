@@ -44,6 +44,9 @@ class MeasurementVM(
     init {
         viewModelScope.launch {
             _measurementService.measurement.collect { newMeasurement ->
+                if (_measurementState.value.recordingState != RecordingState.Ongoing) {
+                    _measurementState.value = _measurementState.value.copy(recordingState = RecordingState.Ongoing)
+                }
                 _measurement.value = _measurement.value.copy(
                     linearFilteredSamples = newMeasurement.linearFilteredSamples,
                     fusionFilteredSamples = newMeasurement.fusionFilteredSamples
@@ -111,8 +114,7 @@ class MeasurementVM(
                 SensorType.Polar -> _measurementService.startPolarRecording(_measurementState.value.chosenDeviceId)
                 SensorType.Internal -> _measurementService.startInternalRecording()
             }
-            _measurement.value = _measurement.value.copy(_timeMeasured = LocalDateTime.now())
-        }
+            _measurement.value = _measurement.value.copy(_timeMeasured = LocalDateTime.now()) }
     }
 
     fun stopRecording() {
@@ -121,7 +123,13 @@ class MeasurementVM(
                 SensorType.Polar -> _measurementService.stopPolarRecording(_measurement.value)
                 SensorType.Internal -> _measurementService.stopInternalRecording(_measurement.value)
             }
-            _measurementState.value = _measurementState.value.copy(ongoing = false)
+            _measurementState.value = _measurementState.value.copy(recordingState = RecordingState.Done)
+        }
+    }
+
+    fun saveRecording() {
+        viewModelScope.launch {
+            _measurementService.saveRecording(_measurement.value)
         }
     }
 
@@ -146,8 +154,8 @@ class MeasurementVM(
         _measurementState.value = _measurementState.value.copy(sensorType = sensorType)
     }
 
-    fun setOngoing(ongoing: Boolean) {
-        _measurementState.value = _measurementState.value.copy(ongoing = ongoing)
+    fun setRecordingState(recordingState: RecordingState) {
+        _measurementState.value = _measurementState.value.copy(recordingState = recordingState)
     }
 
     fun setExported(exported: Boolean?) {
@@ -166,9 +174,15 @@ enum class SensorType {
     Internal
 }
 
+enum class RecordingState {
+    Requested,
+    Ongoing,
+    Done
+}
+
 data class MeasurementState(
     val sensorType: SensorType = SensorType.Internal,
     val chosenDeviceId: String = "",
-    val ongoing: Boolean = false,
+    val recordingState: RecordingState = RecordingState.Requested,
     val exported: Boolean? = null
 )

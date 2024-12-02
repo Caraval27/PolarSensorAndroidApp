@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
+import com.example.bluetoothapp.presentation.viewModel.RecordingState
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -58,6 +59,7 @@ fun HistoryScreen(
                         measuredTime = measurement.timeMeasured,
                         onClick = {
                             measurementVM.setMeasurement(measurement)
+                            measurementVM.setRecordingState(RecordingState.Done)
                             navController.navigate("plot")
                         }
                     )

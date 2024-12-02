@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
+import com.example.bluetoothapp.presentation.viewModel.RecordingState
 import com.example.bluetoothapp.presentation.viewModel.SensorType
 import kotlinx.coroutines.launch
 
@@ -71,7 +72,7 @@ fun HomeScreen(
                             }
                         } else {
                             measurementVM.setSensorType(SensorType.Polar)
-                            measurementVM.setOngoing(true)
+                            measurementVM.setRecordingState(RecordingState.Requested)
                             navController.navigate("plot")
                         }
                     },
@@ -85,7 +86,7 @@ fun HomeScreen(
                 Button(
                     onClick = {
                         measurementVM.setSensorType(SensorType.Internal)
-                        measurementVM.setOngoing(true)
+                        measurementVM.setRecordingState(RecordingState.Requested)
                         navController.navigate("plot")
                     },
                     modifier = Modifier.fillMaxWidth(0.7f)
