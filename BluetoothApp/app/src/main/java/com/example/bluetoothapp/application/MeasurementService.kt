@@ -142,12 +142,9 @@ class MeasurementService(
     }
 
     suspend fun saveRecording(measurement: Measurement) {
-        require(measurement.linearFilteredSamples.size == measurement.fusionFilteredSamples.size) {
-            "The two lists must have the same size."
-        }
 
         val measurementData = MeasurementData(
-            measurement.id,
+            id = measurement.id,
             timeMeasured = measurement.timeMeasured,
             sampleData = measurement.linearFilteredSamples.zip(measurement.fusionFilteredSamples) { linear, fusion ->
                 SampleData(

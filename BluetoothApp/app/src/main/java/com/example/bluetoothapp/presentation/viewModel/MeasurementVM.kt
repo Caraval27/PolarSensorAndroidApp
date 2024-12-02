@@ -44,7 +44,7 @@ class MeasurementVM(
     init {
         viewModelScope.launch {
             _measurementService.measurement.collect { newMeasurement ->
-                if (_measurementState.value.recordingState != RecordingState.Ongoing) {
+                if (_measurementState.value.recordingState == RecordingState.Requested) {
                     _measurementState.value = _measurementState.value.copy(recordingState = RecordingState.Ongoing)
                 }
                 _measurement.value = _measurement.value.copy(
@@ -123,11 +123,11 @@ class MeasurementVM(
                 SensorType.Polar -> _measurementService.stopPolarRecording(_measurement.value)
                 SensorType.Internal -> _measurementService.stopInternalRecording(_measurement.value)
             }
-            _measurementState.value = _measurementState.value.copy(recordingState = RecordingState.Done)
         }
     }
 
     fun saveRecording() {
+        _measurementState.value = _measurementState.value.copy(recordingState = RecordingState.Done)
         viewModelScope.launch {
             _measurementService.saveRecording(_measurement.value)
         }
