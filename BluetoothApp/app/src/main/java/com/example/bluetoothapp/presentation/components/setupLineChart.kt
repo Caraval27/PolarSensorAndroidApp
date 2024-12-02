@@ -67,7 +67,7 @@ fun setupLineChart(
         axisLeft.apply {
             textColor = Color.WHITE
             setDrawGridLines(true)
-            axisMinimum = -10f // Set the predefined minimum Y value
+            axisMinimum = -10f 
             axisMaximum = 100f
         }
 
