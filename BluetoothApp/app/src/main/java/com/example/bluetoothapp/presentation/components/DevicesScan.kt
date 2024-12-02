@@ -71,7 +71,7 @@ fun DeviceScan(
                         if (isScanning) {
                             isScanning = false
                             //measurementVM.stopScanning() // Ensure scanning stops
-                        } else if ((bluetoothAdapter != null && bluetoothAdapter.isEnabled) && measurementVM.hasRequiredPermissions()) {
+                        } else if ((bluetoothAdapter != null && bluetoothAdapter.isEnabled) && measurementVM.hasRequiredBluetoothPermissions()) {
                             isScanning = true
                             measurementVM.searchForDevices()
                         } else {

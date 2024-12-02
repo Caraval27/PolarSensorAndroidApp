@@ -9,6 +9,9 @@ import com.example.bluetoothapp.infrastructure.MeasurementDbRepository
 import com.example.bluetoothapp.infrastructure.PolarSensorRepository
 import com.example.bluetoothapp.domain.Measurement
 import android.Manifest
+import android.os.Environment
+import android.util.Log
+import androidx.core.app.ActivityCompat
 import kotlin.math.pow
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.infrastructure.MeasurementData
@@ -167,7 +170,7 @@ class MeasurementService(
         insertMeasurement(measurement)
     }
 
-    fun hasRequiredPermissions(): Boolean {
+    fun hasRequiredBluetoothPermissions(): Boolean {
         val context = _applicationContext
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
@@ -204,6 +207,8 @@ class MeasurementService(
     }
 
     fun exportMeasurement(measurement: Measurement) : Boolean {
+        Log.d("MeasurementService", "Write permission granted: " + ContextCompat.checkSelfPermission(_applicationContext, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+        Log.d("MeasurementService", "Manage files permission granted: " + Environment.isExternalStorageManager())
         var csvContent = "Linear, Fusion\n"
         for (i in measurement.linearFilteredSamples.indices) {
             csvContent += measurement.linearFilteredSamples[i].toString() + ", " + measurement.fusionFilteredSamples[i].toString() + "\n"
