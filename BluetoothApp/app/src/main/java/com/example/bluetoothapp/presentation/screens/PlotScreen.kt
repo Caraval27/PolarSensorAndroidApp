@@ -36,7 +36,7 @@ fun PlotScreen(
 ) {
     val measurementState = measurementVM.measurementState.collectAsState()
     val measurement = measurementVM.measurement.collectAsState()
-    val isDeviceConnected by measurementVM.connectedDevice.collectAsState()
+    val connectedDevice by measurementVM.connectedDevice.collectAsState()
     val snackbarHostState = SnackbarHostState()
 
     LaunchedEffect(Unit) {
@@ -57,9 +57,10 @@ fun PlotScreen(
         }
     }
 
-    LaunchedEffect(isDeviceConnected) {
-        if (measurementState.value.sensorType == SensorType.Polar && isDeviceConnected.isEmpty()) {
+    LaunchedEffect(connectedDevice) {
+        if (measurementState.value.sensorType == SensorType.Polar && connectedDevice.isEmpty()) {
             snackbarHostState.showSnackbar("Polar device disconnected unexpectedly!")
+            measurementVM.setOngoing(false)
         }
     }
 

@@ -2,6 +2,7 @@ package com.example.bluetoothapp.presentation.viewModel
 
 import android.app.Application
 import android.util.Log
+import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bluetoothapp.application.MeasurementService
@@ -31,8 +32,8 @@ class MeasurementVM(
     val devices: StateFlow<List<Device>>
         get() = _devices
 
-    /*private val _isDeviceConnected = MutableStateFlow(false)
-    val isDeviceConnected: StateFlow<Boolean> = _isDeviceConnected*/
+    private val _isDeviceConnected = MutableStateFlow(false)
+    val isDeviceConnected: StateFlow<Boolean> = _isDeviceConnected
 
     val connectedDevice: StateFlow<String> = _measurementService.connectedDevice
 
@@ -55,20 +56,30 @@ class MeasurementVM(
         return _measurementService.hasRequiredPermissions()
     }
 
+    fun requestPermissions(requestPermissionLauncher: ActivityResultLauncher<Array<String>>) {
+        _measurementService.requestPermissions(requestPermissionLauncher)
+    }
+
+    fun isLocationEnabled() : Boolean {
+        return _measurementService.isLocationEnabled()
+    }
+
     fun searchForDevices() {
         viewModelScope.launch {
             _measurementService.searchForDevices()
                 .collect { device ->
-                    _devices.value += device
+                    if (!_devices.value.contains(device))
+                        _devices.value += device
                 }
+            Log.d("MeasurementVM", devices.value.last().deviceId)
         }
     }
 
-    /*fun isDeviceConnected() {
+    fun isDeviceConnected() {
         viewModelScope.launch {
             _isDeviceConnected.value = _measurementService.isDeviceConnected(_measurementState.value.chosenDeviceId)
         }
-    }*/
+    }
 
     fun connectToDevice(deviceId: String) {
         viewModelScope.launch {
@@ -79,7 +90,7 @@ class MeasurementVM(
                 Log.e("MeasurementVM", "Error connecting to device: ${e.message}")
             }
             Log.d("MeasurementVM", "After connecting is done")
-            //_isDeviceConnected.value = _measurementService.isDeviceConnected(_measurementState.value.chosenDeviceId)
+            _isDeviceConnected.value = _measurementService.isDeviceConnected(_measurementState.value.chosenDeviceId)
         }
     }
 

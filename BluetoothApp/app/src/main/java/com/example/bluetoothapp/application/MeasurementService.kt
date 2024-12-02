@@ -9,11 +9,14 @@ import com.example.bluetoothapp.infrastructure.MeasurementDbRepository
 import com.example.bluetoothapp.infrastructure.PolarSensorRepository
 import com.example.bluetoothapp.domain.Measurement
 import android.Manifest
+import android.location.LocationManager
+import androidx.activity.result.ActivityResultLauncher
 import kotlin.math.pow
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.infrastructure.MeasurementData
 import com.example.bluetoothapp.infrastructure.MeasurementFileRepository
 import com.example.bluetoothapp.infrastructure.SampleData
+import com.google.androidbrowserhelper.trusted.PermissionStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -23,6 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
+import java.security.Permissions
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.atan2
@@ -168,7 +172,7 @@ class MeasurementService(
     }
 
     fun hasRequiredPermissions(): Boolean {
-        val context = _applicationContext
+        /*val context = _applicationContext
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
                     ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
@@ -176,7 +180,56 @@ class MeasurementService(
             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         } else {
             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        }*/
+        val permissions = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> arrayOf(
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            else -> arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
         }
+        val context = _applicationContext
+
+        return permissions.all {
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
+        /*return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        } else {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        }*/
+    }
+
+    fun requestPermissions(requestPermissionLauncher: ActivityResultLauncher<Array<String>>) {
+        val permissions = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> arrayOf(
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            else -> arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        }
+        requestPermissionLauncher.launch(permissions)
+    }
+
+    fun isLocationEnabled(): Boolean {
+        val locationManager = _applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     fun searchForDevices() : Flow<Device> {
@@ -185,6 +238,10 @@ class MeasurementService(
 
     fun connectToPolarDevice(deviceId: String) {
         _polarSensorRepository.connectToDevice(deviceId)
+    }
+
+    fun isDeviceConnected(deviceId: String) : Boolean {
+        return _polarSensorRepository.isDeviceConnected(deviceId)
     }
 
     fun startPolarRecording(deviceId: String) {
