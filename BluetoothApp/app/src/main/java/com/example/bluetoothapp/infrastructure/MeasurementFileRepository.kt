@@ -26,27 +26,23 @@ class MeasurementFileRepository(
 
             val contentResolver = applicationContext.contentResolver
 
-            Log.d("MeasurementFileRepository", "ContentValues: " + contentValues.toString())
+            //Log.d("MeasurementFileRepository", "ContentValues: " + contentValues.toString())
             
             try {
                 val uri =
                     contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
                         ?: return false
 
-                Log.d("MeasurementFileRepository", "Uri: " + uri)
-
-                Log.d("Debug", "External storage state: " + Environment.getExternalStorageState())
+                //Log.d("MeasurementFileRepository", "Uri: " + uri)
 
                 val outputStream = contentResolver.openOutputStream(uri) ?: return false
-
-                Log.d("MeasurementFileRepository", "Output stream: " + outputStream)
 
                 outputStream.use { output ->
                     BufferedWriter(OutputStreamWriter(output)).use { writer ->
                         writer.write(csvContent)
                         writer.flush()
                     }
-                    Log.d("MeasurementFileRepository", "Succeeded exporting")
+                    //Log.d("MeasurementFileRepository", "Succeeded exporting")
                 }
             }
             catch(exception : Exception) {

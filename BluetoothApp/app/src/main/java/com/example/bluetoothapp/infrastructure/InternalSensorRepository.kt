@@ -5,10 +5,12 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.SystemClock
+import android.util.Log
 import com.example.bluetoothapp.application.MeasurementService
+import com.example.bluetoothapp.domain.SensorData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 class InternalSensorRepository(
     applicationContext : Context
@@ -18,22 +20,32 @@ class InternalSensorRepository(
         applicationContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
     private var gyroscopeSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-    private var linearAccelerationSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    private var accelerometerSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
-    private val _gyroscopeData = MutableStateFlow(floatArrayOf())
-    val gyroscopeData: StateFlow<FloatArray>
-        get() = _gyroscopeData.asStateFlow()
+    private val _gyroscopeData = MutableStateFlow(SensorData())
+    val gyroscopeData: StateFlow<SensorData>
+        get() = _gyroscopeData
 
-    private val _linearAccelerationData = MutableStateFlow(floatArrayOf())
-    val linearAccelerationData: StateFlow<FloatArray>
-        get() = _linearAccelerationData.asStateFlow()
+    private val _accelerometerData = MutableStateFlow(SensorData())
+    val accelerometerData: StateFlow<SensorData>
+        get() = _accelerometerData
 
     fun startListening() : Boolean {
-        if (gyroscopeSensor == null || linearAccelerationSensor == null) {
+        /*val sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL)
+        for (sensor in sensorList) {
+            Log.d("SensorList", "Sensor: ${sensor.name}")
+        }*/
+        if (gyroscopeSensor == null || accelerometerSensor == null) {
+            if (gyroscopeSensor == null) {
+                Log.d("InternalSensorRepository", "Gyroscope sensor not available")
+            }
+            if (accelerometerSensor == null) {
+                Log.d("InternalSensorRepository", "Accelerometer sensor not available")
+            }
             return false;
         }
         sensorManager.registerListener(sensorEventListener, gyroscopeSensor, MeasurementService.SENSOR_DELAY)
-        sensorManager.registerListener(sensorEventListener, linearAccelerationSensor, MeasurementService.SENSOR_DELAY)
+        sensorManager.registerListener(sensorEventListener, accelerometerSensor, MeasurementService.SENSOR_DELAY)
         return true;
     }
 
@@ -46,10 +58,17 @@ class InternalSensorRepository(
             if (event != null) {
                 when (event.sensor.type) {
                     Sensor.TYPE_GYROSCOPE -> {
-                        _gyroscopeData.value = event.values.clone()
+                        _gyroscopeData.value = SensorData(xValue = event.values[0],
+                            yValue = event.values[1],
+                            zValue = event.values[2],
+                            timeStamp = event.timestamp)
                     }
                     Sensor.TYPE_ACCELEROMETER -> {
-                        _linearAccelerationData.value = event.values.clone()
+                        _accelerometerData.value = SensorData(
+                            xValue = event.values[0],
+                            yValue = event.values[1],
+                            zValue = event.values[2],
+                            timeStamp = event.timestamp)
                     }
                 }
             }
