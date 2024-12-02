@@ -10,10 +10,8 @@ import com.polar.sdk.api.errors.PolarInvalidArgument
 import com.polar.sdk.api.model.PolarAccelerometerData
 import com.polar.sdk.api.model.PolarDeviceInfo
 import com.polar.sdk.api.model.PolarGyroData
-import com.polar.sdk.api.model.PolarSensorSetting
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,9 +33,9 @@ class PolarSensorRepository(applicationContext: Context) {
     private var accDisposable: Disposable? = null
     private var gyrDisposable: Disposable? = null
 
-    /*private val _connectedDevices = MutableStateFlow(mutableSetOf<String>())
+    private val _connectedDevices = MutableStateFlow(mutableSetOf<String>())
     val connectedDevices: StateFlow<Set<String>>
-        get() = _connectedDevices.asStateFlow()*/
+        get() = _connectedDevices.asStateFlow()
 
     private val _connectedDevice = MutableStateFlow("")
     val connectedDevice: StateFlow<String> = _connectedDevice.asStateFlow()
@@ -54,9 +52,9 @@ class PolarSensorRepository(applicationContext: Context) {
         api.setApiCallback(object : PolarBleApiCallback() {
             override fun deviceConnected(polarDeviceInfo: PolarDeviceInfo) {
                 Log.d("PolarSensorRepository", "Device connected: ${polarDeviceInfo.deviceId}")
-                /*_connectedDevices.value = _connectedDevices.value.toMutableSet().apply {
+                _connectedDevices.value = _connectedDevices.value.toMutableSet().apply {
                     add(polarDeviceInfo.deviceId)
-                }*/
+                }
                 _connectedDevice.value = polarDeviceInfo.deviceId
             }
 
@@ -66,9 +64,9 @@ class PolarSensorRepository(applicationContext: Context) {
 
             override fun deviceDisconnected(polarDeviceInfo: PolarDeviceInfo) {
                 Log.d("PolarSensorRepository", "Device disconnected: ${polarDeviceInfo.deviceId}")
-                /*_connectedDevices.value = _connectedDevices.value.toMutableSet().apply {
+                _connectedDevices.value = _connectedDevices.value.toMutableSet().apply {
                     remove(polarDeviceInfo.deviceId)
-                }*/
+                }
                 _connectedDevice.value = ""
             }
         })
@@ -78,6 +76,7 @@ class PolarSensorRepository(applicationContext: Context) {
         Log.d("PolarSensorRepository", "Starting BLE device scan")
         return api.searchForDevice()
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext { device -> Log.d("PolarSensorRepository", "Device found: ${device.deviceId}") }
             .map { polarDeviceInfo ->
                 Device(
                     deviceId = polarDeviceInfo.deviceId,
@@ -155,15 +154,14 @@ class PolarSensorRepository(applicationContext: Context) {
            )
    }.toList()*/
 
-    /*fun isDeviceConnected(deviceId: String) : Boolean {
+    fun isDeviceConnected(deviceId: String) : Boolean {
         Log.d("PolarSensorRepository", "Device in list: ${_connectedDevices.value.contains(deviceId)}")
         return _connectedDevices.value.contains(deviceId)
-    }*/
+    }
 
     fun connectToDevice(deviceId: String) {
         try {
             api.connectToDevice(deviceId)
-            //val gatt = gatt?.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
         } catch (polarInvalidArgument: PolarInvalidArgument) {
             Log.e("PolarSensorRepository", "Failed to connect. Reason $polarInvalidArgument ")
         }
@@ -275,9 +273,13 @@ class PolarSensorRepository(applicationContext: Context) {
             deviceId = deviceId,
             dataType = PolarBleApi.PolarDeviceDataType.ACC,
             dataCallback = { data ->
-                data.samples.lastOrNull()?.let { sample ->
+                data.samples.forEach { sample ->
                     _linearAccelerationData.value = floatArrayOf(sample.x.toFloat(), sample.y.toFloat(), sample.z.toFloat())
                 }
+                /*
+                data.samples.lastOrNull()?.let { sample ->
+                    _linearAccelerationData.value = floatArrayOf(sample.x.toFloat(), sample.y.toFloat(), sample.z.toFloat())
+                }*/
             },
             errorCallback = { error ->
                 Log.e("PolarSensorRepository", "Error streaming ACC data: ${error.message}")
@@ -318,9 +320,13 @@ class PolarSensorRepository(applicationContext: Context) {
             deviceId = deviceId,
             dataType = PolarBleApi.PolarDeviceDataType.GYRO,
             dataCallback = { data ->
-                data.samples.lastOrNull()?.let { sample ->
+                data.samples.forEach { sample ->
                     _gyroscopeData.value = floatArrayOf(sample.x, sample.y, sample.z)
                 }
+                /*
+                data.samples.lastOrNull()?.let { sample ->
+                    _gyroscopeData.value = floatArrayOf(sample.x, sample.y, sample.z)
+                }*/
             },
             errorCallback = { error ->
                 Log.e("PolarSensorRepository", "Error streaming GYRO data: ${error.message}")
@@ -348,20 +354,7 @@ class PolarSensorRepository(applicationContext: Context) {
                 Log.d("PolarSensorRepository", "Settings received at: ${System.currentTimeMillis() - startTime}ms")
                 Log.d("PolarSensorRepository", "Available settings: ${availableSettings.settings}")
 
-                val supportedSampleRates = availableSettings.settings[PolarSensorSetting.SettingType.SAMPLE_RATE]
-                val supportedRanges = availableSettings.settings[PolarSensorSetting.SettingType.RANGE]
-
-                val maxSampleRate = supportedSampleRates?.maxOrNull() ?: 100
-                val selectedRange = supportedRanges?.firstOrNull() ?: 8
-
-                val desiredSettingsMap = hashMapOf<PolarSensorSetting.SettingType, Int>(
-                    PolarSensorSetting.SettingType.SAMPLE_RATE to maxSampleRate,
-                    PolarSensorSetting.SettingType.RANGE to selectedRange
-                )
-
-                val desiredSettings = PolarSensorSetting(desiredSettingsMap)
-
-                //val desiredSettings = settings.maxSettings()
+                val desiredSettings = availableSettings.maxSettings()
 
                 Log.d("PolarSensorRepository", "Desired settings: ${desiredSettings.settings}")
 
@@ -373,8 +366,8 @@ class PolarSensorRepository(applicationContext: Context) {
             }
             .doOnSubscribe { Log.d("PolarSensorRepository", "Streaming started for $dataType") }
             .doOnNext { Log.d("PolarSensorRepository", "Received data for $dataType") }
-            //.observeOn(AndroidSchedulers.mainThread())
-            .observeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            //.observeOn(Schedulers.computation())
             .doOnNext { data -> Log.d("PolarSensorRepository", "First data received at: ${System.currentTimeMillis() - startTime}ms") }
             .subscribe(
                 { data -> dataCallback(data as T) },
@@ -392,6 +385,10 @@ class PolarSensorRepository(applicationContext: Context) {
             if (_connectedDevice.value == deviceId) {
                 api.disconnectFromDevice(deviceId)
                 Log.d("PolarSensorRepository", "Disconnected from device: $deviceId")
+                _connectedDevices.value = _connectedDevices.value.toMutableSet().apply {
+                    remove(deviceId)
+                }
+                _connectedDevice.value = ""
             }
         } catch (polarInvalidArgument: PolarInvalidArgument) {
             Log.e("PolarSensorRepository", "Failed to disconnect. Reason $polarInvalidArgument ")

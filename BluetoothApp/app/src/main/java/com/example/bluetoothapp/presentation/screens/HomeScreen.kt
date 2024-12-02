@@ -33,12 +33,12 @@ fun HomeScreen(
     navController: NavHostController
 ) {
     val measurementState = measurementVM.measurementState.collectAsState()
-    val isDeviceConnected by measurementVM.connectedDevice.collectAsState()
+    val connectedDevice by measurementVM.connectedDevice.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(isDeviceConnected) {
-        if (isDeviceConnected.isEmpty() && measurementState.value.chosenDeviceId.isNotEmpty()) {
+    LaunchedEffect(connectedDevice) {
+        if (connectedDevice.isEmpty() && measurementState.value.chosenDeviceId.isNotEmpty() && connectedDevice == measurementState.value.chosenDeviceId) {
             snackbarHostState.showSnackbar("Polar device disconnected unexpectedly!")
         }
     }
@@ -65,7 +65,7 @@ fun HomeScreen(
 
                 Button(
                     onClick = {
-                        if (measurementState.value.chosenDeviceId.isEmpty()) {
+                        if (connectedDevice.isEmpty()) {
                             scope.launch {
                                 snackbarHostState.showSnackbar("No device connected. Please connect a Polar sensor first.")
                             }
