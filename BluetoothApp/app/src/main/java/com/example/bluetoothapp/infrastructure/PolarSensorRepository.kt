@@ -3,6 +3,7 @@ package com.example.bluetoothapp.infrastructure
 import android.content.Context
 import android.util.Log
 import com.example.bluetoothapp.domain.Device
+import com.example.bluetoothapp.domain.SensorData
 import com.polar.sdk.api.PolarBleApi
 import com.polar.sdk.api.PolarBleApiCallback
 import com.polar.sdk.api.PolarBleApiDefaultImpl
@@ -40,13 +41,13 @@ class PolarSensorRepository(applicationContext: Context) {
     private val _connectedDevice = MutableStateFlow("")
     val connectedDevice: StateFlow<String> = _connectedDevice.asStateFlow()
 
-    private val _gyroscopeData = MutableStateFlow(floatArrayOf())
-    val gyroscopeData: StateFlow<FloatArray>
-        get() = _gyroscopeData.asStateFlow()
+    private val _gyroscopeData = MutableStateFlow(SensorData())
+    val gyroscopeData: StateFlow<SensorData>
+        get() = _gyroscopeData
 
-    private val _linearAccelerationData = MutableStateFlow(floatArrayOf())
-    val linearAccelerationData: StateFlow<FloatArray>
-        get() = _linearAccelerationData.asStateFlow()
+    private val _accelerometerData = MutableStateFlow(SensorData())
+    val accelerometerData: StateFlow<SensorData>
+        get() = _accelerometerData
 
     init {
         api.setApiCallback(object : PolarBleApiCallback() {
@@ -274,7 +275,12 @@ class PolarSensorRepository(applicationContext: Context) {
             dataType = PolarBleApi.PolarDeviceDataType.ACC,
             dataCallback = { data ->
                 data.samples.forEach { sample ->
-                    _linearAccelerationData.value = floatArrayOf(sample.x.toFloat(), sample.y.toFloat(), sample.z.toFloat())
+                    _accelerometerData.value = SensorData(
+                        xValue = sample.x.toFloat(),
+                        yValue = sample.y.toFloat(),
+                        zValue = sample.z.toFloat(),
+                        timeStamp = sample.timeStamp
+                    )
                 }
                 /*
                 data.samples.lastOrNull()?.let { sample ->
@@ -321,7 +327,12 @@ class PolarSensorRepository(applicationContext: Context) {
             dataType = PolarBleApi.PolarDeviceDataType.GYRO,
             dataCallback = { data ->
                 data.samples.forEach { sample ->
-                    _gyroscopeData.value = floatArrayOf(sample.x, sample.y, sample.z)
+                    _gyroscopeData.value = SensorData(
+                        xValue = sample.x,
+                        yValue = sample.y,
+                        zValue = sample.z,
+                        timeStamp = sample.timeStamp
+                    )
                 }
                 /*
                 data.samples.lastOrNull()?.let { sample ->

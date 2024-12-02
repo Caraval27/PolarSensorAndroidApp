@@ -56,8 +56,8 @@ class MeasurementVM(
         return _measurementService.hasRequiredBluetoothPermissions()
     }
 
-    fun requestPermissions(requestPermissionLauncher: ActivityResultLauncher<Array<String>>) {
-        _measurementService.requestPermissions(requestPermissionLauncher)
+    fun requestBlutoothPermissions(requestPermissionLauncher: ActivityResultLauncher<Array<String>>) {
+        _measurementService.requestBluetoothPermissions(requestPermissionLauncher)
     }
 
     fun isLocationEnabled() : Boolean {

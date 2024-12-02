@@ -11,10 +11,7 @@ import com.example.bluetoothapp.domain.Measurement
 import android.Manifest
 import android.location.LocationManager
 import androidx.activity.result.ActivityResultLauncher
-import android.os.Environment
-import android.util.Log
 import kotlin.math.pow
-import androidx.compose.runtime.rememberUpdatedState
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.infrastructure.MeasurementData
 import com.example.bluetoothapp.infrastructure.MeasurementFileRepository
@@ -31,7 +28,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.atan2
-import kotlin.math.pow
 
 class MeasurementService(
     private var _applicationContext : Context,
@@ -60,7 +56,7 @@ class MeasurementService(
 
         measurementScope.launch {
             _internalSensorRepository.accelerometerData
-                .filter { it.timeStamp > 0 }
+                .filter { it.timeStamp >= 0 }
                 .zip(_internalSensorRepository.gyroscopeData
                     .filter { it.timeStamp >= 0 }) { accelerometerData, gyroscopeData ->
                     Pair(accelerometerData, gyroscopeData)
@@ -84,21 +80,27 @@ class MeasurementService(
                 }
         }
 
-        /*measurementScope.launch {
-            _polarSensorRepository.linearAccelerationData
-                .filter { it.isNotEmpty() }
+        measurementScope.launch {
+            _polarSensorRepository.accelerometerData
+                .filter { it.timeStamp >= 0 }
                 .zip(_polarSensorRepository.gyroscopeData
-                    .filter { it.isNotEmpty() }) { linearAcceleration, angularVelocity ->
-                Pair(linearAcceleration, angularVelocity)
-            }.collect { sample ->
-                val linearSample = calculateElevationLinear(sample.first[1], sample.first[2])
-                applyLinearFilter(linearSample, 0.2f)
-                val angularSample = calculateElevationAngular(sample.second[0])
-                //applyFusionFilter(linearSample, angularSample)
-                    _measurement.value = _measurement.value.copy(fusionFilteredSamples = _measurement.value.fusionFilteredSamples + angularSample)
-
+                    .filter { it.timeStamp >= 0 }) { accelerometerData, gyroscopeData ->
+                Pair(accelerometerData, gyroscopeData)
+            }.collect { sensorData ->
+                val linearSample = calculateElevationLinear(sensorData.first.yValue, sensorData.first.zValue)
+                applyLinearFilter(linearSample)
+                    val angularSample : Float
+                    if (_lastAngularSample == null) {
+                        angularSample = linearSample
+                        _lastAngularSample = angularSample
+                        _lastAngularTimeStamp = sensorData.second.timeStamp
+                    }
+                    else {
+                        angularSample = calculateElevationAngular(sensorData.second.xValue, sensorData.second.timeStamp)
+                    }
+                    applyFusionFilter(linearSample, angularSample)
                 }
-        }*/
+        }
     }
 
     private fun calculateElevationLinear(yValue: Float, zValue: Float) : Float {
@@ -227,7 +229,7 @@ class MeasurementService(
         }*/
     }
 
-    fun requestPermissions(requestPermissionLauncher: ActivityResultLauncher<Array<String>>) {
+    fun requestBluetoothPermissions(requestPermissionLauncher: ActivityResultLauncher<Array<String>>) {
         val permissions = when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> arrayOf(
                 Manifest.permission.BLUETOOTH_SCAN,
