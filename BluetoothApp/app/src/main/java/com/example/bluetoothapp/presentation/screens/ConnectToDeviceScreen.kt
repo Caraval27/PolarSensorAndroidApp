@@ -42,15 +42,5 @@ fun ConnectToDeviceScreen(
         ) {
             DeviceScan(requestPermissionLauncher, measurementVM)
         }
-
-        Button(
-            onClick = {
-                measurementVM.setSensorType(SensorType.Internal)
-                navController.navigate("home")
-            },
-            modifier = Modifier.fillMaxWidth(0.5f)
-        ) {
-            Text("Back to Home")
-        }
     }
 }

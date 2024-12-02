@@ -135,21 +135,6 @@ fun PlotScreen(
                         Text("Export values")
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        if (measurementState.value.ongoing) {
-                            measurementVM.stopRecording()
-                        }
-                        measurementVM.setExported(null)
-                        navController.navigate("home")
-                    },
-                    modifier = Modifier.fillMaxWidth(0.6f)
-                ) {
-                    Text("Home")
-                }
             }
         }
     )
