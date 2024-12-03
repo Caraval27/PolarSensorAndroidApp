@@ -11,7 +11,6 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
-import kotlin.math.pow
 
 fun setupLineChart(
     lineChart: LineChart,
@@ -21,12 +20,10 @@ fun setupLineChart(
     visibleRange: Int = 50
 ) {
     val linearEntries = linearValues.map { sample ->
-        //Log.d("setUpChart", "Linear timestamp: " + sample.timeStamp.toFloat() / 10.0f.pow(9))
         Entry(sample.sequenceNumber.toFloat(), sample.value)
     }
 
     val fusionEntries = fusionValues.map { sample ->
-        //Log.d("setUpChart", " Angular timestamp: " + sample.timeStamp.toFloat() / 10.0f.pow(9))
         Entry(sample.sequenceNumber.toFloat(), sample.value)
     }
 
@@ -51,7 +48,7 @@ fun setupLineChart(
         if (recordingState == RecordingState.Ongoing) {
             setTouchEnabled(false)
         } else {
-            setTouchEnabled(false)
+            setTouchEnabled(true)
         }
         setBackgroundColor(Color.rgb(46, 52, 64))
         setNoDataText("No data available")
