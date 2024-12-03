@@ -71,7 +71,7 @@ fun HistoryScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "No history available.",
+                    text = "No history available",
                     style = MaterialTheme.typography.titleMedium,
                     fontFamily = FontFamily.Monospace
                 )

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -21,6 +22,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
@@ -55,6 +58,24 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                Text(
+                    text = "Measure arm elevation",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier
+                        .padding(bottom = 8.dp),
+                    fontFamily = FontFamily.Monospace
+                )
+
+                Text(
+                    text = "Strap your sensor to your arm with the appropriate orientation",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = FontFamily.Monospace,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
+
+                )
                 Button(
                     onClick = { navController.navigate("connect") },
                     modifier = Modifier.fillMaxWidth(0.7f)
@@ -68,7 +89,7 @@ fun HomeScreen(
                     onClick = {
                         if (connectedDevice.isEmpty()) {
                             scope.launch {
-                                snackbarHostState.showSnackbar("No device connected. Please connect a Polar sensor first.")
+                                snackbarHostState.showSnackbar("No Polar sensor connected")
                             }
                         } else {
                             measurementVM.setSensorType(SensorType.Polar)

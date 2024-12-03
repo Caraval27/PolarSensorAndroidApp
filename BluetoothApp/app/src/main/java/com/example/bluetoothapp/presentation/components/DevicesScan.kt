@@ -102,7 +102,7 @@ fun DeviceScan(
                     modifier = Modifier.fillMaxWidth(0.6f)
                 ) {
                     Text(
-                        if (isScanning) "Stop scanning" else "Search for devices",
+                        if (isScanning) "Stop scanning" else "Start scanning",
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Center,
                         fontFamily = FontFamily.Monospace
@@ -125,7 +125,7 @@ fun DeviceScan(
 
                 if (devices.isNotEmpty()) {
                     Text(
-                        "Select a Device",
+                        "Select a device",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
@@ -151,7 +151,7 @@ fun DeviceScan(
                     }
                 } else if (!isScanning) {
                     Text(
-                        "No devices found. \nPress search to start scanning.",
+                        "No devices available",
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Center,
                         fontFamily = FontFamily.Monospace
@@ -175,7 +175,7 @@ fun DeviceItem(device: Device, onSelect: (Device) -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(text = device.name ?: "Unknown Device", style = MaterialTheme.typography.bodyLarge)
+                Text(text = device.name ?: "Unknown device", style = MaterialTheme.typography.bodyLarge)
                 Text(text = "ID: ${device.deviceId}", style = MaterialTheme.typography.bodyMedium)
             }
         }
