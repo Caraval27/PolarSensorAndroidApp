@@ -13,8 +13,6 @@ import com.example.bluetoothapp.application.MeasurementService
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.domain.Measurement
 import com.example.bluetoothapp.domain.SensorType
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -76,8 +74,8 @@ class MeasurementVM(
                 val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                 try {
                     activity?.startActivityForResult(enableBtIntent, 1)
-                } catch (e: SecurityException) {
-                    Log.e("MeasurementVM", "Bluetooth enable request failed: ${e.message}")
+                } catch (exception : SecurityException) {
+                    Log.d("MeasurementVM", "Exception occurred: ", exception)
                 }
             }
 
@@ -103,29 +101,20 @@ class MeasurementVM(
                     if (device.isConnectable && !_devices.value.contains(device))
                         _devices.value += device
                 }
-            Log.d("MeasurementVM", devices.value.last().deviceId)
         }
     }
 
     fun connectToDevice(deviceId: String) {
         viewModelScope.launch {
-            try {
-                _measurementService.connectToPolarDevice(deviceId)
-                _measurementState.value = _measurementState.value.copy(chosenDeviceId = deviceId)
-            } catch (e: Exception) {
-                Log.e("MeasurementVM", "Error connecting to device: ${e.message}")
-            }
+            _measurementService.connectToPolarDevice(deviceId)
+            _measurementState.value = _measurementState.value.copy(chosenDeviceId = deviceId)
         }
     }
 
     fun disconnectFromDevice(deviceId: String) {
         viewModelScope.launch {
-            try {
-                _measurementService.disconnectFromPolarDevice(deviceId)
-                _measurementState.value = _measurementState.value.copy(chosenDeviceId = "")
-            } catch (e: Exception) {
-                Log.e("MeasurementVM", "Error disconnecting from device: ${e.message}")
-            }
+            _measurementService.disconnectFromPolarDevice(deviceId)
+            _measurementState.value = _measurementState.value.copy(chosenDeviceId = "")
         }
     }
 
@@ -136,7 +125,7 @@ class MeasurementVM(
                 SensorType.Internal -> _measurementService.startInternalRecording()
             }
             _measurement.value = _measurement.value.copy(
-                _timeMeasured = LocalDateTime.now(),
+                timeMeasured = LocalDateTime.now(),
                 sensorType = _measurementState.value.sensorType
             )
         }
@@ -145,8 +134,8 @@ class MeasurementVM(
     fun stopRecording() {
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
-                SensorType.Polar -> _measurementService.stopPolarRecording(_measurement.value)
-                SensorType.Internal -> _measurementService.stopInternalRecording(_measurement.value)
+                SensorType.Polar -> _measurementService.stopPolarRecording()
+                SensorType.Internal -> _measurementService.stopInternalRecording()
             }
             setRecordingState(RecordingState.Done)
         }
@@ -196,12 +185,6 @@ class MeasurementVM(
 
     fun setSaved(saved: Boolean?) {
         _measurementState.value = _measurementState.value.copy(saved = saved)
-    }
-
-    fun clearDb() {
-        CoroutineScope(Dispatchers.IO).launch {
-            _measurementService.clearDb()
-        }
     }
 }
 

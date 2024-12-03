@@ -19,8 +19,8 @@ class InternalSensorRepository(
     private val sensorManager: SensorManager =
         applicationContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
-    private var gyroscopeSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-    private var accelerometerSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    private val gyroscopeSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+    private val accelerometerSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
     private val _gyroscopeData = MutableStateFlow(SensorData())
     val gyroscopeData: StateFlow<SensorData>
@@ -30,23 +30,13 @@ class InternalSensorRepository(
     val accelerometerData: StateFlow<SensorData>
         get() = _accelerometerData
 
-    fun startListening() : Boolean {
-        /*val sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL)
-        for (sensor in sensorList) {
-            Log.d("SensorList", "Sensor: ${sensor.name}")
-        }*/
-        if (gyroscopeSensor == null || accelerometerSensor == null) {
-            if (gyroscopeSensor == null) {
-                Log.d("InternalSensorRepository", "Gyroscope sensor not available")
-            }
-            if (accelerometerSensor == null) {
-                Log.d("InternalSensorRepository", "Accelerometer sensor not available")
-            }
-            return false;
+    fun startListening() {
+        if (gyroscopeSensor != null) {
+            sensorManager.registerListener(sensorEventListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
         }
-        sensorManager.registerListener(sensorEventListener, gyroscopeSensor, MeasurementService.SENSOR_DELAY)
-        sensorManager.registerListener(sensorEventListener, accelerometerSensor, MeasurementService.SENSOR_DELAY)
-        return true;
+        if (accelerometerSensor != null) {
+            sensorManager.registerListener(sensorEventListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL)
+        }
     }
 
     fun stopListening() {
@@ -75,7 +65,6 @@ class InternalSensorRepository(
         }
 
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-            //kanske fixa sen
         }
     }
 

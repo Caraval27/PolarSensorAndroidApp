@@ -46,7 +46,7 @@ class MeasurementFileRepository(
                 }
             }
             catch(exception : Exception) {
-                Log.e("MeasurementFileRepository", "Exception occurred", exception)
+                Log.e("MeasurementFileRepository", "Exception occurred: ", exception)
                 return false
             }
         } else {
@@ -57,7 +57,7 @@ class MeasurementFileRepository(
                 file.writeText(csvContent)
             }
             catch(exception : Exception) {
-                Log.e("MeasurementFileRepository", "Exception occurred", exception)
+                Log.e("MeasurementDao", "Exception occurred: ", exception)
                 return false;
             }
         }

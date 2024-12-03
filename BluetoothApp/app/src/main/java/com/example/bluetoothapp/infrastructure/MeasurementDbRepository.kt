@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class MeasurementDbRepository(
-    private val applicationContext: Context
+    applicationContext: Context
 ) {
     private val db = Room.databaseBuilder(
         applicationContext,
@@ -52,8 +52,8 @@ class MeasurementDbRepository(
         return measurementEntities.map { measurementEntity ->
             measurementEntity.let {
                 Measurement(
-                    _id = it.id,
-                    _timeMeasured = LocalDateTime.parse(it.timeMeasured, DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                    id = it.id,
+                    timeMeasured = LocalDateTime.parse(it.timeMeasured, DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                     singleFilteredSamples = toSamples(it.singleFilteredSamples),
                     fusionFilteredSamples = toSamples(it.fusionFilteredSamples),
                     sensorType = SensorType.valueOf(it.sensorType)
@@ -69,9 +69,5 @@ class MeasurementDbRepository(
                 sequenceNumber = sampleEntity.timeStamp
             )
         }
-    }
-
-    fun clearDb() {
-        applicationContext.deleteDatabase("measurement_db")
     }
 }
