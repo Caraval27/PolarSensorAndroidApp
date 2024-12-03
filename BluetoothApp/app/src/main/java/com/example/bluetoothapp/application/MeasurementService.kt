@@ -31,7 +31,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.math.atan2
 
 class MeasurementService(
-    private var _applicationContext : Context,
+    private val _applicationContext : Context,
 ) {
     private val _measurement : MutableStateFlow<Measurement> = MutableStateFlow(Measurement())
     val measurement: StateFlow<Measurement>
@@ -46,22 +46,16 @@ class MeasurementService(
 
     val connectedDevice: StateFlow<String> = _polarSensorRepository.connectedDevice
 
-    companion object {
-        const val SENSOR_DELAY = 60000
-    }
-
     init {
         val measurementScope = CoroutineScope(Dispatchers.Default + Job())
 
         measurementScope.launch {
             _internalSensorRepository.accelerometerData
                 .filter { it.timeStamp >= 0 }
-                .combine(_internalSensorRepository.gyroscopeData
+                .zip(_internalSensorRepository.gyroscopeData
                     .filter { it.timeStamp >= 0 }) { accelerometerData, gyroscopeData ->
                     Pair(accelerometerData, gyroscopeData)
                 }.collect { sensorData ->
-                    //Log.d("MeasurementService","Linear values: " + sensorData.first.xValue + " " + sensorData.first.yValue + " " + sensorData.first.zValue)
-                    //Log.d("MeasurementService","Angular values: " + sensorData.second.xValue + " " + sensorData.second.yValue + " " + sensorData.second.zValue)
 
                     val linearValue = calculateElevationAccelerometer(
                         sensorData.first.yValue,
@@ -89,7 +83,6 @@ class MeasurementService(
                             sequenceNumber = (_measurement.value.fusionFilteredSamples.lastOrNull()?.sequenceNumber ?: -1) + 1
                         )
                     )
-                    //Log.d("MeasurementService", "Linear timestamp: " + linearTimeStamp + " Angular timestamp: " + angularTimeStamp)
                 }
         }
 
@@ -100,8 +93,6 @@ class MeasurementService(
                     .filter { it.isNotEmpty() }) { accelerometerDataList, gyroscopeDataList ->
                 accelerometerData.zip(gyroscopeDataList)
                 }.collect { sensorDataList ->
-                    //Log.d("MeasurementService","Linear values: " + sensorData.first.xValue + " " + sensorData.first.yValue + " " + sensorData.first.zValue)
-                    //Log.d("MeasurementService","Angular values: " + sensorData.second.xValue + " " + sensorData.second.yValue + " " + sensorData.second.zValue)
                     for (sensorData in sensorDataList) {
                         val linearValue = calculateElevationAccelerometer(
                             sensorData.first.yValue,
@@ -135,14 +126,12 @@ class MeasurementService(
                             )
                         )
                     }
-                    //Log.d("MeasurementService", "Linear timestamp: " + linearTimeStamp + " Angular timestamp: " + angularTimeStamp)
                 }
         }
     }
 
     private fun calculateElevationAccelerometer(yValue: Float, zValue: Float) : Float {
         val angle = Math.toDegrees(atan2(zValue, yValue).toDouble()).toFloat()
-        //Log.d("MeasurementService", "angle: " + angleDegrees)
         return angle
     }
 
@@ -150,12 +139,9 @@ class MeasurementService(
         val deltaTime = (timeStamp - _lastGyroscopeTimeStamp) / 10.0f.pow(9)
         _lastGyroscopeTimeStamp = timeStamp
         var angle = -xValue * deltaTime
-        //Log.d("MeasurementService", "Difference in angle: " + angle)
-        //Log.d("MeasurementService", "Last angle: " + _lastAngularSample)
         _measurement.value.fusionFilteredSamples.lastOrNull()?.let {
             angle += it.value
         }
-        //Log.d("MeasurementService", "New angle: " + angle)
         return angle
     }
 
@@ -164,7 +150,6 @@ class MeasurementService(
         var singleFilteredValue = linearValue
         if (_measurement.value.singleFilteredSamples.isNotEmpty()) {
             singleFilteredValue = filterFactor * linearValue + (1 - filterFactor) * _measurement.value.singleFilteredSamples.last().value
-            //Log.d("MeasurementService", "linear sample: " + linearSample + " last linear sample: " + _measurement.value.linearFilteredSamples.last() + " filtered sample: " + linearFilteredSample)
         }
         return singleFilteredValue
     }
@@ -172,7 +157,6 @@ class MeasurementService(
     private fun applyFusionFilter(linearValue: Float, angularValue: Float) : Float {
         val filterFactor = 0.2f
         val fusionFilteredValue = filterFactor * linearValue + (1 - filterFactor) * angularValue
-        //Log.d("MeasurementService", "linear sample: " + linearSample + " angular sample: " + angularSample + " result: " + fusionFilteredSample)
         return fusionFilteredValue
     }
 
@@ -184,13 +168,13 @@ class MeasurementService(
         return _measurementDbRepository.getMeasurements()
     }
 
-    fun startInternalRecording() : Boolean {
+    fun startInternalRecording() {
         _measurement.value = Measurement()
         _lastGyroscopeTimeStamp = -1
-        return  _internalSensorRepository.startListening()
+        _internalSensorRepository.startListening()
     }
 
-    suspend fun stopInternalRecording(measurement: Measurement) {
+    fun stopInternalRecording() {
         _internalSensorRepository.stopListening()
     }
 
@@ -246,19 +230,14 @@ class MeasurementService(
         _polarSensorRepository.connectToDevice(deviceId)
     }
 
-    fun isDeviceConnected(deviceId: String) : Boolean {
-        return _polarSensorRepository.isDeviceConnected(deviceId)
-    }
-
     fun startPolarRecording(deviceId: String) {
         _measurement.value = Measurement()
-        //_lastAngularSample = null
         _lastGyroscopeTimeStamp = -1
         _polarSensorRepository.startAccStreaming(deviceId)
         _polarSensorRepository.startGyroStreaming(deviceId)
     }
 
-    suspend fun stopPolarRecording(measurement: Measurement) {
+    fun stopPolarRecording() {
         _polarSensorRepository.stopStreaming()
     }
 
@@ -273,9 +252,5 @@ class MeasurementService(
         }
         return _measurementFileRepository.exportCsvToDownloads("ElevationAngle" +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")), csvContent)
-    }
-
-    fun clearDb() {
-        _measurementDbRepository.clearDb()
     }
 }

@@ -18,8 +18,8 @@ interface MeasurementDao {
             insertMeasurementSamples(measurementEntity.singleFilteredSamples)
             insertMeasurementSamples(measurementEntity.fusionFilteredSamples)
             return true
-        } catch (e: Exception) {
-            Log.e("MeasurementDao", "Exception occurred: ${e.localizedMessage}", e)
+        } catch (exception: Exception) {
+            Log.e("MeasurementDao", "Exception occurred: ", exception)
             return false
         }
     }
@@ -41,8 +41,8 @@ interface MeasurementDao {
                }
             }
             measurements ?: emptyList()
-        } catch (e: Exception) {
-            Log.e("MeasurementDao", "Exception occurred: ${e.localizedMessage}", e)
+        } catch (exception: Exception) {
+            Log.e("MeasurementDao", "Exception occurred: ", exception)
             emptyList()
         }
     }
