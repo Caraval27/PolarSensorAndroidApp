@@ -59,7 +59,7 @@ fun DeviceScan(
             isScanning = true
             measurementVM.searchForDevices()
         } else if (measurementState.value.permissionsGranted == false) {
-            snackbarHostState.showSnackbar(message = "Permission to scan denied")
+            snackbarHostState.showSnackbar(message = "Bluetooth permissions denied")
         }
     }
 
@@ -114,6 +114,7 @@ fun DeviceScan(
                     Text(
                         "Select a device",
                         style = MaterialTheme.typography.titleMedium,
+                        fontFamily = FontFamily.Monospace,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                     LazyColumn(
