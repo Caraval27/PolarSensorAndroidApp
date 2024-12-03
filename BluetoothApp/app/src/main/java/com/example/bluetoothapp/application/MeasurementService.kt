@@ -148,7 +148,7 @@ class MeasurementService(
     }
 
     private fun applySingleFilter(linearValue : Float) : Float {
-        val filterFactor = 0.7f
+        val filterFactor = 0.3f
         var singleFilteredValue = linearValue
         if (_measurement.value.singleFilteredSamples.isNotEmpty()) {
             singleFilteredValue = filterFactor * linearValue + (1 - filterFactor) * _measurement.value.singleFilteredSamples.last().value
@@ -157,7 +157,7 @@ class MeasurementService(
     }
 
     private fun applyFusionFilter(linearValue: Float, angularValue: Float) : Float {
-        val filterFactor = 0.2f
+        val filterFactor = 0.3f
         val fusionFilteredValue = filterFactor * linearValue + (1 - filterFactor) * angularValue
         return fusionFilteredValue
     }
