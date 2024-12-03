@@ -128,7 +128,6 @@ class MeasurementVM(
     }
 
     fun startRecording() {
-        clearDb()
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
                 SensorType.Polar -> _measurementService.startPolarRecording(_measurementState.value.chosenDeviceId)
