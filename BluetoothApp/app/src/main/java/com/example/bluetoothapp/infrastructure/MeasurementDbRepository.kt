@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.example.bluetoothapp.domain.FilterType
 import com.example.bluetoothapp.domain.Measurement
 import com.example.bluetoothapp.domain.Sample
+import com.example.bluetoothapp.domain.SensorType
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -26,6 +27,7 @@ class MeasurementDbRepository(
     private fun toMeasurementEntity(measurement: Measurement) : MeasurementEntity {
         return MeasurementEntity(
             timeMeasured = measurement.timeMeasured.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+            sensorType = measurement.sensorType.toString(),
             singleFilteredSamples = toSampleEntities(measurement.singleFilteredSamples, FilterType.Single),
             fusionFilteredSamples = toSampleEntities(measurement.fusionFilteredSamples, FilterType.Fusion)
         )
@@ -53,7 +55,8 @@ class MeasurementDbRepository(
                     _id = it.id,
                     _timeMeasured = LocalDateTime.parse(it.timeMeasured, DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                     singleFilteredSamples = toSamples(it.singleFilteredSamples),
-                    fusionFilteredSamples = toSamples(it.fusionFilteredSamples)
+                    fusionFilteredSamples = toSamples(it.fusionFilteredSamples),
+                    sensorType = SensorType.valueOf(it.sensorType)
                 )
             }
         }

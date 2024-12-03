@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.bluetoothapp.application.MeasurementService
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.domain.Measurement
+import com.example.bluetoothapp.domain.SensorType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -133,11 +134,15 @@ class MeasurementVM(
                 SensorType.Polar -> _measurementService.startPolarRecording(_measurementState.value.chosenDeviceId)
                 SensorType.Internal -> _measurementService.startInternalRecording()
             }
-            _measurement.value = _measurement.value.copy(_timeMeasured = LocalDateTime.now()) }
+            _measurement.value = _measurement.value.copy(
+                _timeMeasured = LocalDateTime.now(),
+                sensorType = _measurementState.value.sensorType
+            )
+        }
     }
 
     fun stopRecording() {
-        clearDb()n
+        clearDb()
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
                 SensorType.Polar -> _measurementService.stopPolarRecording(_measurement.value)
@@ -202,11 +207,6 @@ enum class RecordingState {
     Requested,
     Ongoing,
     Done
-}
-
-enum class SensorType {
-    Polar,
-    Internal
 }
 
 data class MeasurementState(

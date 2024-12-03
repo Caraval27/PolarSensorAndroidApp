@@ -81,7 +81,7 @@ class MeasurementService(
                         _lastAngularSample = angularValue
                         _lastGyroscopeTimeStamp = sensorData.second.timeStamp
                     } else {
-                        angularValue = calculateElevationAngular(sensorData.second.xValue, sensorData.second.timeStamp)
+                        angularValue = calculateElevationAngular(Math.toDegrees(sensorData.second.xValue.toDouble()).toFloat(), sensorData.second.timeStamp)
                     }
                     val fusionFilteredValue = applyFusionFilter(linearValue, angularValue)
                     _measurement.value = _measurement.value.copy(
@@ -145,7 +145,7 @@ class MeasurementService(
     private fun calculateElevationAngular(xValue: Float, timeStamp: Long ) : Float {
         val deltaTime = (timeStamp - _lastGyroscopeTimeStamp) / 10.0f.pow(9)
         _lastGyroscopeTimeStamp = timeStamp
-        var angle = Math.toDegrees((-xValue * deltaTime).toDouble()).toFloat()
+        var angle = -xValue * deltaTime
         //Log.d("MeasurementService", "Difference in angle: " + angle)
         //Log.d("MeasurementService", "Last angle: " + _lastAngularSample)
         _lastAngularSample?.let {
