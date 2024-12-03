@@ -48,13 +48,25 @@ fun PlotScreen(
 
     LaunchedEffect(measurementState.value.exported) {
         val message = when (measurementState.value.exported) {
-            true -> "Done exporting CSV file"
+            true -> "CSV file exported"
             false -> "Failed exporting CSV file"
             null -> null
         }
         if (message != null) {
             snackbarHostState.showSnackbar(message = message)
             measurementVM.setExported(null)
+        }
+    }
+
+    LaunchedEffect(measurementState.value.saved) {
+        val message = when (measurementState.value.saved) {
+            true -> "Measurement data saved"
+            false -> "Failed saving measurement data"
+            null -> null
+        }
+        if (message != null) {
+            snackbarHostState.showSnackbar(message = message)
+            measurementVM.setSaved(null)
         }
     }
 

@@ -10,13 +10,15 @@ import androidx.room.Transaction
 @Dao
 interface MeasurementDao {
     @Transaction
-    suspend fun insertMeasurementWithSamples(measurementEntity: MeasurementEntity) {
+    suspend fun insertMeasurementWithSamples(measurementEntity: MeasurementEntity) : Boolean {
         try {
             val generatedId = insertMeasurement(measurementEntity).toInt()
             measurementEntity.sampleEntities.forEach{ it.measurementId = generatedId }
             insertMeasurementSamples(measurementEntity.sampleEntities)
+            return true
         } catch (e: Exception) {
-            Log.e("MeasurementDao", "Exception occured: ${e.localizedMessage}", e)
+            Log.e("MeasurementDao", "Exception occurred: ${e.localizedMessage}", e)
+            return false
         }
     }
 

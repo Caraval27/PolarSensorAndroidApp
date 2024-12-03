@@ -59,7 +59,7 @@ class MeasurementVM(
         return _measurementService.hasRequiredBluetoothPermissions()
     }
 
-    fun requestBlutoothPermissions(requestPermissionLauncher: ActivityResultLauncher<Array<String>>) {
+    fun requestBluetoothPermission(requestPermissionLauncher: ActivityResultLauncher<Array<String>>) {
         _measurementService.requestBluetoothPermissions(requestPermissionLauncher)
     }
 
@@ -129,7 +129,8 @@ class MeasurementVM(
     fun saveRecording() {
         _measurementState.value = _measurementState.value.copy(recordingState = RecordingState.Done)
         viewModelScope.launch {
-            _measurementService.saveRecording(_measurement.value)
+            val saved = _measurementService.saveRecording(_measurement.value)
+            _measurementState.value = _measurementState.value.copy(saved = saved)
         }
     }
 
@@ -162,6 +163,10 @@ class MeasurementVM(
         _measurementState.value = _measurementState.value.copy(exported = exported)
     }
 
+    fun setSaved(saved: Boolean?) {
+        _measurementState.value = _measurementState.value.copy(saved = saved)
+    }
+
     fun clearDb() {
         CoroutineScope(Dispatchers.IO).launch {
             _measurementService.clearDb()
@@ -184,5 +189,6 @@ data class MeasurementState(
     val sensorType: SensorType = SensorType.Internal,
     val chosenDeviceId: String = "",
     val recordingState: RecordingState = RecordingState.Requested,
-    val exported: Boolean? = null
+    val exported: Boolean? = null,
+    val saved: Boolean? = null
 )

@@ -141,7 +141,7 @@ class MeasurementService(
         _measurement.value = _measurement.value.copy(fusionFilteredSamples = _measurement.value.fusionFilteredSamples + fusionFilteredSample)
     }
 
-    suspend fun saveRecording(measurement: Measurement) {
+    suspend fun saveRecording(measurement: Measurement) : Boolean {
 
         val measurementData = MeasurementData(
             id = measurement.id,
@@ -153,7 +153,7 @@ class MeasurementService(
                 )
             }
         )
-        _measurementDbRepository.insertMeasurement(measurementData)
+        return _measurementDbRepository.insertMeasurement(measurementData)
     }
 
     suspend fun getMeasurementsHistory() : MutableList<Measurement> {

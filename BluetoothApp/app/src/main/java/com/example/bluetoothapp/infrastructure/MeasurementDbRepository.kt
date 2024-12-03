@@ -15,9 +15,9 @@ class MeasurementDbRepository(
 
     private val dao = db.measurementDao()
 
-    suspend fun insertMeasurement(measurement: MeasurementData) {
+    suspend fun insertMeasurement(measurement: MeasurementData) : Boolean {
         val measurementEntity = toMeasurementEntity(measurement)
-        dao.insertMeasurementWithSamples(measurementEntity)
+        return dao.insertMeasurementWithSamples(measurementEntity)
     }
 
     private fun toMeasurementEntity(measurement: MeasurementData) : MeasurementEntity {
