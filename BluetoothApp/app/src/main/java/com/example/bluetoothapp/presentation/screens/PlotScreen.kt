@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.components.LineChart
@@ -98,7 +99,7 @@ fun PlotScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                var headerText = when (measurementState.value.recordingState) {
+                val headerText = when (measurementState.value.recordingState) {
                     RecordingState.Requested -> "Loading..."
                     RecordingState.Ongoing -> "Measuring..."
                     RecordingState.Done -> measurement.value.sensorType.toString() + " sensor\n" +
@@ -108,6 +109,7 @@ fun PlotScreen(
                     text = headerText,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 16.dp),
+                    textAlign = TextAlign.Center,
                     fontFamily = FontFamily.Monospace
                 )
 
