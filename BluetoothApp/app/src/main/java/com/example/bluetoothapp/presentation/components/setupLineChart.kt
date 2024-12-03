@@ -51,8 +51,7 @@ fun setupLineChart(
         if (recordingState == RecordingState.Ongoing) {
             setTouchEnabled(false)
         } else {
-            setPinchZoom(true)
-            setScaleEnabled(true)
+            setTouchEnabled(false)
         }
         setBackgroundColor(Color.rgb(46, 52, 64))
         setNoDataText("No data available")
