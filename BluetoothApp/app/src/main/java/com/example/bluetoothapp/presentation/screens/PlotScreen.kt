@@ -82,6 +82,7 @@ fun PlotScreen(
         if (measurementState.value.recordingState == RecordingState.Ongoing) {
             measurementVM.stopRecording()
         }
+        measurementVM.setSaved(null)
         measurementVM.setExported(null)
         navController.popBackStack()
     }
@@ -109,9 +110,9 @@ fun PlotScreen(
                     fontFamily = FontFamily.Monospace
                 )
 
-                if (measurementState.value.recordingState != RecordingState.Requested && measurement.value.linearFilteredSamples.isNotEmpty() && measurement.value.fusionFilteredSamples.isNotEmpty()) {
+                if (measurementState.value.recordingState != RecordingState.Requested && measurement.value.singleFilteredSamples.isNotEmpty() && measurement.value.fusionFilteredSamples.isNotEmpty()) {
                     LineChart(
-                        linearValues = measurement.value.linearFilteredSamples,
+                        linearValues = measurement.value.singleFilteredSamples,
                         fusionValues = measurement.value.fusionFilteredSamples,
                         recordingState = measurementState.value.recordingState
                     )

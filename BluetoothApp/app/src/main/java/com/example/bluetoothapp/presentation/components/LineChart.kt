@@ -6,13 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.bluetoothapp.domain.Sample
 import com.example.bluetoothapp.presentation.viewModel.RecordingState
 import com.github.mikephil.charting.charts.LineChart
 
 @Composable
 fun LineChart(
-    linearValues: List<Float>,
-    fusionValues: List<Float>,
+    linearValues: List<Sample>,
+    fusionValues: List<Sample>,
     recordingState: RecordingState
 ) {
     AndroidView(

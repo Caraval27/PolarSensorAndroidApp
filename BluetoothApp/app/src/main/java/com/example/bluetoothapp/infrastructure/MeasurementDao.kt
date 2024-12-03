@@ -3,9 +3,9 @@ package com.example.bluetoothapp.infrastructure
 import android.util.Log
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.example.bluetoothapp.domain.FilterType
 
 @Dao
 interface MeasurementDao {
@@ -13,8 +13,10 @@ interface MeasurementDao {
     suspend fun insertMeasurementWithSamples(measurementEntity: MeasurementEntity) : Boolean {
         try {
             val generatedId = insertMeasurement(measurementEntity).toInt()
-            measurementEntity.sampleEntities.forEach{ it.measurementId = generatedId }
-            insertMeasurementSamples(measurementEntity.sampleEntities)
+            measurementEntity.singleFilteredSamples.forEach{ it.measurementId = generatedId }
+            measurementEntity.fusionFilteredSamples.forEach { it.measurementId = generatedId }
+            insertMeasurementSamples(measurementEntity.singleFilteredSamples)
+            insertMeasurementSamples(measurementEntity.fusionFilteredSamples)
             return true
         } catch (e: Exception) {
             Log.e("MeasurementDao", "Exception occurred: ${e.localizedMessage}", e)
@@ -22,10 +24,10 @@ interface MeasurementDao {
         }
     }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertMeasurement(measurementEntity: MeasurementEntity) : Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertMeasurementSamples(sampleEntities: List<SampleEntity>)
 
     @Transaction
@@ -34,7 +36,8 @@ interface MeasurementDao {
             val measurements = getAllMeasurements()
             measurements?.forEach { measurement ->
                measurement.let {
-                   it.sampleEntities = getSamplesByMeasurementId(it.id)
+                   it.singleFilteredSamples = getSamplesByMeasurementIdAndSensorType(it.id, FilterType.Single.toString())
+                   it.fusionFilteredSamples = getSamplesByMeasurementIdAndSensorType(it.id, FilterType.Fusion.toString())
                }
             }
             measurements ?: emptyList()
@@ -54,8 +57,8 @@ interface MeasurementDao {
     @Query("""
         SELECT *
         FROM sample
-        WHERE measurement_id = :measurementId
-        ORDER BY sequence_number ASC
+        WHERE measurement_id = :measurementId AND filter_type = :filterType
+        ORDER BY time_stamp ASC
     """)
-    suspend fun getSamplesByMeasurementId(measurementId: Int): List<SampleEntity>
+    suspend fun getSamplesByMeasurementIdAndSensorType(measurementId: Int, filterType: String): List<SampleEntity>
 }

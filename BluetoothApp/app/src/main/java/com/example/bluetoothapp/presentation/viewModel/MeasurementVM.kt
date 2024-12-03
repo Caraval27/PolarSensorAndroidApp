@@ -24,8 +24,8 @@ class MeasurementVM(
     val measurement: StateFlow<Measurement>
         get() = _measurement
 
-    private val _measurementHistory = MutableStateFlow(mutableListOf<Measurement>())
-    val measurementHistory: StateFlow<MutableList<Measurement>>
+    private val _measurementHistory = MutableStateFlow<List<Measurement>>(emptyList())
+    val measurementHistory: StateFlow<List<Measurement>>
         get() = _measurementHistory
 
     private val _devices = MutableStateFlow<List<Device>>(emptyList())
@@ -48,7 +48,7 @@ class MeasurementVM(
                     _measurementState.value = _measurementState.value.copy(recordingState = RecordingState.Ongoing)
                 }
                 _measurement.value = _measurement.value.copy(
-                    linearFilteredSamples = newMeasurement.linearFilteredSamples,
+                    singleFilteredSamples = newMeasurement.singleFilteredSamples,
                     fusionFilteredSamples = newMeasurement.fusionFilteredSamples
                 )
             }
@@ -109,6 +109,7 @@ class MeasurementVM(
     }
 
     fun startRecording() {
+        clearDb()
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
                 SensorType.Polar -> _measurementService.startPolarRecording(_measurementState.value.chosenDeviceId)
@@ -174,15 +175,15 @@ class MeasurementVM(
     }
 }
 
-enum class SensorType {
-    Polar,
-    Internal
-}
-
 enum class RecordingState {
     Requested,
     Ongoing,
     Done
+}
+
+enum class SensorType {
+    Polar,
+    Internal
 }
 
 data class MeasurementState(

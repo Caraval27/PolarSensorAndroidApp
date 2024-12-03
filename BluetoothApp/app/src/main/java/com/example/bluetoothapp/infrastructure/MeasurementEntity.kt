@@ -14,19 +14,23 @@ import androidx.room.PrimaryKey
 data class MeasurementEntity (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    var id: Int = 0,
+    var id: Int = -1,
 
     @ColumnInfo(name = "time_measured")
     var timeMeasured: String = "",
 
     @Ignore
     @Embedded
-    var sampleEntities: List<SampleEntity> = emptyList(),
+    var singleFilteredSamples: List<SampleEntity> = emptyList(),
+
+    @Ignore
+    @Embedded
+    var fusionFilteredSamples: List<SampleEntity> = emptyList(),
 )
 
 @Entity(
     tableName = "sample",
-    primaryKeys = ["sequence_number", "measurement_id"],
+    primaryKeys = ["time_stamp", "filter_type", "measurement_id"],
     foreignKeys = [
         ForeignKey(
             entity = MeasurementEntity::class,
@@ -38,15 +42,15 @@ data class MeasurementEntity (
 )
 
 data class SampleEntity(
-    @ColumnInfo(name = "sequence_number")
-    var sequenceNumber: Int = 0,
+    @ColumnInfo(name = "time_stamp")
+    var timeStamp: Long = -1,
 
-    @ColumnInfo(name = "single_filtered_value")
-    var singleFilteredValue: Float = 0f,
+    @ColumnInfo(name = "value")
+    var value: Float = -1f,
 
-    @ColumnInfo(name = "fusion_filtered_value")
-    var fusionFilteredValue: Float = 0f,
+    @ColumnInfo(name = "filter_type")
+    var filterType : String = "",
 
     @ColumnInfo(name = "measurement_id")
-    var measurementId: Int = 0,
+    var measurementId: Int = -1,
 )

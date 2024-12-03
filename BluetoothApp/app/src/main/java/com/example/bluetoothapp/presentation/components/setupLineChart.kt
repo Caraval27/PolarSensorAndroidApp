@@ -1,6 +1,8 @@
 package com.example.bluetoothapp.presentation.components
 
 import android.graphics.Color
+import android.util.Log
+import com.example.bluetoothapp.domain.Sample
 import com.example.bluetoothapp.presentation.viewModel.RecordingState
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Legend
@@ -10,37 +12,44 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import kotlin.math.pow
 
 fun setupLineChart(
     lineChart: LineChart,
-    linearValues: List<Float>,
-    fusionValues: List<Float>,
+    linearValues: List<Sample>,
+    fusionValues: List<Sample>,
     recordingState: RecordingState,
-    visibleRange: Int = 50
+    visibleRange: Int = 1
 ) {
-    val linearEntries = linearValues.mapIndexed { index, value ->
-        Entry(index.toFloat(), value)
+    val linearEntries = linearValues.map { sample ->
+        //Log.d("setUpChart", "Linear timestamp: " + sample.timeStamp.toFloat() / 10.0f.pow(9))
+        val timeStampSeconds = sample.timeStamp.toFloat() / 10.0f.pow(9)
+        Entry(timeStampSeconds, sample.value)
     }
 
-    val fusionEntries = fusionValues.mapIndexed { index, value ->
-        Entry(index.toFloat(), value)
+    val fusionEntries = fusionValues.map { sample ->
+        //Log.d("setUpChart", " Angular timestamp: " + sample.timeStamp.toFloat() / 10.0f.pow(9))
+        val timeStampSeconds = sample.timeStamp.toFloat() / 10.0f.pow(9)
+        Entry(timeStampSeconds, sample.value)
     }
 
     val linearDataSet = LineDataSet(linearEntries, "Accelerometer").apply {
         color = Color.rgb(255, 152, 0)
-        valueTextColor = Color.rgb(255, 152, 0)
+        //valueTextColor = Color.rgb(255, 152, 0)
         lineWidth = 2f
-        setCircleColor(Color.rgb(255, 152, 0))
-        circleRadius = 3f
+        //setCircleColor(Color.rgb(255, 152, 0))
+        //circleRadius = 3f
+        setDrawCircles(false)
         setDrawValues(false)
     }
 
     val fusionDataSet = LineDataSet(fusionEntries, "Fusion with gyroscope").apply {
         color = Color.rgb(118, 199, 192)
-        valueTextColor = Color.rgb(118, 199, 192)
+        //valueTextColor = Color.rgb(118, 199, 192)
         lineWidth = 2f
-        setCircleColor(Color.rgb(118, 199, 192))
-        circleRadius = 3f
+        //setCircleColor(Color.rgb(118, 199, 192))
+        //circleRadius = 3f
+        setDrawCircles(false)
         setDrawValues(false)
     }
 
