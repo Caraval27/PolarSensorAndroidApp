@@ -37,8 +37,6 @@ class MeasurementService(
     val measurement: StateFlow<Measurement>
         get() = _measurement
 
-    //private var _lastAngularSample: Float? = null
-
     private var _lastGyroscopeTimeStamp: Long = -1
 
     private val _internalSensorRepository : InternalSensorRepository = InternalSensorRepository(_applicationContext)
@@ -80,7 +78,6 @@ class MeasurementService(
                     val angularValue: Float
                     if (_lastGyroscopeTimeStamp < 0) {
                         angularValue = linearValue
-                        //_lastAngularSample = angularValue
                         _lastGyroscopeTimeStamp = sensorData.second.timeStamp
                     } else {
                         angularValue = calculateElevationAngular(Math.toDegrees(sensorData.second.xValue.toDouble()).toFloat(), sensorData.second.timeStamp)
@@ -121,7 +118,6 @@ class MeasurementService(
                     val angularValue: Float
                     if (_lastGyroscopeTimeStamp < 0) {
                         angularValue = linearValue
-                        //_lastAngularSample = angularValue
                         _lastGyroscopeTimeStamp = sensorData.second.timeStamp
                     } else {
                         angularValue = calculateElevationAngular(sensorData.second.xValue, sensorData.second.timeStamp)
@@ -153,13 +149,12 @@ class MeasurementService(
         _measurement.value.fusionFilteredSamples.lastOrNull()?.let {
             angle += it.value
         }
-        //_lastAngularSample = angle
         //Log.d("MeasurementService", "New angle: " + angle)
         return angle
     }
 
     private fun applySingleFilter(linearValue : Float) : Float {
-        val filterFactor = 0.1f
+        val filterFactor = 0.7f
         var singleFilteredValue = linearValue
         if (_measurement.value.singleFilteredSamples.isNotEmpty()) {
             singleFilteredValue = filterFactor * linearValue + (1 - filterFactor) * _measurement.value.singleFilteredSamples.last().value
@@ -169,7 +164,7 @@ class MeasurementService(
     }
 
     private fun applyFusionFilter(linearValue: Float, angularValue: Float) : Float {
-        val filterFactor = 0.1f
+        val filterFactor = 0.2f
         val fusionFilteredValue = filterFactor * linearValue + (1 - filterFactor) * angularValue
         //Log.d("MeasurementService", "linear sample: " + linearSample + " angular sample: " + angularSample + " result: " + fusionFilteredSample)
         return fusionFilteredValue
@@ -185,7 +180,6 @@ class MeasurementService(
 
     fun startInternalRecording() : Boolean {
         _measurement.value = Measurement()
-        //_lastAngularSample = null
         _lastGyroscopeTimeStamp = -1
         return  _internalSensorRepository.startListening()
     }
