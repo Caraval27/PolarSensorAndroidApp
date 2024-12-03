@@ -2,7 +2,6 @@ package com.example.bluetoothapp.infrastructure
 
 import android.content.Context
 import android.util.Log
-import com.example.bluetoothapp.application.MeasurementService
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.domain.SensorData
 import com.polar.sdk.api.PolarBleApi
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.reactive.asFlow
-import java.util.concurrent.TimeUnit
 
 class PolarSensorRepository(applicationContext: Context) {
 
@@ -179,9 +177,8 @@ class PolarSensorRepository(applicationContext: Context) {
             }
             .doOnSubscribe { Log.d("PolarSensorRepository", "Streaming started for $dataType") }
             .doOnNext { Log.d("PolarSensorRepository", "Received data for $dataType") }
-            .debounce(MeasurementService.SENSOR_DELAY.toLong(), TimeUnit.MICROSECONDS)
+            //.debounce(MeasurementService.SENSOR_DELAY.toLong(), TimeUnit.MICROSECONDS)
             .observeOn(AndroidSchedulers.mainThread())
-            //.observeOn(Schedulers.computation())
             .doOnNext { data -> Log.d("PolarSensorRepository", "First data received at: ${System.currentTimeMillis() - startTime}ms") }
             .subscribe(
                 { data -> dataCallback(data as T) },

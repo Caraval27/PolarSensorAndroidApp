@@ -79,7 +79,7 @@ fun PlotScreen(
     }
 
     BackHandler {
-        if (measurementState.value.recordingState != RecordingState.Requested) {
+        if (measurementState.value.recordingState == RecordingState.Ongoing) {
             measurementVM.stopRecording()
         }
         measurementVM.setSaved(null)
@@ -126,7 +126,7 @@ fun PlotScreen(
                         onClick = {
                             measurementVM.stopRecording()
                             measurementVM.saveRecording()
-                                  },
+                        },
                         modifier = Modifier.fillMaxWidth(0.6f)
                     ) {
                         Text("Stop")

@@ -142,12 +142,12 @@ class MeasurementVM(
     }
 
     fun stopRecording() {
-        clearDb()
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
                 SensorType.Polar -> _measurementService.stopPolarRecording(_measurement.value)
                 SensorType.Internal -> _measurementService.stopInternalRecording(_measurement.value)
             }
+            setRecordingState(RecordingState.Done)
         }
     }
 
