@@ -27,7 +27,7 @@ import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.components.LineChart
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 import com.example.bluetoothapp.presentation.viewModel.RecordingState
-import com.example.bluetoothapp.presentation.viewModel.SensorType
+import com.example.bluetoothapp.domain.SensorType
 import java.time.format.DateTimeFormatter
 
 @Composable

@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.components.DeviceScan
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
-import com.example.bluetoothapp.presentation.viewModel.SensorType
+import com.example.bluetoothapp.domain.SensorType
 
 @Composable
 fun ConnectToDeviceScreen(

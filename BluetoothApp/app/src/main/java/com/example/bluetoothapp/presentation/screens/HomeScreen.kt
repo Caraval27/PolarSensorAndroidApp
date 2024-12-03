@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 import com.example.bluetoothapp.presentation.viewModel.RecordingState
-import com.example.bluetoothapp.presentation.viewModel.SensorType
+import com.example.bluetoothapp.domain.SensorType
 import kotlinx.coroutines.launch
 
 @Composable

@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.bluetoothapp.domain.Measurement
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 import com.example.bluetoothapp.presentation.viewModel.RecordingState
 import java.time.LocalDateTime
@@ -56,7 +57,7 @@ fun HistoryScreen(
             ) {
                 items(measurementHistory) { measurement ->
                     MeasurementItem(
-                        measuredTime = measurement.timeMeasured,
+                        measurement = measurement,
                         onClick = {
                             measurementVM.setMeasurement(measurement)
                             measurementVM.setRecordingState(RecordingState.Done)
@@ -82,7 +83,7 @@ fun HistoryScreen(
 
 @Composable
 fun MeasurementItem(
-    measuredTime: LocalDateTime,
+    measurement: Measurement,
     onClick: () -> Unit
 ) {
     Card(
@@ -102,7 +103,11 @@ fun MeasurementItem(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Created: " + measuredTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                text = "Sensor type: " + measurement.sensorType,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Created: " + measurement.timeMeasured.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 style = MaterialTheme.typography.bodyMedium
             )
         }

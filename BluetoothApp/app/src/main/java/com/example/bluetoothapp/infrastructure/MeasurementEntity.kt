@@ -19,6 +19,9 @@ data class MeasurementEntity (
     @ColumnInfo(name = "time_measured")
     var timeMeasured: String = "",
 
+    @ColumnInfo(name = "sensor_type")
+    var sensorType: String = "",
+
     @Ignore
     @Embedded
     var singleFilteredSamples: List<SampleEntity> = emptyList(),

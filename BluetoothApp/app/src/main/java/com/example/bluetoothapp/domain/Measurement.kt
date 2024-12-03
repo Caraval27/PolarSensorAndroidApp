@@ -7,6 +7,7 @@ data class Measurement (
     private var _timeMeasured : LocalDateTime = LocalDateTime.MIN,
     val singleFilteredSamples: List<Sample> = emptyList(),
     val fusionFilteredSamples : List<Sample> = emptyList(),
+    val sensorType: SensorType = SensorType.Internal
 ){
     val id: Int
         get() = _id
