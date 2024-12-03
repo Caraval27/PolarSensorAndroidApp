@@ -26,7 +26,7 @@ fun setupLineChart(
         Entry(index.toFloat(), value)
     }
 
-    val linearDataSet = LineDataSet(linearEntries, "Linear sensor data").apply {
+    val linearDataSet = LineDataSet(linearEntries, "Accelerometer").apply {
         color = Color.rgb(255, 152, 0)
         valueTextColor = Color.rgb(255, 152, 0)
         lineWidth = 2f
@@ -35,7 +35,7 @@ fun setupLineChart(
         setDrawValues(false)
     }
 
-    val fusionDataSet = LineDataSet(fusionEntries, "Fusion sensor data").apply {
+    val fusionDataSet = LineDataSet(fusionEntries, "Fusion with gyroscope").apply {
         color = Color.rgb(118, 199, 192)
         valueTextColor = Color.rgb(118, 199, 192)
         lineWidth = 2f
