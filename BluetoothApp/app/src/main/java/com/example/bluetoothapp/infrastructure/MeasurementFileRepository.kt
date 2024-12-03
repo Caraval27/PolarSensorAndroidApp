@@ -50,10 +50,16 @@ class MeasurementFileRepository(
                 return false
             }
         } else {
-            val downloadsDirectory =
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-            val file = File(downloadsDirectory, "$fileName.csv")
-            file.writeText(csvContent)
+            try {
+                val downloadsDirectory =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                val file = File(downloadsDirectory, "$fileName.csv")
+                file.writeText(csvContent)
+            }
+            catch(exception : Exception) {
+                Log.e("MeasurementFileRepository", "Exception occurred", exception)
+                return false;
+            }
         }
         return true
     }

@@ -2,11 +2,14 @@ package com.example.bluetoothapp.infrastructure
 
 import android.content.Context
 import androidx.room.Room
+import com.example.bluetoothapp.domain.FilterType
+import com.example.bluetoothapp.domain.Measurement
+import com.example.bluetoothapp.domain.Sample
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class MeasurementDbRepository(
-    applicationContext: Context
+    private val applicationContext: Context
 ) {
     private val db = Room.databaseBuilder(
         applicationContext,
@@ -15,58 +18,57 @@ class MeasurementDbRepository(
 
     private val dao = db.measurementDao()
 
-    suspend fun insertMeasurement(measurement: MeasurementData) {
+    suspend fun insertMeasurement(measurement: Measurement) : Boolean {
         val measurementEntity = toMeasurementEntity(measurement)
-        dao.insertMeasurementWithSamples(measurementEntity)
+        return dao.insertMeasurementWithSamples(measurementEntity)
     }
 
-    private fun toMeasurementEntity(measurement: MeasurementData) : MeasurementEntity {
-        val measurementEntity = MeasurementEntity(
-            timeMeasured = measurement.timeMeasured.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+    private fun toMeasurementEntity(measurement: Measurement) : MeasurementEntity {
+        return MeasurementEntity(
+            timeMeasured = measurement.timeMeasured.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+            singleFilteredSamples = toSampleEntities(measurement.singleFilteredSamples, FilterType.Single),
+            fusionFilteredSamples = toSampleEntities(measurement.fusionFilteredSamples, FilterType.Fusion)
         )
-        measurementEntity.sampleEntities = toSampleEntities(measurement.sampleData)
-        return measurementEntity
     }
 
-    private fun toSampleEntities(samples: List<SampleData>) : List<SampleEntity> {
-        var index = 0
-        return samples.map { sampleData ->
+    private fun toSampleEntities(samples: List<Sample>, filterType: FilterType) : List<SampleEntity> {
+        return samples.map { sample ->
             SampleEntity(
-                sequenceNumber = index++,
-                singleFilteredValue = sampleData.singleFilterValue,
-                fusionFilteredValue = sampleData.fusionFilterValue,
-                measurementId = 0
+                timeStamp = sample.timeStamp,
+                value = sample.value,
+                filterType = filterType.toString()
             )
         }
     }
 
-    suspend fun getMeasurements() : List<MeasurementData> {
+    suspend fun getMeasurements() : List<Measurement> {
         val measurementEntities = dao.getAllMeasurementsWithSamples() ?: return emptyList()
-        return toMeasurementsData(measurementEntities)
+        return toMeasurements(measurementEntities)
     }
 
-    private fun toMeasurementsData(measurementEntities: List<MeasurementEntity>) : List<MeasurementData> {
+    private fun toMeasurements(measurementEntities: List<MeasurementEntity>) : List<Measurement> {
         return measurementEntities.map { measurementEntity ->
             measurementEntity.let {
-                MeasurementData(
-                    id = it.id,
-                    timeMeasured = LocalDateTime.parse(it.timeMeasured, DateTimeFormatter.ISO_LOCAL_DATE_TIME),
-                    sampleData = toSamplesData(it.sampleEntities)
+                Measurement(
+                    _id = it.id,
+                    _timeMeasured = LocalDateTime.parse(it.timeMeasured, DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                    singleFilteredSamples = toSamples(it.singleFilteredSamples),
+                    fusionFilteredSamples = toSamples(it.fusionFilteredSamples)
                 )
             }
         }
     }
 
-    private fun toSamplesData(sampleEntities: List<SampleEntity>) : List<SampleData> {
+    private fun toSamples(sampleEntities: List<SampleEntity>) : List<Sample> {
         return sampleEntities.map { sampleEntity ->
-            SampleData(
-                singleFilterValue = sampleEntity.singleFilteredValue,
-                fusionFilterValue = sampleEntity.fusionFilteredValue
+            Sample(
+                value = sampleEntity.value,
+                timeStamp = sampleEntity.timeStamp
             )
         }
     }
 
     fun clearDb() {
-        db.clearAllTables()
+        applicationContext.deleteDatabase("measurement_db")
     }
 }

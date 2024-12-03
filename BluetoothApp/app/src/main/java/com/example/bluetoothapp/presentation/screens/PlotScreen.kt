@@ -48,13 +48,25 @@ fun PlotScreen(
 
     LaunchedEffect(measurementState.value.exported) {
         val message = when (measurementState.value.exported) {
-            true -> "Done exporting CSV file"
+            true -> "CSV file exported"
             false -> "Failed exporting CSV file"
             null -> null
         }
         if (message != null) {
             snackbarHostState.showSnackbar(message = message)
             measurementVM.setExported(null)
+        }
+    }
+
+    LaunchedEffect(measurementState.value.saved) {
+        val message = when (measurementState.value.saved) {
+            true -> "Measurement data saved"
+            false -> "Failed saving measurement data"
+            null -> null
+        }
+        if (message != null) {
+            snackbarHostState.showSnackbar(message = message)
+            measurementVM.setSaved(null)
         }
     }
 
@@ -70,6 +82,7 @@ fun PlotScreen(
         if (measurementState.value.recordingState != RecordingState.Requested) {
             measurementVM.stopRecording()
         }
+        measurementVM.setSaved(null)
         measurementVM.setExported(null)
         navController.popBackStack()
     }
@@ -97,9 +110,9 @@ fun PlotScreen(
                     fontFamily = FontFamily.Monospace
                 )
 
-                if (measurementState.value.recordingState != RecordingState.Requested && measurement.value.linearFilteredSamples.isNotEmpty() && measurement.value.fusionFilteredSamples.isNotEmpty()) {
+                if (measurementState.value.recordingState != RecordingState.Requested && measurement.value.singleFilteredSamples.isNotEmpty() && measurement.value.fusionFilteredSamples.isNotEmpty()) {
                     LineChart(
-                        linearValues = measurement.value.linearFilteredSamples,
+                        linearValues = measurement.value.singleFilteredSamples,
                         fusionValues = measurement.value.fusionFilteredSamples,
                         recordingState = measurementState.value.recordingState
                     )

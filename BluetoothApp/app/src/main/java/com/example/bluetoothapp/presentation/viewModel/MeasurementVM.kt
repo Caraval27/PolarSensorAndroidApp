@@ -28,8 +28,8 @@ class MeasurementVM(
     val measurement: StateFlow<Measurement>
         get() = _measurement
 
-    private val _measurementHistory = MutableStateFlow(mutableListOf<Measurement>())
-    val measurementHistory: StateFlow<MutableList<Measurement>>
+    private val _measurementHistory = MutableStateFlow<List<Measurement>>(emptyList())
+    val measurementHistory: StateFlow<List<Measurement>>
         get() = _measurementHistory
 
     private val _devices = MutableStateFlow<List<Device>>(emptyList())
@@ -49,7 +49,7 @@ class MeasurementVM(
                     _measurementState.value = _measurementState.value.copy(recordingState = RecordingState.Ongoing)
                 }
                 _measurement.value = _measurement.value.copy(
-                    linearFilteredSamples = newMeasurement.linearFilteredSamples,
+                    singleFilteredSamples = newMeasurement.singleFilteredSamples,
                     fusionFilteredSamples = newMeasurement.fusionFilteredSamples
                 )
             }
@@ -128,6 +128,7 @@ class MeasurementVM(
     }
 
     fun startRecording() {
+        clearDb()
         viewModelScope.launch {
             when (_measurementState.value.sensorType) {
                 SensorType.Polar -> _measurementService.startPolarRecording(_measurementState.value.chosenDeviceId)
@@ -148,7 +149,8 @@ class MeasurementVM(
     fun saveRecording() {
         _measurementState.value = _measurementState.value.copy(recordingState = RecordingState.Done)
         viewModelScope.launch {
-            _measurementService.saveRecording(_measurement.value)
+            val saved = _measurementService.saveRecording(_measurement.value)
+            _measurementState.value = _measurementState.value.copy(saved = saved)
         }
     }
 
@@ -185,16 +187,15 @@ class MeasurementVM(
         _measurementState.value = _measurementState.value.copy(permissionsGranted = permissionsGranted)
     }
 
+    fun setSaved(saved: Boolean?) {
+        _measurementState.value = _measurementState.value.copy(saved = saved)
+    }
+
     fun clearDb() {
         CoroutineScope(Dispatchers.IO).launch {
             _measurementService.clearDb()
         }
     }
-}
-
-enum class SensorType {
-    Polar,
-    Internal
 }
 
 enum class RecordingState {
@@ -203,10 +204,16 @@ enum class RecordingState {
     Done
 }
 
+enum class SensorType {
+    Polar,
+    Internal
+}
+
 data class MeasurementState(
     val sensorType: SensorType = SensorType.Internal,
     val chosenDeviceId: String = "",
     val recordingState: RecordingState = RecordingState.Requested,
     val exported: Boolean? = null,
-    val permissionsGranted: Boolean? = null
+    val permissionsGranted: Boolean? = null,
+    val saved: Boolean? = null
 )
