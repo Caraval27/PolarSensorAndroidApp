@@ -94,41 +94,47 @@ class MeasurementService(
         }
 
         measurementScope.launch {
-            _polarSensorRepository.accelerometerData
-                .filter { it.timeStamp >= 0 }
-                .combine(_polarSensorRepository.gyroscopeData
-                    .filter { it.timeStamp >= 0 }) { accelerometerData, gyroscopeData ->
-                Pair(accelerometerData, gyroscopeData)
-                }.collect { sensorData ->
-                    Log.d("MeasurementService","Linear values: " + sensorData.first.xValue + " " + sensorData.first.yValue + " " + sensorData.first.zValue)
-                    Log.d("MeasurementService","Angular values: " + sensorData.second.xValue + " " + sensorData.second.yValue + " " + sensorData.second.zValue)
-
-                    val linearValue = calculateElevationAccelerometer(
-                        sensorData.first.yValue,
-                        sensorData.first.zValue
-                    )
-                    val singleFilteredValue = applySingleFilter(linearValue)
-
-                    _measurement.value = _measurement.value.copy(
-                        singleFilteredSamples = _measurement.value.singleFilteredSamples + Sample(
-                            value = singleFilteredValue,
-                            sequenceNumber = (_measurement.value.singleFilteredSamples.lastOrNull()?.sequenceNumber ?: -1) + 1
+            _polarSensorRepository.accelerometerDataList
+                .filter { it.isNotEmpty() }
+                .zip(_polarSensorRepository.gyroscopeDataList
+                    .filter { it.isNotEmpty() }) { accelerometerDataList, gyroscopeDataList ->
+                accelerometerData.zip(gyroscopeDataList)
+                }.collect { sensorDataList ->
+                    //Log.d("MeasurementService","Linear values: " + sensorData.first.xValue + " " + sensorData.first.yValue + " " + sensorData.first.zValue)
+                    //Log.d("MeasurementService","Angular values: " + sensorData.second.xValue + " " + sensorData.second.yValue + " " + sensorData.second.zValue)
+                    for (sensorData in sensorDataList) {
+                        val linearValue = calculateElevationAccelerometer(
+                            sensorData.first.yValue,
+                            sensorData.first.zValue
                         )
-                    )
-                    val angularValue: Float
-                    if (_lastGyroscopeTimeStamp < 0) {
-                        angularValue = linearValue
-                        _lastGyroscopeTimeStamp = sensorData.second.timeStamp
-                    } else {
-                        angularValue = calculateElevationAngular(sensorData.second.xValue, sensorData.second.timeStamp)
+                        val singleFilteredValue = applySingleFilter(linearValue)
+
+                        _measurement.value = _measurement.value.copy(
+                            singleFilteredSamples = _measurement.value.singleFilteredSamples + Sample(
+                                value = singleFilteredValue,
+                                sequenceNumber = (_measurement.value.singleFilteredSamples.lastOrNull()?.sequenceNumber
+                                    ?: -1) + 1
+                            )
+                        )
+                        val angularValue: Float
+                        if (_lastGyroscopeTimeStamp < 0) {
+                            angularValue = linearValue
+                            _lastGyroscopeTimeStamp = sensorData.second.timeStamp
+                        } else {
+                            angularValue = calculateElevationAngular(
+                                sensorData.second.xValue,
+                                sensorData.second.timeStamp
+                            )
+                        }
+                        val fusionFilteredValue = applyFusionFilter(linearValue, angularValue)
+                        _measurement.value = _measurement.value.copy(
+                            fusionFilteredSamples = _measurement.value.fusionFilteredSamples + Sample(
+                                value = fusionFilteredValue,
+                                sequenceNumber = (_measurement.value.fusionFilteredSamples.lastOrNull()?.sequenceNumber
+                                    ?: -1) + 1
+                            )
+                        )
                     }
-                    val fusionFilteredValue = applyFusionFilter(linearValue, angularValue)
-                    _measurement.value = _measurement.value.copy(
-                        fusionFilteredSamples = _measurement.value.fusionFilteredSamples + Sample(
-                            value = fusionFilteredValue,
-                            sequenceNumber = (_measurement.value.fusionFilteredSamples.lastOrNull()?.sequenceNumber ?: -1) + 1
-                        )
-                    )
                     //Log.d("MeasurementService", "Linear timestamp: " + linearTimeStamp + " Angular timestamp: " + angularTimeStamp)
                 }
         }
