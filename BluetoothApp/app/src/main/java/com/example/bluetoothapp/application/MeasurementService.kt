@@ -58,7 +58,7 @@ class MeasurementService(
         measurementScope.launch {
             _internalSensorRepository.accelerometerData
                 .filter { it.timeStamp >= 0 }
-                .zip(_internalSensorRepository.gyroscopeData
+                .combine(_internalSensorRepository.gyroscopeData
                     .filter { it.timeStamp >= 0 }) { accelerometerData, gyroscopeData ->
                     Pair(accelerometerData, gyroscopeData)
                 }.collect { sensorData ->
@@ -99,7 +99,7 @@ class MeasurementService(
         measurementScope.launch {
             _polarSensorRepository.accelerometerData
                 .filter { it.timeStamp >= 0 }
-                .zip(_polarSensorRepository.gyroscopeData
+                .combine(_polarSensorRepository.gyroscopeData
                     .filter { it.timeStamp >= 0 }) { accelerometerData, gyroscopeData ->
                 Pair(accelerometerData, gyroscopeData)
                 }.collect { sensorData ->

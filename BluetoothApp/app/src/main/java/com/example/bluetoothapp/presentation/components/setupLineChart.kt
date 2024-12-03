@@ -32,19 +32,15 @@ fun setupLineChart(
 
     val linearDataSet = LineDataSet(linearEntries, "Accelerometer").apply {
         color = Color.rgb(255, 152, 0)
-        //valueTextColor = Color.rgb(255, 152, 0)
         lineWidth = 2f
-        setCircleColor(Color.rgb(255, 152, 0))
-        circleRadius = 3f
+        setDrawCircles(false)
         setDrawValues(false)
     }
 
     val fusionDataSet = LineDataSet(fusionEntries, "Fusion with gyroscope").apply {
         color = Color.rgb(118, 199, 192)
-        //valueTextColor = Color.rgb(118, 199, 192)
         lineWidth = 2f
-        setCircleColor(Color.rgb(118, 199, 192))
-        circleRadius = 3f
+        setDrawCircles(false)
         setDrawValues(false)
     }
 
@@ -72,8 +68,8 @@ fun setupLineChart(
         axisLeft.apply {
             textColor = Color.WHITE
             setDrawGridLines(true)
-            //axisMinimum = -10f
-            //axisMaximum = 100f
+            axisMinimum = -10f
+            axisMaximum = 100f
         }
 
         axisRight.isEnabled = false
