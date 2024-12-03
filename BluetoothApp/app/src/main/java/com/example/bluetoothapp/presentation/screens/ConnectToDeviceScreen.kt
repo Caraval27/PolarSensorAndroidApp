@@ -23,6 +23,7 @@ fun ConnectToDeviceScreen(
     navController: NavHostController
 ) {
     BackHandler {
+        measurementVM.setPermissionsGranted(null)
         measurementVM.setSensorType(SensorType.Internal)
         navController.navigate("home")
     }
