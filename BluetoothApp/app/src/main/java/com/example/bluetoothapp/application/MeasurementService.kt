@@ -36,7 +36,7 @@ class MeasurementService(
     val measurement: StateFlow<Measurement>
         get() = _measurement
 
-    private var _lastAngularSample: Float? = null
+    //private var _lastAngularSample: Float? = null
 
     private var _lastGyroscopeTimeStamp: Long = -1
 
@@ -48,7 +48,7 @@ class MeasurementService(
     val connectedDevice: StateFlow<String> = _polarSensorRepository.connectedDevice
 
     companion object {
-        const val SENSOR_DELAY = 20000
+        const val SENSOR_DELAY = 60000
     }
 
     init {
@@ -77,9 +77,9 @@ class MeasurementService(
                         )
                     )
                     val angularValue: Float
-                    if (_lastAngularSample == null) {
+                    if (_lastGyroscopeTimeStamp < 0) {
                         angularValue = linearValue
-                        _lastAngularSample = angularValue
+                        //_lastAngularSample = angularValue
                         _lastGyroscopeTimeStamp = sensorData.second.timeStamp
                     } else {
                         angularValue = calculateElevationAngular(Math.toDegrees(sensorData.second.xValue.toDouble()).toFloat(), sensorData.second.timeStamp)
@@ -118,9 +118,9 @@ class MeasurementService(
                         )
                     )
                     val angularValue: Float
-                    if (_lastAngularSample == null) {
+                    if (_lastGyroscopeTimeStamp < 0) {
                         angularValue = linearValue
-                        _lastAngularSample = angularValue
+                        //_lastAngularSample = angularValue
                         _lastGyroscopeTimeStamp = sensorData.second.timeStamp
                     } else {
                         angularValue = calculateElevationAngular(sensorData.second.xValue, sensorData.second.timeStamp)
@@ -149,10 +149,10 @@ class MeasurementService(
         var angle = -xValue * deltaTime
         //Log.d("MeasurementService", "Difference in angle: " + angle)
         //Log.d("MeasurementService", "Last angle: " + _lastAngularSample)
-        _lastAngularSample?.let {
-            angle += it
+        _measurement.value.fusionFilteredSamples.lastOrNull()?.let {
+            angle += it.value
         }
-        _lastAngularSample = angle
+        //_lastAngularSample = angle
         //Log.d("MeasurementService", "New angle: " + angle)
         return angle
     }
@@ -184,7 +184,7 @@ class MeasurementService(
 
     fun startInternalRecording() : Boolean {
         _measurement.value = Measurement()
-        _lastAngularSample = null
+        //_lastAngularSample = null
         _lastGyroscopeTimeStamp = -1
         return  _internalSensorRepository.startListening()
     }
@@ -251,7 +251,7 @@ class MeasurementService(
 
     fun startPolarRecording(deviceId: String) {
         _measurement.value = Measurement()
-        _lastAngularSample = null
+        //_lastAngularSample = null
         _lastGyroscopeTimeStamp = -1
         _polarSensorRepository.startAccStreaming(deviceId)
         _polarSensorRepository.startGyroStreaming(deviceId)
