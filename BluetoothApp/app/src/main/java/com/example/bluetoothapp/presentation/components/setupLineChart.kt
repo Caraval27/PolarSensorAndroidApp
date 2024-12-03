@@ -49,8 +49,7 @@ fun setupLineChart(
         description.isEnabled = false
         setTouchEnabled(true)
         if (recordingState == RecordingState.Ongoing) {
-            setPinchZoom(false)
-            setScaleEnabled(false)
+            setTouchEnabled(false)
         } else {
             setPinchZoom(true)
             setScaleEnabled(true)
