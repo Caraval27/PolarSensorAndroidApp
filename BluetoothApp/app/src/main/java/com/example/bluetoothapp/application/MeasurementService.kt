@@ -99,7 +99,7 @@ class MeasurementService(
         measurementScope.launch {
             _polarSensorRepository.accelerometerData
                 .filter { it.timeStamp >= 0 }
-                .combine(_polarSensorRepository.gyroscopeData
+                .zip(_polarSensorRepository.gyroscopeData
                     .filter { it.timeStamp >= 0 }) { accelerometerData, gyroscopeData ->
                 Pair(accelerometerData, gyroscopeData)
                 }.collect { sensorData ->
