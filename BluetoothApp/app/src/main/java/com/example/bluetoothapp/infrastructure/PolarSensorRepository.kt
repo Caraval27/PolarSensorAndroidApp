@@ -177,7 +177,6 @@ class PolarSensorRepository(applicationContext: Context) {
             }
             .doOnSubscribe { Log.d("PolarSensorRepository", "Streaming started for $dataType") }
             .doOnNext { Log.d("PolarSensorRepository", "Received data for $dataType") }
-            //.debounce(MeasurementService.SENSOR_DELAY.toLong(), TimeUnit.MICROSECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext { data -> Log.d("PolarSensorRepository", "First data received at: ${System.currentTimeMillis() - startTime}ms") }
             .subscribe(

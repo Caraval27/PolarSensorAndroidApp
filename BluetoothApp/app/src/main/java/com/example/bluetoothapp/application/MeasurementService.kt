@@ -22,6 +22,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
@@ -158,7 +159,7 @@ class MeasurementService(
     }
 
     private fun applySingleFilter(linearValue : Float) : Float {
-        val filterFactor = 0.1f
+        val filterFactor = 0.7f
         var singleFilteredValue = linearValue
         if (_measurement.value.singleFilteredSamples.isNotEmpty()) {
             singleFilteredValue = filterFactor * linearValue + (1 - filterFactor) * _measurement.value.singleFilteredSamples.last().value
@@ -168,7 +169,7 @@ class MeasurementService(
     }
 
     private fun applyFusionFilter(linearValue: Float, angularValue: Float) : Float {
-        val filterFactor = 0.1f
+        val filterFactor = 0.2f
         val fusionFilteredValue = filterFactor * linearValue + (1 - filterFactor) * angularValue
         //Log.d("MeasurementService", "linear sample: " + linearSample + " angular sample: " + angularSample + " result: " + fusionFilteredSample)
         return fusionFilteredValue
