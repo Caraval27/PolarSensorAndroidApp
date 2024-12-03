@@ -71,7 +71,7 @@ fun PlotScreen(
             measurementVM.stopRecording()
         }
         measurementVM.setExported(null)
-        navController.navigate("home")
+        navController.popBackStack()
     }
 
     Scaffold (
@@ -97,7 +97,7 @@ fun PlotScreen(
                     fontFamily = FontFamily.Monospace
                 )
 
-                if (measurement.value.linearFilteredSamples.isNotEmpty() && measurement.value.fusionFilteredSamples.isNotEmpty()) {
+                if (measurementState.value.recordingState != RecordingState.Requested && measurement.value.linearFilteredSamples.isNotEmpty() && measurement.value.fusionFilteredSamples.isNotEmpty()) {
                     LineChart(
                         linearValues = measurement.value.linearFilteredSamples,
                         fusionValues = measurement.value.fusionFilteredSamples,
