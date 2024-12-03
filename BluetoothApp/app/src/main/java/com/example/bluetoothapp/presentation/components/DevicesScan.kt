@@ -1,6 +1,7 @@
 package com.example.bluetoothapp.presentation.components
 
 import android.app.Activity
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -14,11 +15,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -120,7 +123,11 @@ fun DeviceScan(
                             .weight(1f)
                     ) {
                         items(devices) { device ->
-                            DeviceItem(device = device, onSelect = { selectedDevice ->
+                            val connectedDeviceId = measurementState.value.chosenDeviceId
+                            DeviceItem(
+                                device = device,
+                                isConnected = device.deviceId == connectedDeviceId,
+                                onSelect = { selectedDevice ->
                                 isScanning = false
                                 scope.launch {
                                     if (connectedDevice.isNotEmpty() && connectedDevice == measurementVM.measurementState.value.chosenDeviceId) {
@@ -128,8 +135,10 @@ fun DeviceScan(
                                         snackbarHostState.showSnackbar(message = "Disconnected from device: ${measurementState.value.chosenDeviceId}")
                                     }
 
-                                    measurementVM.connectToDevice(selectedDevice.deviceId)
-                                    snackbarHostState.showSnackbar(message = "Connected to device: ${selectedDevice.deviceId}")
+                                    if (connectedDeviceId != selectedDevice.deviceId) {
+                                        measurementVM.connectToDevice(selectedDevice.deviceId)
+                                        snackbarHostState.showSnackbar(message = "Connected to device: ${selectedDevice.deviceId}")
+                                    }
                                 }
                             })
                         }
@@ -148,12 +157,15 @@ fun DeviceScan(
 }
 
 @Composable
-fun DeviceItem(device: Device, onSelect: (Device) -> Unit) {
+fun DeviceItem(device: Device, isConnected: Boolean, onSelect: (Device) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clickable { onSelect(device) },
+        colors = CardDefaults.cardColors(
+            containerColor = if (isConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+        )
     ) {
         Row(
             modifier = Modifier.padding(16.dp),

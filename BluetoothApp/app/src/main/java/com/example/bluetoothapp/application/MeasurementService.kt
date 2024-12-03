@@ -10,6 +10,7 @@ import com.example.bluetoothapp.infrastructure.PolarSensorRepository
 import com.example.bluetoothapp.domain.Measurement
 import android.Manifest
 import android.location.LocationManager
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import kotlin.math.pow
 import com.example.bluetoothapp.domain.Device
@@ -101,8 +102,8 @@ class MeasurementService(
                     .filter { it.timeStamp >= 0 }) { accelerometerData, gyroscopeData ->
                 Pair(accelerometerData, gyroscopeData)
                 }.collect { sensorData ->
-                    //Log.d("MeasurementService","Linear values: " + sensorData.first.xValue + " " + sensorData.first.yValue + " " + sensorData.first.zValue)
-                    //Log.d("MeasurementService","Angular values: " + sensorData.second.xValue + " " + sensorData.second.yValue + " " + sensorData.second.zValue)
+                    Log.d("MeasurementService","Linear values: " + sensorData.first.xValue + " " + sensorData.first.yValue + " " + sensorData.first.zValue)
+                    Log.d("MeasurementService","Angular values: " + sensorData.second.xValue + " " + sensorData.second.yValue + " " + sensorData.second.zValue)
 
                     val linearValue = calculateElevationAccelerometer(
                         sensorData.first.yValue,
