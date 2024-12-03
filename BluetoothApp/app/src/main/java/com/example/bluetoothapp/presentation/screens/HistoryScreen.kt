@@ -91,7 +91,7 @@ fun MeasurementItem(
             .padding(vertical = 8.dp)
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = Color(46, 52, 64),
+            containerColor = Color(169, 114, 218, 255),
             contentColor = Color.White
         )
     ) {

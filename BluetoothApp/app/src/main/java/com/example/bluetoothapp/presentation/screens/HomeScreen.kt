@@ -68,7 +68,7 @@ fun HomeScreen(
                 )
 
                 Text(
-                    text = "Strap your sensor to your arm with the appropriate orientation",
+                    text = "Strap your sensor to your arm with the appropriate orientation.",
                     style = MaterialTheme.typography.titleMedium,
                     fontFamily = FontFamily.Monospace,
                     textAlign = TextAlign.Center,

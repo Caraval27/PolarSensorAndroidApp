@@ -92,7 +92,7 @@ fun DeviceScan(
                             return@Button
                         }
 
-                        if (canScan()) {
+                        if (canScan() && !isScanning) {
                             isScanning = true
                             measurementVM.searchForDevices()
                         } else {
