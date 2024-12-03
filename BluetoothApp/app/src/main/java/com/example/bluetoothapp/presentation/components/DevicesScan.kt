@@ -1,9 +1,6 @@
 package com.example.bluetoothapp.presentation.components
 
 import android.app.Activity
-import android.bluetooth.BluetoothAdapter
-import android.content.Intent
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -39,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 import kotlinx.coroutines.launch
-import android.provider.Settings
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun DeviceScan(
@@ -50,10 +47,18 @@ fun DeviceScan(
     val devices by measurementVM.devices.collectAsState()
     val connectedDevice by measurementVM.connectedDevice.collectAsState()
     var isScanning by remember { mutableStateOf(false) }
-    val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     val activity = LocalContext.current as? Activity
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(measurementState.value.permissionsGranted) {
+        if (measurementState.value.permissionsGranted == true && !isScanning) {
+            isScanning = true
+            measurementVM.searchForDevices()
+        } else if (measurementState.value.permissionsGranted == false) {
+            snackbarHostState.showSnackbar(message = "Permission to scan denied")
+        }
+    }
 
     Scaffold (
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -69,34 +74,13 @@ fun DeviceScan(
                     onClick = {
                         if (isScanning) {
                             isScanning = false
-                        }
-
-                        if (!measurementVM.hasRequiredBluetoothPermissions()) {
-                            measurementVM.requestBlutoothPermissions(requestPermissionLauncher)
-                            return@Button
-                        }
-
-                        if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled) {
-                            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                            try {
-                                activity?.startActivityForResult(enableBtIntent, 1)
-                            } catch (e: SecurityException) {
-                                Log.e("DeviceScan", "Bluetooth enable request failed: ${e.message}")
-                            }
-                            return@Button
-                        }
-
-                        if (!measurementVM.isLocationEnabled()) {
-                            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                            activity?.startActivity(intent)
-                            return@Button
-                        }
-
-                        if (canScan() && !isScanning) {
-                            isScanning = true
-                            measurementVM.searchForDevices()
                         } else {
-                            Log.d("DeviceScan", "Scanning is throttled. Try again later.")
+                            if (measurementState.value.permissionsGranted != true) {
+                                measurementVM.bluetoothPermissions(requestPermissionLauncher, activity)
+                            } else {
+                                isScanning = true
+                                measurementVM.searchForDevices()
+                            }
                         }
                     },
                     modifier = Modifier.fillMaxWidth(0.6f)
@@ -180,15 +164,4 @@ fun DeviceItem(device: Device, onSelect: (Device) -> Unit) {
             }
         }
     }
-}
-
-private var lastScanTime: Long = 0
-
-fun canScan(): Boolean {
-    val currentTime = System.currentTimeMillis()
-    if (currentTime - lastScanTime > 2_000) {
-        lastScanTime = currentTime
-        return true
-    }
-    return false
 }

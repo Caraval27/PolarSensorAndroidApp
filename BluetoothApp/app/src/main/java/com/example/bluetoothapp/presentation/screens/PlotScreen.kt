@@ -67,7 +67,7 @@ fun PlotScreen(
     }
 
     BackHandler {
-        if (measurementState.value.recordingState == RecordingState.Ongoing) {
+        if (measurementState.value.recordingState != RecordingState.Requested) {
             measurementVM.stopRecording()
         }
         measurementVM.setExported(null)
