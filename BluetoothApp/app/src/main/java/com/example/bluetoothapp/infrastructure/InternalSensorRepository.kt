@@ -30,12 +30,16 @@ class InternalSensorRepository(
     val accelerometerData: StateFlow<SensorData>
         get() = _accelerometerData
 
+    companion object {
+        const val SENSOR_DELAY : Int = 19000
+    }
+
     fun startListening() {
         if (gyroscopeSensor != null) {
-            sensorManager.registerListener(sensorEventListener, gyroscopeSensor, SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager.registerListener(sensorEventListener, gyroscopeSensor, SENSOR_DELAY)
         }
         if (accelerometerSensor != null) {
-            sensorManager.registerListener(sensorEventListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager.registerListener(sensorEventListener, accelerometerSensor, SENSOR_DELAY)
         }
     }
 
