@@ -101,7 +101,8 @@ fun PlotScreen(
                 var headerText = when (measurementState.value.recordingState) {
                     RecordingState.Requested -> "Loading..."
                     RecordingState.Ongoing -> "Measuring..."
-                    RecordingState.Done -> measurement.value.timeMeasured.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                    RecordingState.Done -> measurement.value.sensorType.toString() + " sensor\n" +
+                            measurement.value.timeMeasured.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
                 }
                 Text(
                     text = headerText,

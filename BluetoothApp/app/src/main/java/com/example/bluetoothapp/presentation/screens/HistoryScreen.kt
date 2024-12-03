@@ -103,11 +103,7 @@ fun MeasurementItem(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Sensor type: " + measurement.sensorType,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Created: " + measurement.timeMeasured.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                text = measurement.sensorType.toString() + " sensor: " + measurement.timeMeasured.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
