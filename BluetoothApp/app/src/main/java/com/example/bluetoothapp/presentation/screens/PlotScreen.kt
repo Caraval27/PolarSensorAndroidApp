@@ -124,7 +124,6 @@ fun PlotScreen(
                 if (measurementState.value.recordingState == RecordingState.Ongoing) {
                     Button(
                         onClick = {
-                            measurementVM.stopRecording()
                             measurementVM.saveRecording()
                         },
                         modifier = Modifier.fillMaxWidth(0.6f)

@@ -146,7 +146,7 @@ fun DeviceScan(
                 } else if (!isScanning) {
                     Text(
                         "No devices available",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
                         fontFamily = FontFamily.Monospace
                     )

@@ -46,7 +46,8 @@ class MeasurementVM(
     init {
         viewModelScope.launch {
             _measurementService.measurement.collect { newMeasurement ->
-                if (_measurementState.value.recordingState == RecordingState.Requested) {
+                if (_measurementState.value.recordingState == RecordingState.Requested &&
+                    (newMeasurement.singleFilteredSamples.isNotEmpty() || newMeasurement.fusionFilteredSamples.isNotEmpty())) {
                     _measurementState.value = _measurementState.value.copy(recordingState = RecordingState.Ongoing)
                 }
                 _measurement.value = _measurement.value.copy(
@@ -153,6 +154,7 @@ class MeasurementVM(
 
     fun saveRecording() {
         _measurementState.value = _measurementState.value.copy(recordingState = RecordingState.Done)
+        stopRecording()
         viewModelScope.launch {
             val saved = _measurementService.saveRecording(_measurement.value)
             _measurementState.value = _measurementState.value.copy(saved = saved)
