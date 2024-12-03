@@ -19,6 +19,7 @@ import com.example.bluetoothapp.infrastructure.MeasurementFileRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -91,7 +92,7 @@ class MeasurementService(
                 .filter { it.isNotEmpty() }
                 .zip(_polarSensorRepository.gyroscopeDataList
                     .filter { it.isNotEmpty() }) { accelerometerDataList, gyroscopeDataList ->
-                accelerometerData.zip(gyroscopeDataList)
+                accelerometerDataList.zip(gyroscopeDataList)
                 }.collect { sensorDataList ->
                     for (sensorData in sensorDataList) {
                         val linearValue = calculateElevationAccelerometer(
@@ -125,6 +126,7 @@ class MeasurementService(
                                     ?: -1) + 1
                             )
                         )
+                        delay(1000 / sensorDataList.size)
                     }
                 }
         }
