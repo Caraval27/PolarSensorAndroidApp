@@ -22,6 +22,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
@@ -57,7 +58,7 @@ class MeasurementService(
         measurementScope.launch {
             _internalSensorRepository.accelerometerData
                 .filter { it.timeStamp >= 0 }
-                .zip(_internalSensorRepository.gyroscopeData
+                .combine(_internalSensorRepository.gyroscopeData
                     .filter { it.timeStamp >= 0 }) { accelerometerData, gyroscopeData ->
                     Pair(accelerometerData, gyroscopeData)
                 }.collect { sensorData ->
@@ -98,7 +99,7 @@ class MeasurementService(
         measurementScope.launch {
             _polarSensorRepository.accelerometerData
                 .filter { it.timeStamp >= 0 }
-                .zip(_polarSensorRepository.gyroscopeData
+                .combine(_polarSensorRepository.gyroscopeData
                     .filter { it.timeStamp >= 0 }) { accelerometerData, gyroscopeData ->
                 Pair(accelerometerData, gyroscopeData)
                 }.collect { sensorData ->
