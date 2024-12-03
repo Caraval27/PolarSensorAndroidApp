@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.androidx.storage)
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidbrowserhelper)
+    implementation(libs.androidx.baselibrary)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -126,7 +126,7 @@ class MeasurementService(
                                     ?: -1) + 1
                             )
                         )
-                        delay(1000 / sensorDataList.size)
+                        delay(1000L / sensorDataList.size)
                     }
                 }
         }

@@ -137,6 +137,7 @@ class MeasurementVM(
                 SensorType.Polar -> _measurementService.stopPolarRecording()
                 SensorType.Internal -> _measurementService.stopInternalRecording()
             }
+            setRecordingState(RecordingState.Done)
         }
     }
 
