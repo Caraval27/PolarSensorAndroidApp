@@ -1,7 +1,6 @@
 package com.example.bluetoothapp.presentation.components
 
 import android.graphics.Color
-import android.util.Log
 import com.example.bluetoothapp.domain.Sample
 import com.example.bluetoothapp.presentation.viewModel.RecordingState
 import com.github.mikephil.charting.charts.LineChart
@@ -19,27 +18,24 @@ fun setupLineChart(
     linearValues: List<Sample>,
     fusionValues: List<Sample>,
     recordingState: RecordingState,
-    visibleRange: Int = 1
+    visibleRange: Int = 50
 ) {
     val linearEntries = linearValues.map { sample ->
         //Log.d("setUpChart", "Linear timestamp: " + sample.timeStamp.toFloat() / 10.0f.pow(9))
-        val timeStampSeconds = sample.timeStamp.toFloat() / 10.0f.pow(9)
-        Entry(timeStampSeconds, sample.value)
+        Entry(sample.sequenceNumber.toFloat(), sample.value)
     }
 
     val fusionEntries = fusionValues.map { sample ->
         //Log.d("setUpChart", " Angular timestamp: " + sample.timeStamp.toFloat() / 10.0f.pow(9))
-        val timeStampSeconds = sample.timeStamp.toFloat() / 10.0f.pow(9)
-        Entry(timeStampSeconds, sample.value)
+        Entry(sample.sequenceNumber.toFloat(), sample.value)
     }
 
     val linearDataSet = LineDataSet(linearEntries, "Accelerometer").apply {
         color = Color.rgb(255, 152, 0)
         //valueTextColor = Color.rgb(255, 152, 0)
         lineWidth = 2f
-        //setCircleColor(Color.rgb(255, 152, 0))
-        //circleRadius = 3f
-        setDrawCircles(false)
+        setCircleColor(Color.rgb(255, 152, 0))
+        circleRadius = 3f
         setDrawValues(false)
     }
 
@@ -47,9 +43,8 @@ fun setupLineChart(
         color = Color.rgb(118, 199, 192)
         //valueTextColor = Color.rgb(118, 199, 192)
         lineWidth = 2f
-        //setCircleColor(Color.rgb(118, 199, 192))
-        //circleRadius = 3f
-        setDrawCircles(false)
+        setCircleColor(Color.rgb(118, 199, 192))
+        circleRadius = 3f
         setDrawValues(false)
     }
 

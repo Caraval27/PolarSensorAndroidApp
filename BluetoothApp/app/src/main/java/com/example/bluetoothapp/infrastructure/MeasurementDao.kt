@@ -58,7 +58,7 @@ interface MeasurementDao {
         SELECT *
         FROM sample
         WHERE measurement_id = :measurementId AND filter_type = :filterType
-        ORDER BY time_stamp ASC
+        ORDER BY sequence_number ASC
     """)
     suspend fun getSamplesByMeasurementIdAndSensorType(measurementId: Int, filterType: String): List<SampleEntity>
 }

@@ -34,7 +34,7 @@ class MeasurementDbRepository(
     private fun toSampleEntities(samples: List<Sample>, filterType: FilterType) : List<SampleEntity> {
         return samples.map { sample ->
             SampleEntity(
-                timeStamp = sample.timeStamp,
+                timeStamp = sample.sequenceNumber,
                 value = sample.value,
                 filterType = filterType.toString()
             )
@@ -63,7 +63,7 @@ class MeasurementDbRepository(
         return sampleEntities.map { sampleEntity ->
             Sample(
                 value = sampleEntity.value,
-                timeStamp = sampleEntity.timeStamp
+                sequenceNumber = sampleEntity.timeStamp
             )
         }
     }

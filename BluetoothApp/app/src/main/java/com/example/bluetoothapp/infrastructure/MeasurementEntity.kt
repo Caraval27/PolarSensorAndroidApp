@@ -30,7 +30,7 @@ data class MeasurementEntity (
 
 @Entity(
     tableName = "sample",
-    primaryKeys = ["time_stamp", "filter_type", "measurement_id"],
+    primaryKeys = ["sequence_number", "filter_type", "measurement_id"],
     foreignKeys = [
         ForeignKey(
             entity = MeasurementEntity::class,
@@ -42,8 +42,8 @@ data class MeasurementEntity (
 )
 
 data class SampleEntity(
-    @ColumnInfo(name = "time_stamp")
-    var timeStamp: Long = -1,
+    @ColumnInfo(name = "sequence_number")
+    var timeStamp: Int = -1,
 
     @ColumnInfo(name = "value")
     var value: Float = -1f,
