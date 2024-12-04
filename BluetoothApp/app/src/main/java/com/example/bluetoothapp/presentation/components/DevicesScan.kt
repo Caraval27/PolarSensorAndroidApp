@@ -1,7 +1,6 @@
 package com.example.bluetoothapp.presentation.components
 
 import android.app.Activity
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -21,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -50,15 +48,14 @@ fun DeviceScan(
     val devices by measurementVM.devices.collectAsState()
     val connectedDevice by measurementVM.connectedDevice.collectAsState()
     var isScanning by remember { mutableStateOf(false) }
-    val activity = LocalContext.current as? Activity
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(measurementState.value.permissionsGranted) {
-        if (measurementState.value.permissionsGranted == true && !isScanning) {
+    LaunchedEffect(measurementState.value.bluetoothAvailable) {
+        if (measurementState.value.bluetoothAvailable == true && !isScanning) {
             isScanning = true
             measurementVM.searchForDevices()
-        } else if (measurementState.value.permissionsGranted == false) {
+        } else if (measurementState.value.bluetoothAvailable == false) {
             snackbarHostState.showSnackbar(message = "Bluetooth permissions denied")
         }
     }
@@ -78,8 +75,8 @@ fun DeviceScan(
                         if (isScanning) {
                             isScanning = false
                         } else {
-                            if (measurementState.value.permissionsGranted != true) {
-                                measurementVM.bluetoothPermissions(requestPermissionLauncher, activity)
+                            if (measurementState.value.bluetoothAvailable != true) {
+                                measurementVM.checkBluetoothPermissions(requestPermissionLauncher)
                             } else {
                                 isScanning = true
                                 measurementVM.searchForDevices()

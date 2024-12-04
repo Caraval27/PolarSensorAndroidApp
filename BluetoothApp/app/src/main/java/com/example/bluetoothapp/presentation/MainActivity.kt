@@ -6,12 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -60,6 +58,14 @@ class MainActivity : ComponentActivity() {
         }
         requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
-        ) {}
+        ) { permissionsStatus ->
+            for ((permission, granted) in permissionsStatus) {
+                if (!granted) {
+                    measurementVM.setBluetoothAvailable(false)
+                    return@registerForActivityResult
+                }
+            }
+            measurementVM.checkBluetoothEnabled(true, this)
+        }
     }
 }
