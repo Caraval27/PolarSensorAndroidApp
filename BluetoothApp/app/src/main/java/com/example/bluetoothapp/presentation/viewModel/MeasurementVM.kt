@@ -58,11 +58,15 @@ class MeasurementVM(
 
     fun checkBluetoothPermissions(
         requestPermissionLauncher: ActivityResultLauncher<Array<String>>,
+        activity: Activity
     ) {
         viewModelScope.launch {
             val hasRequiredBluetoothPermissions = _measurementService.hasRequiredBluetoothPermissions()
             if (!hasRequiredBluetoothPermissions) {
                 _measurementService.requestBluetoothPermissions(requestPermissionLauncher)
+            }
+            else {
+                checkBluetoothEnabled(true, activity)
             }
         }
     }

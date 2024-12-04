@@ -48,6 +48,7 @@ fun DeviceScan(
     val devices by measurementVM.devices.collectAsState()
     val connectedDevice by measurementVM.connectedDevice.collectAsState()
     var isScanning by remember { mutableStateOf(false) }
+    val activity = LocalContext.current as Activity
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -76,7 +77,7 @@ fun DeviceScan(
                             isScanning = false
                         } else {
                             if (measurementState.value.bluetoothAvailable != true) {
-                                measurementVM.checkBluetoothPermissions(requestPermissionLauncher)
+                                measurementVM.checkBluetoothPermissions(requestPermissionLauncher, activity)
                             } else {
                                 isScanning = true
                                 measurementVM.searchForDevices()
