@@ -56,42 +56,45 @@ class MeasurementVM(
         }
     }
 
-    fun bluetoothPermissions(
+    fun checkBluetoothPermissions(
         requestPermissionLauncher: ActivityResultLauncher<Array<String>>,
-        activity: Activity?
+        activity: Activity
     ) {
-        val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
-
         viewModelScope.launch {
-            var hasRequiredBluetoothPermissions = _measurementService.hasRequiredBluetoothPermissions()
+            val hasRequiredBluetoothPermissions = _measurementService.hasRequiredBluetoothPermissions()
             if (!hasRequiredBluetoothPermissions) {
                 _measurementService.requestBluetoothPermissions(requestPermissionLauncher)
-                kotlinx.coroutines.delay(2000)
-                hasRequiredBluetoothPermissions = _measurementService.hasRequiredBluetoothPermissions()
             }
-
-            if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled) {
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                try {
-                    activity?.startActivityForResult(enableBtIntent, 1)
-                } catch (exception : SecurityException) {
-                    Log.d("MeasurementVM", "Exception occurred: ", exception)
-                }
+            else {
+                checkBluetoothEnabled(true, activity)
             }
+        }
+    }
 
-            var isLocationEnabled = _measurementService.isLocationEnabled()
-            if (!isLocationEnabled) {
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                activity?.startActivity(intent)
-                isLocationEnabled = _measurementService.isLocationEnabled()
+    fun checkBluetoothEnabled(hasBluetoothPermissions : Boolean, activity: Activity) {
+        val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
+
+        if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled) {
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            try {
+                activity.startActivityForResult(enableBtIntent, 1)
+            } catch (exception : SecurityException) {
+                Log.d("MeasurementVM", "Exception occurred: ", exception)
             }
+        }
 
-            setPermissionsGranted(
-                hasRequiredBluetoothPermissions &&
+        var isLocationEnabled = _measurementService.isLocationEnabled()
+        if (!isLocationEnabled) {
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            activity.startActivity(intent)
+            isLocationEnabled = _measurementService.isLocationEnabled()
+        }
+
+        setBluetoothAvailable(
+            hasBluetoothPermissions &&
                     (bluetoothAdapter == null || bluetoothAdapter.isEnabled) &&
                     isLocationEnabled
-            )
-        }
+        )
     }
 
     fun searchForDevices() {
@@ -179,8 +182,8 @@ class MeasurementVM(
         _measurementState.value = _measurementState.value.copy(exported = exported)
     }
 
-    fun setPermissionsGranted(permissionsGranted: Boolean?) {
-        _measurementState.value = _measurementState.value.copy(permissionsGranted = permissionsGranted)
+    fun setBluetoothAvailable(bluetoothAvailable: Boolean?) {
+        _measurementState.value = _measurementState.value.copy(bluetoothAvailable = bluetoothAvailable)
     }
 
     fun setSaved(saved: Boolean?) {
@@ -199,6 +202,6 @@ data class MeasurementState(
     val chosenDeviceId: String = "",
     val recordingState: RecordingState = RecordingState.Requested,
     val exported: Boolean? = null,
-    val permissionsGranted: Boolean? = null,
+    val bluetoothAvailable: Boolean? = null,
     val saved: Boolean? = null
 )

@@ -58,6 +58,14 @@ class MainActivity : ComponentActivity() {
         }
         requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
-        ) {}
+        ) { permissionsStatus ->
+            for ((permission, granted) in permissionsStatus) {
+                if (!granted) {
+                    measurementVM.setBluetoothAvailable(false)
+                    return@registerForActivityResult
+                }
+            }
+            measurementVM.checkBluetoothEnabled(true, this)
+        }
     }
 }
