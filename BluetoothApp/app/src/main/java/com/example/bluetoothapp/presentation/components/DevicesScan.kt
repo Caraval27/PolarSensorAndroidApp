@@ -38,6 +38,7 @@ import com.example.bluetoothapp.domain.Device
 import com.example.bluetoothapp.presentation.viewModel.MeasurementVM
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
 
 @Composable
 fun DeviceScan(
@@ -135,6 +136,7 @@ fun DeviceScan(
 
                                     if (connectedDeviceId != selectedDevice.deviceId) {
                                         measurementVM.connectToDevice(selectedDevice.deviceId)
+                                        delay(3000)
                                         snackbarHostState.showSnackbar(message = "Connected to device: ${selectedDevice.deviceId}")
                                     }
                                 }

@@ -110,8 +110,8 @@ class MeasurementVM(
     fun connectToDevice(deviceId: String) {
         viewModelScope.launch {
             _measurementService.connectToPolarDevice(deviceId)
-            _measurementState.value = _measurementState.value.copy(chosenDeviceId = deviceId)
         }
+        _measurementState.value = _measurementState.value.copy(chosenDeviceId = deviceId)
     }
 
     fun disconnectFromDevice(deviceId: String) {
