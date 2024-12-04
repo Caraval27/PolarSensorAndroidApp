@@ -23,7 +23,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
@@ -108,6 +107,9 @@ class MeasurementService(
                                     ?: -1) + 1
                             )
                         )
+                        val sampleL = _measurement.value.singleFilteredSamples.last()
+                        Log.d("SensorData", "linear: ${sampleL.sequenceNumber.toFloat()} ${sampleL.value}")
+
                         val angularValue: Float
                         if (_lastGyroscopeTimeStamp < 0) {
                             angularValue = linearValue
@@ -124,8 +126,10 @@ class MeasurementService(
                                 value = fusionFilteredValue,
                                 sequenceNumber = (_measurement.value.fusionFilteredSamples.lastOrNull()?.sequenceNumber
                                     ?: -1) + 1
-                            )
+                            ),
                         )
+                        val sampleF = _measurement.value.fusionFilteredSamples.last()
+                        Log.d("SensorData", "fusion: ${sampleF.sequenceNumber.toFloat()} ${sampleF.value}")
                         delay(1000L / sensorDataList.size)
                     }
                 }
@@ -250,7 +254,7 @@ class MeasurementService(
     fun exportMeasurement(measurement: Measurement) : Boolean {
         var csvContent = "Linear, Fusion\n"
         for (i in measurement.singleFilteredSamples.indices) {
-            csvContent += measurement.singleFilteredSamples[i].toString() + ", " + measurement.fusionFilteredSamples[i].toString() + "\n"
+            csvContent += measurement.singleFilteredSamples[i].value.toString() + "," + measurement.fusionFilteredSamples[i].value.toString() + "\n"
         }
         return _measurementFileRepository.exportCsvToDownloads("ElevationAngle" +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")), csvContent)
